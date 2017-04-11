@@ -35,3 +35,12 @@ jspm_packages
 
 # Optional REPL history
 .node_repl_history
+
+# IntelliJ IDEA folder
+.idea
+
+# Twilio credentials file
+.env
+
+# The generated index.js
+app/public/index.js
