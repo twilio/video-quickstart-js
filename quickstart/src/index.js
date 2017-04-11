@@ -75,7 +75,7 @@ $.getJSON('/token', function(data) {
   };
 
   // Bind button to leave Room.
-  document.getElementById('button-leave').onclick = function () {
+  document.getElementById('button-leave').onclick = function() {
     log('Leaving room...');
     activeRoom.disconnect();
   };

@@ -43,4 +43,4 @@ jspm_packages
 .env
 
 # The generated index.js
-app/public/index.js
+quickstart/public/index.js
