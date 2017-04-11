@@ -1,5 +1,3 @@
 # 1.0.0
 
-## New Features
-* Twilio Access Token Server (twilio@2.11.1)
-* Quick Start Application (twilio-video@1.0.0-beta5)
+Consolidated the various twilio-video.js quickstarts into a single project.
