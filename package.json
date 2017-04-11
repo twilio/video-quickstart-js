@@ -1,0 +1,41 @@
+{
+  "name": "video-quickstart-js",
+  "version": "1.0.0-dev",
+  "description": "Twilio Video SDK Quick Start for JavaScript",
+  "main": "index.js",
+  "scripts": {
+    "clean": "npm run clean:quickstart",
+    "clean:quickstart": "rm -rf quickstart/public/index.js",
+    "build": "npm run build:quickstart",
+    "build:quickstart": "./node_modules/.bin/browserify quickstart/src/index.js > quickstart/public/index.js",
+    "start": "npm run clean && npm run build && node server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/twilio/video-quickstart-js.git"
+  },
+  "keywords": [
+    "twilio",
+    "video",
+    "chat",
+    "ip",
+    "real",
+    "time",
+    "diggity"
+  ],
+  "author": "Twilio",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/twilio/video-quickstart-js/issues"
+  },
+  "homepage": "https://github.com/twilio/video-quickstart-js#readme",
+  "dependencies": {
+    "dotenv": "^4.0.0",
+    "express": "^4.15.2",
+    "twilio": "^2.11.1",
+    "twilio-video": "^1.0.0-beta5"
+  },
+  "devDependencies": {
+    "browserify": "^14.3.0"
+  }
+}
