@@ -20,13 +20,14 @@ var randomName = require('./randomname');
 
 // Create Express webapp.
 var app = express();
-app.use(express.static(path.join(__dirname, '../')));
+var quickstartPath = path.join(__dirname, '../quickstart/public');
+app.use('/quickstart', express.static(quickstartPath));
 
 /**
  * Default to the Quick Start application.
  */
 app.get('/', function(request, response) {
-  response.redirect('/quickstart/public');
+  response.redirect('/quickstart');
 });
 
 /**
