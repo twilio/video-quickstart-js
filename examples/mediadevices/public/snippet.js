@@ -1,4 +1,6 @@
 
+const { createLocalAudioTrack, createLocalVideoTrack } = require('twilio-video');
+
 // Get the list of available devices of a certain kind.
 function getDevices(kind) {
   return navigator.mediaDevices.enumerateDevices(deviceInfos => {
@@ -24,11 +26,22 @@ getDevices('audiooutput').then(deviceInfos => {
 // Request media from a particular audio input device.
 function getMediaFromAudioInput(deviceInfo) {
   var deviceId = deviceInfo.deviceId;
-  return navigator.mediaDevices.getUserMedia({
-    audio: { deviceId }
-  });
+  return createLocalAudioTrack({ deviceId });
 }
-
-getMediaFromAudioInput(deviceInfo).then(mediaStream => {
-  console.log('MediaStream of given audio input device:', mediaStream);
+getMediaFromAudioInput(audioInputDeviceInfo).then(localAudioTrack => {
+  console.log('LocalTrack of given audio input device:', localAudioTrack);
 });
+
+// Request media from a particular video input device.
+function getMediaFromVideoInput(deviceInfo) {
+  var deviceId = deviceInfo.deviceId;
+  return createLocalVideoTrack({ deviceId });
+}
+getMediaFromVideoInput(videoInputDeviceInfo).then(localVideoTrack => {
+  console.log('LocalTrack of given video input device:', localVideoTrack);
+});
+
+// Set the audio output device of an HTML media element.
+function setAudioOutputDevice(deviceInfo, mediaElement) {
+  mediaElement.setSinkId(deviceInfo.deviceId);
+}

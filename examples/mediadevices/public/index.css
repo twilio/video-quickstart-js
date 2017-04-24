@@ -1,6 +1,22 @@
 @import url('https://fonts.googleapis.com/css?family=Roboto+Mono');
 
-pre.language-javascript {
+html {
+  height: 100%;
+}
+
+body {
+  height: 100%;
+}
+
+div.container-fluid {
+  height: 100%;
+}
+
+div.row {
+  height: 100%;
+}
+
+div.col-sm-8, div.col-sm-4 {
   height: 100%;
 }
 
@@ -8,6 +24,15 @@ pre.language-javascript > code {
   font-family: 'Roboto Mono', monospace;
 }
 
-.col-sm-4 > .card:first-child {
-  margin: 0.5em 0;
+div.col-sm-8 > .card {
+  height: 100%;
+  overflow-y: auto;
+}
+
+div.col-sm-4 > .card {
+  height: 50%;
+}
+
+video#videoinputpreview {
+  width: 100%;
 }

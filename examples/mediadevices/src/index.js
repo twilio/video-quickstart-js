@@ -3,6 +3,8 @@
 var devices = require('./devices');
 var getSnippet = require('./getsnippet');
 var Prism = require('prismjs');
+var applyAudioInputDeviceSelection = devices.applyAudioInputDeviceSelection;
+var applyAudioOutputDeviceSelection = devices.applyAudioOutputDeviceSelection;
 var applyVideoInputDeviceSelection = devices.applyVideoInputDeviceSelection;
 var updateDeviceSelectionOptions = devices.updateDeviceSelectionOptions;
 
@@ -25,6 +27,20 @@ getSnippet('./snippet.js').then(function(code) {
 navigator.mediaDevices.ondevicechange = function() {
   updateDeviceSelectionOptions($deviceSelections);
 };
+
+// Apply the selected audio input media device.
+$('button#audioinputapply').click(function(event) {
+  var $audio = $('audio#audioinputpreview');
+  applyAudioInputDeviceSelection($deviceSelections.audioinput.val(), $audio);
+  event.preventDefault();
+});
+
+// Apply the selected audio output media device.
+$('button#audiooutputapply').click(function(event) {
+  var $audio = $('audio#audioinputpreview');
+  applyAudioOutputDeviceSelection($deviceSelections.audiooutput.val(), $audio);
+  event.preventDefault();
+});
 
 // Apply the selected video input media device.
 $('button#videoinputapply').click(function(event) {

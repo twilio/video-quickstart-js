@@ -1,20 +1,32 @@
 'use strict';
 
+var Video = require('twilio-video');
+
 function getDevicesOfKind(deviceInfos, kind) {
   return deviceInfos.filter(function(deviceInfo) {
     return deviceInfo.kind === kind;
   });
 }
 
+function applyAudioInputDeviceSelection(deviceId, $audio) {
+  Video.createLocalAudioTrack({
+    deviceId: deviceId
+  }).then(function(localTrack) {
+    localTrack.attach($audio.get(0));
+  });
+}
+
+function applyAudioOutputDeviceSelection(deviceId, $audio) {
+  $audio.get(0).setSinkId(deviceId);
+}
+
 function applyVideoInputDeviceSelection(deviceId, $video) {
-  navigator.mediaDevices.getUserMedia({
-    video: {
-      deviceId: deviceId,
-      height: 240,
-      width: 320
-    }
-  }).then(function(mediaStream) {
-    $video.get(0).srcObject = mediaStream;
+  Video.createLocalVideoTrack({
+    deviceId: deviceId,
+    height: 240,
+    width: 320
+  }).then(function(localTrack) {
+    localTrack.attach($video.get(0));
   });
 }
 
@@ -34,5 +46,7 @@ function updateDeviceSelectionOptions($deviceSelections) {
   });
 }
 
+module.exports.applyAudioInputDeviceSelection = applyAudioInputDeviceSelection;
+module.exports.applyAudioOutputDeviceSelection = applyAudioOutputDeviceSelection;
 module.exports.applyVideoInputDeviceSelection = applyVideoInputDeviceSelection;
 module.exports.updateDeviceSelectionOptions = updateDeviceSelectionOptions;
