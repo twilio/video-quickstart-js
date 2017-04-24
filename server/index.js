@@ -20,8 +20,10 @@ var randomName = require('./randomname');
 
 // Create Express webapp.
 var app = express();
+var mediadevicesPath = path.join(__dirname, '../examples/mediadevices/public');
 var quickstartPath = path.join(__dirname, '../quickstart/public');
 app.use('/quickstart', express.static(quickstartPath));
+app.use('/mediadevices', express.static(mediadevicesPath));
 
 /**
  * Default to the Quick Start application.
