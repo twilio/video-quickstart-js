@@ -6,7 +6,9 @@
   "scripts": {
     "clean": "npm run clean:quickstart",
     "clean:quickstart": "rm -rf quickstart/public/index.js",
-    "build": "npm run build:quickstart",
+    "build": "npm run build:quickstart && npm eun build:examples",
+    "build:examples": "npm run build:example:mediadevices",
+    "build:example:mediadevices": "./node_modules/.bin/browserify examples/mediadevices/src/index.js > examples/mediadevices/public/index.js",
     "build:quickstart": "./node_modules/.bin/browserify quickstart/src/index.js > quickstart/public/index.js",
     "start": "npm run clean && npm run build && node server"
   },
@@ -32,6 +34,7 @@
   "dependencies": {
     "dotenv": "^4.0.0",
     "express": "^4.15.2",
+    "prismjs": "^1.6.0",
     "twilio": "^2.11.1",
     "twilio-video": "^1.0.0-beta5"
   },
