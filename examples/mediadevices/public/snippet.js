@@ -41,7 +41,7 @@ getMediaFromVideoInput(videoInputDeviceInfo).then(localVideoTrack => {
   console.log('LocalTrack of given video input device:', localVideoTrack);
 });
 
-// Set the audio output device of an HTML media element.
+// Set the audio output device of an HTMLMediaElement.
 function setAudioOutputDevice(deviceInfo, mediaElement) {
   mediaElement.setSinkId(deviceInfo.deviceId);
 }

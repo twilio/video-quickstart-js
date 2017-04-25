@@ -31,7 +31,8 @@ navigator.mediaDevices.ondevicechange = function() {
 // Apply the selected audio input media device.
 $('button#audioinputapply').click(function(event) {
   var $audio = $('audio#audioinputpreview');
-  applyAudioInputDeviceSelection($deviceSelections.audioinput.val(), $audio);
+  var $canvas = $('canvas#audioinputspectrogram');
+  applyAudioInputDeviceSelection($deviceSelections.audioinput.val(), $audio, $canvas);
   event.preventDefault();
 });
 

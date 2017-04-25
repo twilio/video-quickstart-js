@@ -1,5 +1,10 @@
 'use strict';
 
+/**
+ * Get the code snippet from a file.
+ * @param {string} relativePath
+ * @returns {Promise<string>}
+ */
 function getSnippet(relativePath) {
   return new Promise(function(resolve) {
     var xhr = new XMLHttpRequest();
