@@ -32,8 +32,8 @@ navigator.mediaDevices.ondevicechange = function() {
 // Apply the selected audio input media device.
 document.querySelector('button#audioinputapply').onclick = function(event) {
   var audio = document.querySelector('audio#audioinputpreview');
-  var canvas = document.querySelector('canvas#audioinputspectrogram');
-  applyAudioInputDeviceSelection(deviceSelections.audioinput.value, audio, canvas);
+  var waveformContainer = document.querySelector('div#audioinputwaveform');
+  applyAudioInputDeviceSelection(deviceSelections.audioinput.value, audio, waveformContainer);
   event.preventDefault();
   event.stopPropagation();
 };

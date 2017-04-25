@@ -1,27 +1,19 @@
 'use strict';
 
-var Spectrogram = require('spectrogram');
 var Video = require('twilio-video');
-var audioContext = new AudioContext();
+var Waveform = require('./waveform');
+var waveform = new Waveform();
 
 /**
- * Create spectrogram for the given HTMLAudioElement on the given HTMLCanvasElement.
- * @param {HTMLCanvasElement} canvas
+ * Create Waveform for the given HTMLAudioElement on the given HTMLDivElement.
+ * @param {HTMLDivElement} container
  * @param {HTMLAudioElement} audio
  */
-function createAudioInputSpectrogram(canvas, audio) {
-  var analyser = audioContext.createAnalyser();
-  analyser.smoothingTimeConstant = 0;
-  analyser.fftSize = 2048;
-
-  var source = audioContext.createMediaStreamSource(audio.srcObject);
-  source.connect(analyser);
-
-  var spectrogram = new Spectrogram(canvas, {
-    audio: { enable: false }
-  });
-  spectrogram.connectSource(analyser, audioContext);
-  spectrogram.start();
+function createAudioInputSpectrogram(container, audio) {
+  waveform.setStream(audio.srcObject);
+  var canvas = waveform.element;
+  canvas.style.backgroundColor = '#eee';
+  container.appendChild(canvas);
 }
 
 /**
@@ -40,14 +32,14 @@ function getDevicesOfKind(deviceInfos, kind) {
  * Apply the selected audio input device.
  * @param {string} deviceId
  * @param {HTMLAudioElement} audio
- * @param {HTMLCanvasElement} canvas
+ * @param {HTMLDivElement} waveformContainer
  */
-function applyAudioInputDeviceSelection(deviceId, audio, canvas) {
+function applyAudioInputDeviceSelection(deviceId, audio, waveformContainer) {
   Video.createLocalAudioTrack({
     deviceId: deviceId
   }).then(function(localTrack) {
     localTrack.attach(audio);
-    createAudioInputSpectrogram(canvas, audio);
+    createAudioInputSpectrogram(waveformContainer, audio);
   });
 }
 

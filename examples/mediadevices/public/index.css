@@ -35,7 +35,17 @@ pre.language-javascript > code {
 }
 
 div.card {
+  border: none;
   overflow-y: auto;
+}
+
+div.input-group > select {
+  width: 100%;
+}
+
+span.input-group-btn > button.btn.btn-primary.btn-sm {
+  margin-left: 5px;
+  border-radius: 0;
 }
 
 div.col-sm-8 > .card {
@@ -46,12 +56,12 @@ div.col-sm-4 > .card {
   height: 50%;
 }
 
-canvas#audioinputspectrogram {
+div#audioinputwaveform {
   position: absolute;
   left: 20px;
   top: 58px;
-  width: 180px;
-  height: 120px;
+  width: 30%;
+  height: 25%;
   background-color: darkgrey !important;
   background-image: url('https://www.twilio.com/docs/static/img/wordmark.06c5f14fff7c.svg');
   background-position: 50%;
