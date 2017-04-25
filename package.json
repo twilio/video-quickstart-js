@@ -37,7 +37,7 @@
     "prismjs": "^1.6.0",
     "spectrogram": "0.0.3",
     "twilio": "^2.11.1",
-    "twilio-video": "^1.0.0-beta5"
+    "twilio-video": "^1.0.0-beta7"
   },
   "devDependencies": {
     "browserify": "^14.3.0"
