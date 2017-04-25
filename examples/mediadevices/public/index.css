@@ -34,6 +34,15 @@ pre.language-javascript {
   font-size: 13px;
 }
 
+pre.language-javascript a {
+  color: aquamarine;
+  text-decoration: underline;
+}
+
+pre.language-javascript a:hover {
+  text-decoration: none;
+}
+
 div.card {
   border: none;
   overflow-y: auto;

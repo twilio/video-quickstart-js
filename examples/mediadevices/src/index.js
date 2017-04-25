@@ -18,10 +18,11 @@ var deviceSelections = {
 updateDeviceSelectionOptions(deviceSelections);
 
 // Load the code snippet.
-getSnippet('./snippet.js').then(function(snippet) {
-  var js = Prism.languages.javascript;
+getSnippet('./snippet.js', function(snippet) {
+  return Prism.highlight(snippet, Prism.languages.javascript);
+}).then(function(snippetHtml) {
   var pre = document.querySelector('pre.language-javascript');
-  pre.innerHTML = Prism.highlight(snippet, js);
+  pre.innerHTML = snippetHtml;
 });
 
 // Whenever a media device is added or removed, update the list.

@@ -36,7 +36,7 @@
     "express": "^4.15.2",
     "prismjs": "^1.6.0",
     "twilio": "3.0.0-rc.16",
-    "twilio-video": "1.0.0-beta7"
+    "twilio-video": "^1.0.0"
   },
   "devDependencies": {
     "browserify": "^14.3.0"
