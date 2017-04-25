@@ -42,7 +42,7 @@ video in both the tabs!
 ![screenshot of chat app](https://s3.amazonaws.com/com.twilio.prod.twilio-docs/images/video2.original.png)
 
 ## Examples
-The project contains some of the common use-case examples for the Twilio Video JS SDK.
+The project contains some common use-case examples for the Twilio Video JS SDK.
 * Media device selection: [http://localhost:3000/mediadevices](http://localhost:3000/mediadevices)
 
 ## License

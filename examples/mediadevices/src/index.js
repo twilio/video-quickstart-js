@@ -9,9 +9,9 @@ var applyVideoInputDeviceSelection = devices.applyVideoInputDeviceSelection;
 var updateDeviceSelectionOptions = devices.updateDeviceSelectionOptions;
 
 var $deviceSelections = {
-  'audioinput': $('select#audioinput'),
-  'audiooutput': $('select#audiooutput'),
-  'videoinput': $('select#videoinput')
+  audioinput: $('select#audioinput'),
+  audiooutput: $('select#audiooutput'),
+  videoinput: $('select#videoinput')
 };
 
 // Build the list of available media devices.

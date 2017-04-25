@@ -6,15 +6,8 @@
  * @returns {Promise<string>}
  */
 function getSnippet(relativePath) {
-  return new Promise(function(resolve) {
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', relativePath, true);
-    xhr.onreadystatechange = function() {
-      if (xhr.status === 200 && xhr.readyState === 4) {
-        resolve(xhr.responseText);
-      }
-    };
-    xhr.send(null);
+  return fetch(relativePath).then(function(response) {
+    return response.text();
   });
 }
 
