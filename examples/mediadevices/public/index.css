@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css?family=Roboto+Mono');
+@import url('https://fonts.googleapis.com/css?family=Roboto+Mono:300');
 
 html {
   height: 100%;
@@ -78,5 +78,9 @@ video#videoinputpreview {
 
   div.col-sm-4 {
     height: 60%;
+  }
+
+  pre.language-javascript > code {
+    font-size: 12px;
   }
 }
