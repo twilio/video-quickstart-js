@@ -6,18 +6,18 @@ var audioContext = new AudioContext();
 
 /**
  * Create spectrogram for the given HTMLAudioElement on the given HTMLCanvasElement.
- * @param {$(HTMLCanvasElement)} $canvas
- * @param {$(HTMLAudioElement)} $audio
+ * @param {HTMLCanvasElement} canvas
+ * @param {HTMLAudioElement} audio
  */
-function createAudioInputSpectrogram($canvas, $audio) {
+function createAudioInputSpectrogram(canvas, audio) {
   var analyser = audioContext.createAnalyser();
   analyser.smoothingTimeConstant = 0;
   analyser.fftSize = 2048;
 
-  var source = audioContext.createMediaStreamSource($audio.get(0).srcObject);
+  var source = audioContext.createMediaStreamSource(audio.srcObject);
   source.connect(analyser);
 
-  var spectrogram = new Spectrogram($canvas.get(0), {
+  var spectrogram = new Spectrogram(canvas, {
     audio: { enable: false }
   });
   spectrogram.connectSource(analyser, audioContext);
@@ -39,48 +39,48 @@ function getDevicesOfKind(deviceInfos, kind) {
 /**
  * Apply the selected audio input device.
  * @param {string} deviceId
- * @param {$(HTMLAudioElement)} $audio
- * @param {$(HTMLCanvasElement)} $canvas
+ * @param {HTMLAudioElement} audio
+ * @param {HTMLCanvasElement} canvas
  */
-function applyAudioInputDeviceSelection(deviceId, $audio, $canvas) {
+function applyAudioInputDeviceSelection(deviceId, audio, canvas) {
   Video.createLocalAudioTrack({
     deviceId: deviceId
   }).then(function(localTrack) {
-    localTrack.attach($audio.get(0));
-    createAudioInputSpectrogram($canvas, $audio);
+    localTrack.attach(audio);
+    createAudioInputSpectrogram(canvas, audio);
   });
 }
 
 /**
  * Apply the selected audio output device.
  * @param {string} deviceId
- * @param {$(HTMLAudioElement)} $audio
+ * @param {HTMLAudioElement} audio
  */
-function applyAudioOutputDeviceSelection(deviceId, $audio) {
-  $audio.get(0).setSinkId(deviceId);
+function applyAudioOutputDeviceSelection(deviceId, audio) {
+  audio.setSinkId(deviceId);
 }
 
 /**
  * Apply the selected video input device.
  * @param {string} deviceId
- * @param {$(HTMLVideoElement)} $video
+ * @param {HTMLVideoElement} video
  */
-function applyVideoInputDeviceSelection(deviceId, $video) {
+function applyVideoInputDeviceSelection(deviceId, video) {
   Video.createLocalVideoTrack({
     deviceId: deviceId,
     height: 240,
     width: 320
   }).then(function(localTrack) {
-    localTrack.attach($video.get(0));
+    localTrack.attach(video);
   });
 }
 
 /**
  * Update the UI with the list of available media devices.
- * @param {object} $deviceSelections - <select> elements for audio input,
+ * @param {object} deviceSelections - <select> elements for audio input,
  *    audio output and video input device lists
  */
-function updateDeviceSelectionOptions($deviceSelections) {
+function updateDeviceSelectionOptions(deviceSelections) {
   navigator.mediaDevices.enumerateDevices().then(function(deviceInfos) {
     ['audioinput', 'audiooutput', 'videoinput'].forEach(function(kind) {
       var kindDeviceInfos = getDevicesOfKind(deviceInfos, kind);
@@ -91,7 +91,7 @@ function updateDeviceSelectionOptions($deviceSelections) {
           + kindDeviceInfo.label
           + '</option>';
       }).join('');
-      $deviceSelections[kind].html(optionsHtml);
+      deviceSelections[kind].innerHTML = optionsHtml;
     });
   });
 }

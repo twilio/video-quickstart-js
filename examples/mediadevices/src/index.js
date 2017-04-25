@@ -8,44 +8,48 @@ var applyAudioOutputDeviceSelection = devices.applyAudioOutputDeviceSelection;
 var applyVideoInputDeviceSelection = devices.applyVideoInputDeviceSelection;
 var updateDeviceSelectionOptions = devices.updateDeviceSelectionOptions;
 
-var $deviceSelections = {
-  audioinput: $('select#audioinput'),
-  audiooutput: $('select#audiooutput'),
-  videoinput: $('select#videoinput')
+var deviceSelections = {
+  audioinput: document.querySelector('select#audioinput'),
+  audiooutput: document.querySelector('select#audiooutput'),
+  videoinput: document.querySelector('select#videoinput')
 };
 
 // Build the list of available media devices.
-updateDeviceSelectionOptions($deviceSelections);
+updateDeviceSelectionOptions(deviceSelections);
 
 // Load the code snippet.
-getSnippet('./snippet.js').then(function(code) {
+getSnippet('./snippet.js').then(function(snippet) {
   var js = Prism.languages.javascript;
-  $('code.language-javascript').html(Prism.highlight(code, js));
+  var code = document.querySelector('code.language-javascript');
+  code.innerHTML = Prism.highlight(snippet, js);
 });
 
 // Whenever a media device is added or removed, update the list.
 navigator.mediaDevices.ondevicechange = function() {
-  updateDeviceSelectionOptions($deviceSelections);
+  updateDeviceSelectionOptions(deviceSelections);
 };
 
 // Apply the selected audio input media device.
-$('button#audioinputapply').click(function(event) {
-  var $audio = $('audio#audioinputpreview');
-  var $canvas = $('canvas#audioinputspectrogram');
-  applyAudioInputDeviceSelection($deviceSelections.audioinput.val(), $audio, $canvas);
+document.querySelector('button#audioinputapply').onclick = function(event) {
+  var audio = document.querySelector('audio#audioinputpreview');
+  var canvas = document.querySelector('canvas#audioinputspectrogram');
+  applyAudioInputDeviceSelection(deviceSelections.audioinput.value, audio, canvas);
   event.preventDefault();
-});
+  event.stopPropagation();
+};
 
 // Apply the selected audio output media device.
-$('button#audiooutputapply').click(function(event) {
-  var $audio = $('audio#audioinputpreview');
-  applyAudioOutputDeviceSelection($deviceSelections.audiooutput.val(), $audio);
+document.querySelector('button#audiooutputapply').onclick = function(event) {
+  var audio = document.querySelector('audio#audioinputpreview');
+  applyAudioOutputDeviceSelection(deviceSelections.audiooutput.value, audio);
   event.preventDefault();
-});
+  event.stopPropagation();
+};
 
 // Apply the selected video input media device.
-$('button#videoinputapply').click(function(event) {
-  var $video = $('video#videoinputpreview');
-  applyVideoInputDeviceSelection($deviceSelections.videoinput.val(), $video);
+document.querySelector('button#videoinputapply').onclick = function(event) {
+  var video = document.querySelector('video#videoinputpreview');
+  applyVideoInputDeviceSelection(deviceSelections.videoinput.value, video);
   event.preventDefault();
-});
+  event.stopPropagation();
+};
