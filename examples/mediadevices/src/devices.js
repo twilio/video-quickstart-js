@@ -77,11 +77,9 @@ function updateDeviceSelectionOptions(deviceSelections) {
     ['audioinput', 'audiooutput', 'videoinput'].forEach(function(kind) {
       var kindDeviceInfos = getDevicesOfKind(deviceInfos, kind);
       var optionsHtml = kindDeviceInfos.map(function(kindDeviceInfo) {
-        return '<option value='
-          + kindDeviceInfo.deviceId
-          + '>'
-          + kindDeviceInfo.label
-          + '</option>';
+        var deviceId = kindDeviceInfo.deviceId;
+        var label = kindDeviceInfo.label || 'Device [ id: ' + deviceId.substr(0, 5) + '... ]';
+        return '<option value="' + deviceId + '">' + label + '</option>';
       }).join('');
       deviceSelections[kind].innerHTML = optionsHtml;
     });

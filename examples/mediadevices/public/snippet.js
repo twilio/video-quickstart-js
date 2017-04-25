@@ -1,4 +1,3 @@
-
 const { createLocalAudioTrack, createLocalVideoTrack } = require('twilio-video');
 
 // Get the list of available devices of a certain kind.

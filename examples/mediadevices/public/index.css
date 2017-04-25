@@ -29,7 +29,7 @@ div.col-sm-8, div.col-sm-4 {
   height: 100%;
 }
 
-pre.language-javascript > code {
+pre.language-javascript {
   font-family: 'Roboto Mono', monospace;
   font-size: 13px;
 }
@@ -91,7 +91,7 @@ video#videoinputpreview {
     height: 60%;
   }
 
-  pre.language-javascript > code {
+  pre.language-javascript {
     font-size: 12px;
   }
 }
