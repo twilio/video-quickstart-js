@@ -45,3 +45,6 @@ jspm_packages
 # The generated index.js
 quickstart/public/index.js
 examples/mediadevices/public/index.js
+
+# The generated snippet.js
+examples/mediadevices/public/snippet.js

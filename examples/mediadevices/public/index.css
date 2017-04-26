@@ -78,6 +78,10 @@ div#audioinputwaveform {
   background-repeat: no-repeat;
 }
 
+div#audioinputwaveform > canvas {
+  background-color: #aaa;
+}
+
 video#videoinputpreview {
   width: 100%;
   background-color: lightgrey !important;

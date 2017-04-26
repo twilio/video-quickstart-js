@@ -1,20 +1,6 @@
 'use strict';
 
 var Video = require('twilio-video');
-var Waveform = require('./waveform');
-var waveform = new Waveform();
-
-/**
- * Create Waveform for the given HTMLAudioElement on the given HTMLDivElement.
- * @param {HTMLDivElement} container
- * @param {HTMLAudioElement} audio
- */
-function createAudioInputSpectrogram(container, audio) {
-  waveform.setStream(audio.srcObject);
-  var canvas = waveform.element;
-  canvas.style.backgroundColor = '#eee';
-  container.appendChild(canvas);
-}
 
 /**
  * Get the list of available media devices of the given kind.
@@ -32,14 +18,13 @@ function getDevicesOfKind(deviceInfos, kind) {
  * Apply the selected audio input device.
  * @param {string} deviceId
  * @param {HTMLAudioElement} audio
- * @param {HTMLDivElement} waveformContainer
+ * @returns {Promise<void>}
  */
-function applyAudioInputDeviceSelection(deviceId, audio, waveformContainer) {
-  Video.createLocalAudioTrack({
+function applyAudioInputDeviceSelection(deviceId, audio) {
+  return Video.createLocalAudioTrack({
     deviceId: deviceId
   }).then(function(localTrack) {
     localTrack.attach(audio);
-    createAudioInputSpectrogram(waveformContainer, audio);
   });
 }
 
@@ -56,9 +41,10 @@ function applyAudioOutputDeviceSelection(deviceId, audio) {
  * Apply the selected video input device.
  * @param {string} deviceId
  * @param {HTMLVideoElement} video
+ * @returns {Promise<void>}
  */
 function applyVideoInputDeviceSelection(deviceId, video) {
-  Video.createLocalVideoTrack({
+  return Video.createLocalVideoTrack({
     deviceId: deviceId,
     height: 240,
     width: 320
@@ -76,12 +62,14 @@ function updateDeviceSelectionOptions(deviceSelections) {
   navigator.mediaDevices.enumerateDevices().then(function(deviceInfos) {
     ['audioinput', 'audiooutput', 'videoinput'].forEach(function(kind) {
       var kindDeviceInfos = getDevicesOfKind(deviceInfos, kind);
-      var optionsHtml = kindDeviceInfos.map(function(kindDeviceInfo) {
+      kindDeviceInfos.forEach(function(kindDeviceInfo) {
         var deviceId = kindDeviceInfo.deviceId;
         var label = kindDeviceInfo.label || 'Device [ id: ' + deviceId.substr(0, 5) + '... ]';
-        return '<option value="' + deviceId + '">' + label + '</option>';
-      }).join('');
-      deviceSelections[kind].innerHTML = optionsHtml;
+        var option = document.createElement('option');
+        option.value = deviceId;
+        option.appendChild(document.createTextNode(label));
+        deviceSelections[kind].appendChild(option);
+      });
     });
   });
 }

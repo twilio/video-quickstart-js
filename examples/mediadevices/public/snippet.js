@@ -1,73 +1,80 @@
 'use strict';
 
-const {
-  __createLocalAudioTrack__,
-  __createLocalVideoTrack__,
-  __LocalAudioTrack__,
-  __LocalVideoTrack__
-} = require('twilio-video');
+var Video = require('twilio-video');
 
 /**
- * Get the list of available devices of the given kind.
- * @param {string} kind
- * @returns {Array<MediaDeviceInfo>}
+ * Get the list of available media devices of the given kind.
+ * @param {Array<MediaDeviceInfo>} deviceInfos
+ * @param {string} kind - One of 'audioinput', 'audiooutput', 'videoinput'
+ * @returns {Array<MediaDeviceInfo>} Only those media devices of the given kind.
  */
-function getDevices(kind) {
-  return navigator.mediaDevices.enumerateDevices(deviceInfos => {
-    return deviceInfos.filter(deviceInfo => deviceInfo.kind === kind);
+function getDevicesOfKind(deviceInfos, kind) {
+  return deviceInfos.filter(function(deviceInfo) {
+    return deviceInfo.kind === kind;
   });
 }
 
 /**
- * Request media from a particular audio input device.
- * @param {MediaDeviceInfo} deviceInfo
- * @returns {Promise<__LocalAudioTrack__>}
+ * Apply the selected audio input device.
+ * @param {string} deviceId
+ * @param {HTMLAudioElement} audio
+ * @returns {Promise<void>}
  */
-function getMediaFromAudioInput(deviceInfo) {
-  var deviceId = deviceInfo.deviceId;
-  return __createLocalAudioTrack__({ deviceId });
+function applyAudioInputDeviceSelection(deviceId, audio) {
+  return Video.createLocalAudioTrack({
+    deviceId: deviceId
+  }).then(function(localTrack) {
+    localTrack.attach(audio);
+  });
 }
 
 /**
- * Request media from a particular video input device.
- * @param {MediaDeviceInfo} deviceInfo
- * @returns {Promise<__LocalVideoTrack__>}
+ * Apply the selected audio output device.
+ * @param {string} deviceId
+ * @param {HTMLAudioElement} audio
  */
-function getMediaFromVideoInput(deviceInfo) {
-  var deviceId = deviceInfo.deviceId;
-  return __createLocalVideoTrack__({ deviceId });
+function applyAudioOutputDeviceSelection(deviceId, audio) {
+  audio.setSinkId(deviceId);
 }
 
 /**
- * Set the audio output device of an HTMLMediaElement.
- * @param {MediaDeviceInfo} deviceInfo
- * @param {HTMLMediaElement} mediaElement
+ * Apply the selected video input device.
+ * @param {string} deviceId
+ * @param {HTMLVideoElement} video
+ * @returns {Promise<void>}
  */
-function setAudioOutputDevice(deviceInfo, mediaElement) {
-  mediaElement.setSinkId(deviceInfo.deviceId);
+function applyVideoInputDeviceSelection(deviceId, video) {
+  return Video.createLocalVideoTrack({
+    deviceId: deviceId,
+    height: 240,
+    width: 320
+  }).then(function(localTrack) {
+    localTrack.attach(video);
+  });
 }
 
-// Get the list of available audio input devices.
-getDevices('audioinput').then(deviceInfos => {
-  console.log('Available audio input devices:', deviceInfos);
-});
+/**
+ * Update the UI with the list of available media devices.
+ * @param {object} deviceSelections - <select> elements for audio input,
+ *    audio output and video input device lists
+ */
+function updateDeviceSelectionOptions(deviceSelections) {
+  navigator.mediaDevices.enumerateDevices().then(function(deviceInfos) {
+    ['audioinput', 'audiooutput', 'videoinput'].forEach(function(kind) {
+      var kindDeviceInfos = getDevicesOfKind(deviceInfos, kind);
+      kindDeviceInfos.forEach(function(kindDeviceInfo) {
+        var deviceId = kindDeviceInfo.deviceId;
+        var label = kindDeviceInfo.label || 'Device [ id: ' + deviceId.substr(0, 5) + '... ]';
+        var option = document.createElement('option');
+        option.value = deviceId;
+        option.appendChild(document.createTextNode(label));
+        deviceSelections[kind].appendChild(option);
+      });
+    });
+  });
+}
 
-// Get the list of available video input devices.
-getDevices('videoinput').then(deviceInfos => {
-  console.log('Available video input devices:', deviceInfos);
-});
-
-// Get the list of available audio output devices.
-getDevices('audiooutput').then(deviceInfos => {
-  console.log('Available audio output devices:', deviceInfos);
-});
-
-// Request a __LocalAudioTrack__ from the selected audio device.
-getMediaFromAudioInput(audioInputDeviceInfo).then(localAudioTrack => {
-  console.log('LocalTrack of given audio input device:', localAudioTrack);
-});
-
-// Request a __LocalVideoTrack__ from the selected video device.
-getMediaFromVideoInput(videoInputDeviceInfo).then(localVideoTrack => {
-  console.log('LocalTrack of given video input device:', localVideoTrack);
-});
+module.exports.applyAudioInputDeviceSelection = applyAudioInputDeviceSelection;
+module.exports.applyAudioOutputDeviceSelection = applyAudioOutputDeviceSelection;
+module.exports.applyVideoInputDeviceSelection = applyVideoInputDeviceSelection;
+module.exports.updateDeviceSelectionOptions = updateDeviceSelectionOptions;

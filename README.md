@@ -42,7 +42,7 @@ video in both the tabs!
 
 ## Examples
 The project contains some common use-case examples for the Twilio Video JS SDK.
-* Media device selection: [http://localhost:3000/mediadevices](http://localhost:3000/mediadevices)
+* [Media Device Selection](http://localhost:3000/mediadevices)
 
 ## License
 MIT

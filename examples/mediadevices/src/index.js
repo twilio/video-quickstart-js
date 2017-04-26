@@ -3,6 +3,7 @@
 var devices = require('./devices');
 var getSnippet = require('./getsnippet');
 var Prism = require('prismjs');
+var waveform = require('./waveform');
 var applyAudioInputDeviceSelection = devices.applyAudioInputDeviceSelection;
 var applyAudioOutputDeviceSelection = devices.applyAudioOutputDeviceSelection;
 var applyVideoInputDeviceSelection = devices.applyVideoInputDeviceSelection;
@@ -18,11 +19,9 @@ var deviceSelections = {
 updateDeviceSelectionOptions(deviceSelections);
 
 // Load the code snippet.
-getSnippet('./snippet.js', function(snippet) {
-  return Prism.highlight(snippet, Prism.languages.javascript);
-}).then(function(snippetHtml) {
+getSnippet('./snippet.js').then(function(snippet) {
   var pre = document.querySelector('pre.language-javascript');
-  pre.innerHTML = snippetHtml;
+  pre.innerHTML = Prism.highlight(snippet, Prism.languages.javascript);
 });
 
 // Whenever a media device is added or removed, update the list.
@@ -34,7 +33,15 @@ navigator.mediaDevices.ondevicechange = function() {
 document.querySelector('button#audioinputapply').onclick = function(event) {
   var audio = document.querySelector('audio#audioinputpreview');
   var waveformContainer = document.querySelector('div#audioinputwaveform');
-  applyAudioInputDeviceSelection(deviceSelections.audioinput.value, audio, waveformContainer);
+
+  applyAudioInputDeviceSelection(deviceSelections.audioinput.value, audio).then(function() {
+    var canvas = waveformContainer.querySelector('canvas');
+    waveform.setStream(audio.srcObject);
+    if (!canvas) {
+      waveformContainer.appendChild(waveform.element);
+    }
+  });
+
   event.preventDefault();
   event.stopPropagation();
 };
