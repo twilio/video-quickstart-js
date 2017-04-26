@@ -21,7 +21,7 @@ Create a configuration file for your application:
 cp .env.template .env
 ```
 
-Edit `.env` with the four configuration parameters we gathered from above.
+Edit `.env` with the configuration parameters we gathered from above.
 
 Next, we need to install our dependencies from npm:
 ```bash
