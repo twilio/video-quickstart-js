@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Media Device Selection</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+  <link rel="stylesheet" href="prism.css">
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+  <div class="container-fluid">
+    <div class="row thin-gutters">
+      <div class="col-sm-8">
+        <div class="card">
+          <div class="card-block">
+            <h4 class="card-title">
+              Media Device Selection
+            </h4>
+            <pre class="language-javascript"></pre>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-4">
+        <div class="card">
+          <div class="card-block">
+            <h4 class="card-title">Preview Media</h4>
+            <div id="audioinputwaveform"></div>
+            <audio id="audioinputpreview" autoplay></audio>
+            <video id="videoinputpreview" width="320" height="240" autoplay></video>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-block">
+            <h4 class="card-title">Select Media Devices</h4>
+            <form>
+              <div class="form-group">
+                <label class="form-text text-muted">Audio Input</label>
+                <div class="input-group">
+                  <select id="audioinput" name="audioinput"></select>
+                  <span class="input-group-btn">
+                    <button id="audioinputapply" class="btn btn-primary btn-sm">Apply</button>
+                  </span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-text text-muted">Video Input</label>
+                <div class="input-group">
+                  <select id="videoinput" name="videoinput"></select>
+                  <span class="input-group-btn">
+                    <button id="videoinputapply" class="btn btn-primary btn-sm">Apply</button>
+                  </span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-text text-muted">Audio Output</label>
+                <div class="input-group">
+                  <select id="audiooutput" name="audiooutput"></select>
+                  <span class="input-group-btn">
+                    <button id="audiooutputapply" class="btn btn-primary btn-sm">Apply</button>
+                  </span>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="index.js"></script>
+</body>
+</html>

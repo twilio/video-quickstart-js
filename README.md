@@ -21,7 +21,7 @@ Create a configuration file for your application:
 cp .env.template .env
 ```
 
-Edit `.env` with the four configuration parameters we gathered from above.
+Edit `.env` with the configuration parameters we gathered from above.
 
 Next, we need to install our dependencies from npm:
 ```bash
@@ -40,5 +40,12 @@ video in both the tabs!
 
 ![screenshot of chat app](https://s3.amazonaws.com/com.twilio.prod.twilio-docs/images/video2.original.png)
 
+## Examples
+
+The project contains some common use-case examples for the Twilio Video JS SDK.
+
+* [Media Device Selection](http://localhost:3000/mediadevices)
+
 ## License
+
 MIT
