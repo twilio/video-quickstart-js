@@ -6,7 +6,7 @@ var Video = require('twilio-video');
  * Get the list of available media devices of the given kind.
  * @param {Array<MediaDeviceInfo>} deviceInfos
  * @param {string} kind - One of 'audioinput', 'audiooutput', 'videoinput'
- * @returns {Array<MediaDeviceInfo>} Only those media devices of the given kind.
+ * @returns {Array<MediaDeviceInfo>} - Only those media devices of the given kind
  */
 function getDevicesOfKind(deviceInfos, kind) {
   return deviceInfos.filter(function(deviceInfo) {
@@ -54,27 +54,24 @@ function applyVideoInputDeviceSelection(deviceId, video) {
 }
 
 /**
- * Update the UI with the list of available media devices.
- * @param {object} deviceSelections - <select> elements for audio input,
- *    audio output and video input device lists
+ * Get the list of available media devices.
+ * @returns {Promise<DeviceSelectionOptions>}
+ * @typedef {object} DeviceSelectionOptions
+ * @property {Array<MediaDeviceInfo>} audioinput
+ * @property {Array<MediaDeviceInfo>} audiooutput
+ * @property {Array<MediaDeviceInfo>} videoinput
  */
-function updateDeviceSelectionOptions(deviceSelections) {
-  navigator.mediaDevices.enumerateDevices().then(function(deviceInfos) {
-    ['audioinput', 'audiooutput', 'videoinput'].forEach(function(kind) {
-      var kindDeviceInfos = getDevicesOfKind(deviceInfos, kind);
-      kindDeviceInfos.forEach(function(kindDeviceInfo) {
-        var deviceId = kindDeviceInfo.deviceId;
-        var label = kindDeviceInfo.label || 'Device [ id: ' + deviceId.substr(0, 5) + '... ]';
-        var option = document.createElement('option');
-        option.value = deviceId;
-        option.appendChild(document.createTextNode(label));
-        deviceSelections[kind].appendChild(option);
-      });
-    });
+function getDeviceSelectionOptions() {
+  return navigator.mediaDevices.enumerateDevices().then(function(deviceInfos) {
+    var kinds = [ 'audioinput', 'audiooutput', 'videoinput' ];
+    return kinds.reduce(function(deviceSelectionOptions, kind) {
+      deviceSelectionOptions[kind] = getDevicesOfKind(deviceInfos, kind);
+      return deviceSelectionOptions;
+    }, {});
   });
 }
 
 module.exports.applyAudioInputDeviceSelection = applyAudioInputDeviceSelection;
 module.exports.applyAudioOutputDeviceSelection = applyAudioOutputDeviceSelection;
 module.exports.applyVideoInputDeviceSelection = applyVideoInputDeviceSelection;
-module.exports.updateDeviceSelectionOptions = updateDeviceSelectionOptions;
+module.exports.getDeviceSelectionOptions = getDeviceSelectionOptions;
