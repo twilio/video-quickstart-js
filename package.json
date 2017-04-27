@@ -1,15 +1,17 @@
 {
   "name": "video-quickstart-js",
-  "version": "1.0.0-dev",
+  "version": "1.0.0",
   "description": "Twilio Video SDK Quick Start for JavaScript",
   "main": "index.js",
   "scripts": {
-    "clean": "npm run clean:quickstart",
-    "clean:quickstart": "rm -rf quickstart/public/index.js examples/mediadevices/public/index.js",
+    "clean": "npm run clean:quickstart && npm run clean:examples",
+    "clean:quickstart": "rimraf quickstart/public/index.js",
+    "clean:examples": "npm run clean:examples:mediadevices",
+    "clean:examples:mediadevices": "rimraf examples/mediadevices/public/index.js examples/mediadevices/public/helpers.js",
     "build": "npm run build:quickstart && npm run build:examples",
     "build:examples": "npm run build:example:mediadevices",
-    "build:example:mediadevices": "cp examples/mediadevices/src/helpers.js examples/mediadevices/public/snippet.js && ./node_modules/.bin/browserify examples/mediadevices/src/index.js > examples/mediadevices/public/index.js",
-    "build:quickstart": "./node_modules/.bin/browserify quickstart/src/index.js > quickstart/public/index.js",
+    "build:example:mediadevices": "copyfiles -f examples/mediadevices/src/helpers.js examples/mediadevices/public && browserify examples/mediadevices/src/index.js > examples/mediadevices/public/index.js",
+    "build:quickstart": "browserify quickstart/src/index.js > quickstart/public/index.js",
     "start": "npm run clean && npm run build && node server"
   },
   "repository": {
@@ -39,6 +41,8 @@
     "twilio-video": "^1.0.0"
   },
   "devDependencies": {
-    "browserify": "^14.3.0"
+    "browserify": "^14.3.0",
+    "copyfiles": "^1.2.0",
+    "rimraf": "^2.6.1"
   }
 }

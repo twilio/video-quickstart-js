@@ -46,5 +46,5 @@ jspm_packages
 quickstart/public/index.js
 examples/mediadevices/public/index.js
 
-# The generated snippet.js
-examples/mediadevices/public/snippet.js
+# The generated helpers.js
+examples/mediadevices/public/helpers.js

@@ -44,7 +44,7 @@ function updateDeviceSelectionOptions() {
 }
 
 // Load the code snippet.
-getSnippet('./snippet.js').then(function(snippet) {
+getSnippet('./helpers.js').then(function(snippet) {
   var pre = document.querySelector('pre.language-javascript');
   pre.innerHTML = Prism.highlight(snippet, Prism.languages.javascript);
 });
