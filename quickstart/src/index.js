@@ -130,6 +130,11 @@ function roomJoined(room) {
   // of all Participants, including that of the LocalParticipant.
   room.on('disconnected', function() {
     log('Left');
+    if (previewTracks) {
+      previewTracks.forEach(function(track) {
+        track.stop();
+      });
+    }
     detachParticipantTracks(room.localParticipant);
     room.participants.forEach(detachParticipantTracks);
     activeRoom = null;
