@@ -83,7 +83,7 @@ $.getJSON('/token', function(data) {
 
 // Successfully connected!
 function roomJoined(room) {
-  activeRoom = room;
+  window.room = activeRoom = room;
 
   log("Joined as '" + identity + "'");
   document.getElementById('button-join').style.display = 'none';
@@ -130,6 +130,11 @@ function roomJoined(room) {
   // of all Participants, including that of the LocalParticipant.
   room.on('disconnected', function() {
     log('Left');
+    if (previewTracks) {
+      previewTracks.forEach(function(track) {
+        track.stop();
+      });
+    }
     detachParticipantTracks(room.localParticipant);
     room.participants.forEach(detachParticipantTracks);
     activeRoom = null;
@@ -145,7 +150,7 @@ document.getElementById('button-preview').onclick = function() {
     : Video.createLocalTracks();
 
   localTracksPromise.then(function(tracks) {
-    previewTracks = tracks;
+    window.previewTracks = previewTracks = tracks;
     var previewContainer = document.getElementById('local-media');
     if (!previewContainer.querySelector('video')) {
       attachTracks(tracks, previewContainer);
