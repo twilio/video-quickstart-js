@@ -1,4 +1,4 @@
-# Twilio Video SDK Quickstart for JavaScript
+# Twilio Video Quickstart for JavaScript
 
 [![OS X/Linus Build Status](https://secure.travis-ci.org/twilio/video-quickstart-js.png?branch=master)](http://travis-ci.org/twilio/video-quickstart-js) [![Windows Build status](https://ci.appveyor.com/api/projects/status/3u69uy9c0lsap3dr?svg=true
 )](https://ci.appveyor.com/project/markandrus/video-quickstart-js)
