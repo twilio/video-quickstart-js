@@ -1,0 +1,89 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto+Mono:300');
+
+html {
+  height: 100%;
+}
+
+body {
+  height: 100%;
+}
+
+div.container-fluid {
+  height: 100%;
+}
+
+div.row {
+  height: 100%;
+}
+
+div.row.thin-gutters {
+  margin: 0 2px 0 2px;
+}
+
+div.row.thin-gutters > .col,
+div.row.thin-gutters > [class*="col-"] {
+  padding: 0 2px;
+}
+
+div.col-sm-8, div.col-sm-4 {
+  height: 100%;
+}
+
+pre.language-javascript {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 13px;
+}
+
+pre.language-javascript a {
+  color: aquamarine;
+  text-decoration: underline;
+}
+
+pre.language-javascript a:hover {
+  text-decoration: none;
+}
+
+div.card {
+  border: none;
+  overflow-y: auto;
+}
+
+div.col-sm-8 > .card {
+  height: 100%;
+}
+
+div.col-sm-4 > .card {
+  height: 50%;
+}
+
+canvas#snapshot,
+video#videoinputpreview {
+  width: 100%;
+  background-color: lightgrey !important;
+  background-image: url('https://static0.twilio.com/marketing/bundles/archetype/img/logo-wordmark.svg');
+  background-position: 50%;
+  background-repeat: no-repeat;
+}
+
+button#takesnapshot {
+  margin-top: 5px;
+}
+
+@media (max-width: 900px) {
+  div.col-sm-8, div.col-sm-4 {
+    max-width: 100%;
+    flex: 100%;
+  }
+
+  div.col-sm-8 {
+    height: 40%;
+  }
+
+  div.col-sm-4 {
+    height: 60%;
+  }
+
+  pre.language-javascript {
+    font-size: 12px;
+  }
+}

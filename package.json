@@ -6,11 +6,13 @@
   "scripts": {
     "clean": "npm run clean:quickstart && npm run clean:examples",
     "clean:quickstart": "rimraf quickstart/public/index.js",
-    "clean:examples": "npm run clean:examples:mediadevices",
+    "clean:examples": "npm run clean:examples:mediadevices && npm run clean:examples:localvideosnapshot",
     "clean:examples:mediadevices": "rimraf examples/mediadevices/public/index.js examples/mediadevices/public/helpers.js",
+    "clean:examples:localvideosnapshot": "rimraf examples/localvideosnapshot/public/index.js examples/localvideosnapshot/public/helpers.js",
     "build": "npm run build:quickstart && npm run build:examples",
-    "build:examples": "npm run build:example:mediadevices",
-    "build:example:mediadevices": "copyfiles -f examples/mediadevices/src/helpers.js examples/mediadevices/public && browserify examples/mediadevices/src/index.js > examples/mediadevices/public/index.js",
+    "build:examples": "npm run build:examples:mediadevices && npm run build:examples:localvideosnapshot",
+    "build:examples:mediadevices": "copyfiles -f examples/mediadevices/src/helpers.js examples/mediadevices/public && browserify examples/mediadevices/src/index.js > examples/mediadevices/public/index.js",
+    "build:examples:localvideosnapshot": "copyfiles -f examples/localvideosnapshot/src/helpers.js examples/localvideosnapshot/public && browserify examples/localvideosnapshot/src/index.js > examples/localvideosnapshot/public/index.js",
     "build:quickstart": "browserify quickstart/src/index.js > quickstart/public/index.js",
     "start": "npm run clean && npm run build && node server"
   },
