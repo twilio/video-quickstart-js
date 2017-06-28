@@ -14,12 +14,13 @@ all the config values we need to run the application:
 ## A Note on API Keys
 
 When you generate an API key pair at the URLs above, your API Secret will only
-be shown once - make sure to save this in a secure location, 
+be shown once - make sure to save this in a secure location,
 or possibly your `~/.bash_profile`.
 
 ## Setting Up The Application
 
 Create a configuration file for your application:
+
 ```bash
 cp .env.template .env
 ```
@@ -27,11 +28,13 @@ cp .env.template .env
 Edit `.env` with the configuration parameters we gathered from above.
 
 Next, we need to install our dependencies from npm:
+
 ```bash
 npm install
 ```
 
 Now we should be all set! Run the application:
+
 ```bash
 npm start
 ```
@@ -42,6 +45,27 @@ open another tab and join the same room. Now, you should see your own
 video in both the tabs!
 
 ![screenshot of chat app](https://s3.amazonaws.com/com.twilio.prod.twilio-docs/images/video2.original.png)
+
+## Using Docker
+
+You need to build a docker image with the dependecies installed.
+
+``` bash
+docker build -t video-quickstart-js .
+```
+
+Once the image is created, you can run the container by running the `docker run` command. Replace the
+variables `$HOST_PORT`, `$PORT`.
+
+``` bash
+ docker run -it --rm \
+ -p $HOST_PORT:$PORT \
+ --env-file .env \
+ video-quickstart-js:latest
+```
+
+Add `-d` as an option for running in daemon mode.
+Add `--restart always` options for restarting the container incase of failure or system restart.
 
 ## Examples
 
