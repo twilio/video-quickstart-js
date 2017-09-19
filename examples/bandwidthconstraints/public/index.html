@@ -28,7 +28,7 @@
             <h4 class="card-title">Participant's Media</h4>
             <div id="audiowaveform"></div>
             <audio id="audiopreview" autoplay></audio>
-            <video id="videopreview" autoplay></video>
+            <video id="videopreview" autoplay align="center"></video>
           </div>
         </div>
         <div class="card">
@@ -43,6 +43,9 @@
                   <option value="32000">32000</option>
                   <option value="64000">64000</option>
                 </select>
+                <div id="audiobitrategraph" class="bitrategraph">
+                  <canvas id="audiobitratecanvas"></canvas>
+                </div>
               </div>
               <div class="form-group">
                 <label class="form-text text-muted">Max Video Bitrate (bps)</label>
@@ -53,6 +56,9 @@
                   <option value="256000">256000</option>
                   <option value="512000">512000</option>
                 </select>
+                <div id="videobitrategraph" class="bitrategraph">
+                  <canvas id="videobitratecanvas"></canvas>
+                </div>
               </div>
               <input id="connectordisconnect" type="submit" class="btn btn-primary btn-block" value="Connect to Room">
             </form>

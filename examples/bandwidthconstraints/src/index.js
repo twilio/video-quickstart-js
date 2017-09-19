@@ -1,5 +1,7 @@
 'use strict';
 
+var DataSeries = require('../../util/timelinegraph').DataSeries;
+var GraphView = require('../../util/timelinegraph').GraphView;
 var Prism = require('prismjs');
 var Video = require('twilio-video');
 var getRoomCredentials = require('../../util/getroomcredentials');
@@ -17,6 +19,10 @@ var videoPreview = document.querySelector('video#videopreview');
 var waveformContainer = document.querySelector('div#audiowaveform');
 var roomName = null;
 var room = null;
+var startAudioBitrateGraph = null;
+var startVideoBitrateGraph = null;
+var stopAudioBitrateGraph = null;
+var stopVideoBitrateGraph = null;
 
 /**
  * Attach the AudioTrack to the HTMLAudioElement and start the Waveform.
@@ -31,14 +37,16 @@ function attachAudioTrack(track, audioElement) {
 }
 
 /**
- * Attach a Track to one of the HTMLMediaElements.
+ * Attach a Track to one of the HTMLMediaElements and start the bitrate graph.
  */
-function attachTrack(audioElement, videoElement, track) {
+function attachTrack(audioElement, videoElement, starAudioBitrateGraph, startVideoBitrateGraph, track) {
   if (track.kind === 'audio') {
     attachAudioTrack(track, audioElement);
+    stopAudioBitrateGraph = starAudioBitrateGraph(1000);
     return;
   }
   track.attach(videoElement);
+  stopVideoBitrateGraph = startVideoBitrateGraph(1000);
 }
 
 /**
@@ -54,14 +62,16 @@ function detachAudioTrack(track, audioElement) {
 }
 
 /**
- * Detach a Track from its HTMLMediaElement.
+ * Detach a Track from its HTMLMediaElement and stop the bitrate graph.
  */
 function detachTrack(audioElement, videoElement, track) {
   if (track.kind === 'audio') {
     detachAudioTrack(track, audioElement);
+    stopAudioBitrateGraph();
     return;
   }
   track.detach(videoElement);
+  stopVideoBitrateGraph();
 }
 
 /**
@@ -94,6 +104,45 @@ function connectToOrDisconnectFromRoom(e) {
   });
 }
 
+function setupBitrateGraph(kind, containerId, canvasId) {
+  var bitrateSeries = new DataSeries();
+  var bitrateGraph = new GraphView(containerId, canvasId);
+
+  bitrateGraph.graphDiv_.style.display = 'none';
+  return function startBitrateGraph(room, intervalMs) {
+    var bytesReceived = 0;
+    var timestamp = Date.now();
+    var interval = setInterval(function() {
+      if (!room) {
+        clearInterval(interval);
+        return;
+      }
+      room.getStats().then(function(stats) {
+        var remoteTrackStats = kind === 'audio'
+          ? stats[0].remoteAudioTrackStats[0]
+          : stats[0].remoteVideoTrackStats[0]
+
+        var _bytesReceived = remoteTrackStats.bytesReceived;
+        var _timestamp = remoteTrackStats.timestamp;
+
+        var bitrate = Math.round((_bytesReceived - bytesReceived) * 8 / (_timestamp - timestamp));
+        bitrateSeries.addPoint(_timestamp, bitrate);
+        bitrateGraph.setDataSeries([bitrateSeries]);
+        bitrateGraph.updateEndDate();
+
+        bytesReceived = _bytesReceived;
+        timestamp = _timestamp;
+      });
+    }, intervalMs);
+
+    bitrateGraph.graphDiv_.style.display = '';
+    return function stop() {
+      clearInterval(interval);
+      bitrateGraph.graphDiv_.style.display = 'none';
+    };
+  };
+}
+
 /**
  * Update bandwidth constraints in the Room.
  */
@@ -122,6 +171,10 @@ getSnippet('./helpers.js').then(function(snippet) {
   // Set listener to the connect or disconnect button.
   connectOrDisconnect.onclick = connectToOrDisconnectFromRoom;
 
+  // Set bitrate graphs.
+  startAudioBitrateGraph = setupBitrateGraph('audio', 'audiobitrategraph', 'audiobitratecanvas');
+  startVideoBitrateGraph = setupBitrateGraph('video', 'videobitrategraph', 'videobitratecanvas');
+
   // Get the credentials to connect to the Room.
   return getRoomCredentials();
 }).then(function(creds) {
@@ -137,9 +190,21 @@ getSnippet('./helpers.js').then(function(snippet) {
     }
     _room.disconnect();
   };
+
   roomName = _room.name;
-  _room.on('trackAdded', attachTrack.bind(null, audioPreview, videoPreview));
-  _room.on('trackRemoved', detachTrack.bind(null, audioPreview, videoPreview));
+
+  _room.on('trackAdded', attachTrack.bind(
+    null,
+    audioPreview,
+    videoPreview,
+    startAudioBitrateGraph.bind(null, _room),
+    startVideoBitrateGraph.bind(null, _room)));
+
+  _room.on('trackRemoved', detachTrack.bind(
+    null,
+    audioPreview,
+    videoPreview));
+
   _room.on('participantDisconnected', function(participant) {
     participant.tracks.forEach(detachTrack.bind(null, audioPreview, videoPreview));
   });

@@ -56,16 +56,20 @@ div.col-sm-8 > .card {
   height: 100%;
 }
 
-div.col-sm-4 > .card {
-  height: 50%;
+div.col-sm-4 > .card:first-child {
+  height: 30%;
+}
+
+div.col-sm-4 > .card:last-child {
+  height: 70%;
 }
 
 div#audiowaveform {
   position: absolute;
   left: 20px;
   top: 58px;
-  width: 30%;
-  height: 25%;
+  width: 20%;
+  height: 20%;
   background-color: darkgrey !important;
   background-image: url('https://www.twilio.com/docs/static/img/wordmark.06c5f14fff7c.svg');
   background-position: 50%;
@@ -77,8 +81,13 @@ div#audiowaveform > canvas {
   background-color: #aaa;
 }
 
+div.bitrategraph {
+  margin-top: 5px;
+  text-align: center;
+}
+
 video#videopreview {
-  width: 100%;
+  width: 160px;
   background-color: lightgrey !important;
   background-image: url('https://static0.twilio.com/marketing/bundles/archetype/img/logo-wordmark.svg');
   background-position: 50%;
