@@ -22,6 +22,7 @@ var app = express();
 
 // Set up the paths for the examples.
 [
+  'bandwidthconstraints',
   'localvideofilter',
   'localvideosnapshot',
   'mediadevices'

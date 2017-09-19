@@ -45,8 +45,10 @@ video in both the tabs!
 
 ## Examples
 
-The project contains some common use-case examples for the Twilio Video JS SDK.
+The project contains some common use-case examples for the Twilio Video JS SDK. After running the application
+by following the instructions above, click on these links to run the examples.
 
+* [Bandwidth Constraints](http://localhost:3000/bandwidthconstraints)
 * [Local Video Filter](http://localhost:3000/localvideofilter)
 * [Local Video Snapshot](http://localhost:3000/localvideosnapshot)
 * [Media Device Selection](http://localhost:3000/mediadevices)
