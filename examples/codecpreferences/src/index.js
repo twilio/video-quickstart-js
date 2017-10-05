@@ -131,8 +131,7 @@ async function showAppliedCodec(room, kind) {
   const selectedCodec = kind === 'audio'
     ? selectedAudioCodec
     : selectedVideoCodec;
-  console.log(remoteStats);
-  selectedCodec.innerText = remoteStats.codec;
+  selectedCodec.innerText = remoteStats.codec || 'Unknown';
   selectedCodec.parentNode.classList.remove('hidden');
 }
 
