@@ -9,7 +9,6 @@
  */
 require('dotenv').load();
 
-var fs = require('fs');
 var http = require('http');
 var path = require('path');
 var AccessToken = require('twilio').jwt.AccessToken;
@@ -23,6 +22,7 @@ var app = express();
 // Set up the paths for the examples.
 [
   'bandwidthconstraints',
+  'codecpreferences',
   'localvideofilter',
   'localvideosnapshot',
   'mediadevices'
