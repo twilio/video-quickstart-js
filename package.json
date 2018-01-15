@@ -2,9 +2,11 @@
   "name": "video-quickstart-js",
   "version": "1.0.0-dev",
   "description": "Twilio Video SDK Quick Start for JavaScript",
-  "main": "index.js",
+  "now": {
+    "alias": "videoconf.bkn.fun"
+  },
   "scripts": {
-    "build": "npm-run-all build:*",
+    "build": "npm run clean && npm-run-all build:*",
     "build:examples": "npm-run-all build:examples:*",
     "build:examples:bandwidthconstraints": "copyfiles -f examples/bandwidthconstraints/src/helpers.js examples/bandwidthconstraints/public && browserify examples/bandwidthconstraints/src/index.js > examples/bandwidthconstraints/public/index.js",
     "build:examples:codecpreferences": "copyfiles -f examples/codecpreferences/src/helpers.js examples/codecpreferences/public && browserify examples/codecpreferences/src/index.js > examples/codecpreferences/public/index.js",
@@ -20,7 +22,7 @@
     "clean:examples:localvideosnapshot": "rimraf examples/localvideosnapshot/public/index.js examples/localvideosnapshot/public/helpers.js",
     "clean:examples:mediadevices": "rimraf examples/mediadevices/public/index.js examples/mediadevices/public/helpers.js",
     "clean:quickstart": "rimraf quickstart/public/index.js",
-    "start": "npm run clean && npm run build && node server"
+    "start": "node server"
   },
   "repository": {
     "type": "git",
