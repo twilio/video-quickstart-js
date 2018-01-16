@@ -47,6 +47,7 @@ jspm_packages
 
 # The generated index.js
 quickstart/public/index.js
+quickstart/public/test.js
 examples/bandwidthconstraints/public/index.js
 examples/codecpreferences/public/index.js
 examples/localvideofilter/public/index.js
