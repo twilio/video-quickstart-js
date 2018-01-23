@@ -64,12 +64,28 @@ $.getJSON('/token', function(data) {
 
     // Join the Room with the token from the server and the
     // LocalParticipant's Tracks.
-    Video.connect(data.token, connectOptions).then(roomJoined, function(error) {
-      log('Could not connect to Twilio: ' + error.message);
-    });
+      //Video.connect(data.token, connectOptions).then(roomJoined, function(error) {
+      //log('Could not connect to Twilio: ' + error.message);
+      // });
 
-    option1(data.token);
+      // test screen share
+      Video.connect(data.token, {
+          name: roomName,
+          tracks: []
+      }).then(function(room) {
+          // Need to replace extension id here ------>
+          getUserScreen(['window', 'screen', 'tab'], 'ckgnaeohbcodmadmmnilmfeidecicpdn').then(function(stream) {
+              var screenLocalTrack = new Video.LocalVideoTrack(stream.getVideoTracks()[0]);
 
+              /*  screenLocalTracks.once('stopped', () => {*/
+              //// Handle "stopped" event.
+              /*});*/
+
+              room.localParticipant.publishTrack(screenLocalTrack);
+
+              roomJoined(room);
+          })
+      })
   };
 
   // Bind button to leave Room.
@@ -79,6 +95,7 @@ $.getJSON('/token', function(data) {
   };
 });
 
+/*
  const { connect, LocalVideoTrack } = Video;
 
 	// Option 1. Provide the screenLocalTrack when connecting.
@@ -98,15 +115,16 @@ $.getJSON('/token', function(data) {
   return room;
 }
 
+*/
 
 /**
  * Get a MediaStream containing a MediaStreamTrack that represents the user's
  * screen.
- * 
+ *
  * This function sends a "getUserScreen" request to our Chrome Extension which,
  * if successful, responds with the sourceId of one of the specified sources. We
  * then use the sourceId to call getUserMedia.
- * 
+ *
  * @param {Array<DesktopCaptureSourceType>} sources
  * @param {string} extensionId
  * @returns {Promise<MediaStream>} stream
