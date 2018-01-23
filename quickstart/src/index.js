@@ -71,10 +71,10 @@ $.getJSON('/token', function(data) {
       // test screen share
       Video.connect(data.token, {
           name: roomName,
-          tracks: []
+          tracks: previewTracks
       }).then(function(room) {
-          // Need to replace extension id here ------>
-          getUserScreen(['window', 'screen', 'tab'], 'ckgnaeohbcodmadmmnilmfeidecicpdn').then(function(stream) {
+          // Need to replace extension id here ------> Maria: ckgnaeohbcodmadmmnilmfeidecicpdn Jackson: oekhbnepgdpgjbegkpheihipdingedin
+          getUserScreen(['window', 'screen', 'tab'], 'oekhbnepgdpgjbegkpheihipdingedin').then(function(stream) {
               var screenLocalTrack = new Video.LocalVideoTrack(stream.getVideoTracks()[0]);
 
               /*  screenLocalTracks.once('stopped', () => {*/
