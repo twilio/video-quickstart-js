@@ -73,7 +73,10 @@ $.getJSON('/token', function(data) {
           name: roomName,
           tracks: previewTracks
       }).then(function(room) {
-          // Need to replace extension id here ------> Maria: ckgnaeohbcodmadmmnilmfeidecicpdn Jackson: oekhbnepgdpgjbegkpheihipdingedin
+          // Need to replace extension id here ------>
+          // Maria:   ckgnaeohbcodmadmmnilmfeidecicpdn
+          // Jackson: oekhbnepgdpgjbegkpheihipdingedin
+          // Ben:     oekhbnepgdpgjbegkpheihipdingedin
           getUserScreen(['window', 'screen', 'tab'], 'oekhbnepgdpgjbegkpheihipdingedin').then(function(stream) {
               var screenLocalTrack = new Video.LocalVideoTrack(stream.getVideoTracks()[0]);
 

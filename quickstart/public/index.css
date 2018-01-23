@@ -142,3 +142,163 @@ div#controls div#log p {
   text-indent: -1.25em;
   width: 90%;
 }
+
+/* STRIPES */
+
+.blue-stripes {
+  top: 4rem;
+  z-index: -1;
+  width: 100%;
+  left: 0;
+  /*top: 0;*/
+  position: absolute;
+  height: 750px;
+}
+
+.stripes {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  bottom: 260px;
+  transform: skewY(-12deg);
+}
+@media (min-width: 670px) {
+  .stripes {
+    bottom: 290px;
+  }
+}
+@media (min-width: 880px) {
+  .stripes {
+    bottom: 440px;
+  }
+}
+.stripes .background {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, #895cf2, #ffabf4);
+}
+.stripes .stripe {
+  position: absolute;
+  height: 190px;
+}
+.stripes .s1 {
+  bottom: 380px;
+  left: 16%;
+  width: 41%;
+  background: linear-gradient(90deg, rgba(67, 67, 141, 0.05), rgba(67, 67, 141, 0.1));
+}
+.stripes .s2 {
+  bottom: 0;
+  left: 0;
+  width: 27%;
+  background: linear-gradient(90deg, #c76eff, #b778ff);
+}
+.stripes .s3 {
+  bottom: 0;
+  right: 0;
+  width: 30%;
+  background: linear-gradient(90deg, #f4a3ea, #ffbe8a);
+}
+.stripes .s4 {
+  height: 191px;
+  bottom: -189px;
+  left: 0;
+  right: 60%;
+  min-width: 0;
+  background: linear-gradient(90deg, #f783c3, #f399ff);
+}
+@media (min-width: 880px) {
+  .stripes .s4 {
+    right: calc(50% + 90px);
+    min-width: 430px;
+  }
+}
+.stripes .s5 {
+  height: 191px;
+  bottom: -189px;
+  right: 0;
+  width: 26%;
+  background: linear-gradient(90deg, #fff, #f5f5ff);
+}
+
+
+
+/* PAGE */
+
+* {
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
+   font-weight: 300;
+}
+
+body {
+  background: white;
+}
+
+.page {
+  padding-top: 4rem;
+  max-width: 40rem;
+  margin: 0 auto;
+}
+
+/* HEADER */
+
+.header {
+  position: fixed;
+  background: #1589ee;
+  background: linear-gradient(45deg, #0070d2, #1589ee);
+  height: 4rem;
+  width: 100%;
+  color: white;
+}
+
+.header-inner {
+  justify-content: space-between;
+  max-width: 40rem;
+  margin: 0 auto;
+  display: flex;
+  line-height: 4rem;
+}
+
+.header-inner input {
+  color: white;
+  border: none;
+  padding: 0 1rem;
+  background: rgba(0,0,0,0.1);
+}
+
+.header-inner input:hover {
+  background: rgba(0,0,0,0.2);
+}
+
+.header-inner input:active {
+  background: rgba(0,0,0,0.4);
+}
+
+.header-links {
+  display: flex;
+  right: 0;
+}
+
+.header-links>div, .header-links>input {
+  padding: 0 1rem;
+  cursor: pointer;
+}
+
+.header-links>div:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.header-links>div:active {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.header .header-inner .title {
+  font-weight: 500;
+}
+
+
+
+
+
+
