@@ -6,6 +6,7 @@ var activeRoom;
 var previewTracks;
 var identity;
 var roomName;
+var IS_STREAMER = false;
 
 // Attach the Tracks to the DOM.
 function attachTracks(tracks, container) {
@@ -71,23 +72,27 @@ $.getJSON('/token', function(data) {
       // test screen share
       Video.connect(data.token, {
           name: roomName,
-          tracks: previewTracks
+          tracks: IS_STREAMER ? previewTracks : []
       }).then(function(room) {
           // Need to replace extension id here ------>
           // Maria:   ckgnaeohbcodmadmmnilmfeidecicpdn
           // Jackson: oekhbnepgdpgjbegkpheihipdingedin
           // Ben:     oekhbnepgdpgjbegkpheihipdingedin
-          getUserScreen(['window', 'screen', 'tab'], 'oekhbnepgdpgjbegkpheihipdingedin').then(function(stream) {
-              var screenLocalTrack = new Video.LocalVideoTrack(stream.getVideoTracks()[0]);
+          if (IS_STREAMER) {
+              getUserScreen(['window', 'screen', 'tab'], 'oekhbnepgdpgjbegkpheihipdingedin').then(function(stream) {
+                  var screenLocalTrack = new Video.LocalVideoTrack(stream.getVideoTracks()[0]);
 
-              /*  screenLocalTracks.once('stopped', () => {*/
-              //// Handle "stopped" event.
-              /*});*/
+                  /*  screenLocalTracks.once('stopped', () => {*/
+                  //// Handle "stopped" event.
+                  /*});*/
 
-              room.localParticipant.publishTrack(screenLocalTrack);
+                  room.localParticipant.publishTrack(screenLocalTrack);
 
-              roomJoined(room);
-          })
+                  roomJoined(room);
+              })
+          } else {
+                  roomJoined(room);
+          }
       })
   };
 
@@ -187,7 +192,7 @@ function roomJoined(room) {
   // Attach the Tracks of the Room's Participants.
   room.participants.forEach(function(participant) {
     log("Already in Room: '" + participant.identity + "'");
-    var previewContainer = document.getElementById('remote-media');
+    var previewContainer = document.getElementById('local-media');
     attachParticipantTracks(participant, previewContainer);
   });
 
@@ -199,7 +204,7 @@ function roomJoined(room) {
   // When a Participant adds a Track, attach it to the DOM.
   room.on('trackAdded', function(track, participant) {
     log(participant.identity + " added track: " + track.kind);
-    var previewContainer = document.getElementById('remote-media');
+    var previewContainer = document.getElementById('local-media');
     attachTracks([track], previewContainer);
   });
 
