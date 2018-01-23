@@ -57,7 +57,7 @@ div#controls button {
   width: 15em;
   height: 2.5em;
   margin-top: 1.75em;
-  border-radius: 1em;
+  border-radius: 2px;
   font-family: "Helvetica Light", Helvetica, sans-serif;
   font-size: .8em;
   font-weight: lighter;
