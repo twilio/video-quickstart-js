@@ -67,6 +67,9 @@ $.getJSON('/token', function(data) {
     Video.connect(data.token, connectOptions).then(roomJoined, function(error) {
       log('Could not connect to Twilio: ' + error.message);
     });
+
+    option1(data.token);
+
   };
 
   // Bind button to leave Room.
@@ -75,6 +78,76 @@ $.getJSON('/token', function(data) {
     activeRoom.disconnect();
   };
 });
+
+ const { connect, LocalVideoTrack } = Video;
+
+	// Option 1. Provide the screenLocalTrack when connecting.
+	async function option1(token) {
+  	const stream = await getUserScreen(['window', 'screen', 'tab'], 'ckgnaeohbcodmadmmnilmfeidecicpdn');
+  	const screenLocalTrack = new LocalVideoTrack(stream.getVideoTracks()[0]);
+
+  screenLocalTracks.once('stopped', () => {
+    // Handle "stopped" event.
+  })
+
+  const room = await connect(token, {
+    name: roomName,
+    tracks: [screenLocalTrack]
+  });
+
+  return room;
+}
+
+
+/**
+ * Get a MediaStream containing a MediaStreamTrack that represents the user's
+ * screen.
+ * 
+ * This function sends a "getUserScreen" request to our Chrome Extension which,
+ * if successful, responds with the sourceId of one of the specified sources. We
+ * then use the sourceId to call getUserMedia.
+ * 
+ * @param {Array<DesktopCaptureSourceType>} sources
+ * @param {string} extensionId
+ * @returns {Promise<MediaStream>} stream
+ */
+function getUserScreen(sources, extensionId) {
+  const request = {
+    type: 'getUserScreen',
+    sources: sources
+  };
+  return new Promise((resolve, reject) => {
+    chrome.runtime.sendMessage(extensionId, request, response => {
+      switch (response && response.type) {
+        case 'success':
+          resolve(response.streamId);
+          break;
+
+        case 'error':
+          reject(new Error(error.message));
+          break;
+
+        default:
+          reject(new Error('Unknown response'));
+          break;
+      }
+    });
+  }).then(streamId => {
+    return navigator.mediaDevices.getUserMedia({
+      video: {
+        mandatory: {
+          chromeMediaSource: 'desktop',
+          chromeMediaSourceId: streamId,
+          // You can provide additional constraints. For example,
+          maxWidth: 1920,
+          maxHeight: 1080,
+          maxFrameRate: 10,
+          minAspectRatio: 1.77
+        }
+      }
+    });
+  });
+}
 
 // Successfully connected!
 function roomJoined(room) {

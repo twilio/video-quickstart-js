@@ -1,0 +1,16 @@
+{
+  "manifest_version": 2,
+  "name": "your-plugin-name",
+  "version": "0.10",
+  "background": {
+    "scripts": ["extension.js"]
+  },
+  "externally_connectable": {
+    "matches": ["*://localhost/*", "*://*.example.com/*"]
+  },
+  "permissions": [
+    "desktopCapture",
+    "tabs"
+  ],
+  "key": "ckgnaeohbcodmadmmnilmfeidecicpdn"
+}
