@@ -247,6 +247,7 @@ body {
   position: fixed;
   background: #1589ee;
   background: linear-gradient(45deg, #0070d2, #1589ee);
+  background: rgba(0,0,0,0);
   height: 4rem;
   width: 100%;
   color: white;
