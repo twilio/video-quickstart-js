@@ -92,7 +92,7 @@ $.getJSON('/token', function(data) {
           // Jackson: oekhbnepgdpgjbegkpheihipdingedin
           // Ben:     oekhbnepgdpgjbegkpheihipdingedin
           if (IS_STREAMER) {
-              getUserScreen(['window', 'screen', 'tab'], 'ckgnaeohbcodmadmmnilmfeidecicpdn').then(function(stream) {
+              getUserScreen(['window', 'screen', 'tab'], 'oekhbnepgdpgjbegkpheihipdingedin').then(function(stream) {
                   var screenLocalTrack = new Video.LocalVideoTrack(stream.getVideoTracks()[0]);
 
                   /*  screenLocalTracks.once('stopped', () => {*/
