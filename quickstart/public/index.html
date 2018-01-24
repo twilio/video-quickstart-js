@@ -3,6 +3,7 @@
 <head>
   <title>Salesforce Live</title>
   <link rel="stylesheet" href="index.css">
+  <link rel="stylesheet" href="chat.css">
   <link rel="icon" type="image/png" href="favicons/favicon-32x32.png" sizes="32x32">
   <link rel="icon" type="image/png" href="favicons/favicon-32x32.png" sizes="194x194">
   <link rel="icon" type="image/png" href="favicons/favicon-32x32.png" sizes="16x16">
@@ -113,7 +114,91 @@
     </div>
   </div>
 </div>
+
+
+<div class="container" id="signInWindow">
+
+          <form class="form-horizontal" onsubmit="event.preventDefault();">
+          <h2 class="form-signin-heading"  align="center">Please sign in</h2>
+          <fieldset>
+
+          <!-- Form Name -->
+          <legend></legend>
+
+          <!-- Select Basic -->
+          <div class="form-group">
+            <label class="col-md-4 control-label" for="channelType">Channel Visibility</label>
+            <div class="col-md-4">
+              <select id="channelType" name="channelType" class="form-control">
+                <option value="1">Public</option>
+                <option value="2">Private</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Text input-->
+          <div class="form-group">
+            <label class="col-md-4 control-label" for="memberName">Your Name</label>
+            <div class="col-md-4">
+            <input id="memberName" name="memberName" type="text" placeholder="your name" class="form-control input-md" required="">
+            <span class="help-block">This will be your name for chat</span>
+            </div>
+          </div>
+
+          <!-- Text input-->
+          <div class="form-group">
+            <label class="col-md-4 control-label" for="channelName">Channel Name</label>
+            <div class="col-md-4">
+            <input id="channelName" name="channelName" type="text" placeholder="myChannel" class="form-control input-md" required="">
+            <span class="help-block">Enter a name for channel you want to create</span>
+            </div>
+          </div>
+
+          <!-- Button -->
+          <div class="form-group">
+            <label class="col-md-4 control-label" for="singlebutton"></label>
+            <div class="col-md-4">
+              <!--  <button id="singlebutton" name="singlebutton" class="btn btn-primary">Button</button>   -->
+              <a href="#" class="btn btn-block btn-info" id="startChat" onclick="startChat();showChatWindow();hideSignInWindow()"><span class="glyphicon glyphicon-comment"></span> Start Chating</a>
+            </div>
+          </div>
+
+          </fieldset>
+          </form>
+    </div>
+
+
+              <!-- START : CHAT SECTION  -->
+              <section id="chat-section" >
+
+              <div class="chatArea" id="chatWindow" hidden="true">
+
+                   <!-- start chat-history -->
+                    <div class="scrollable chatMessages" id="chatHistory" >
+                    </div>
+                    <!-- end chat-history -->
+
+                    <div class="typingArea">
+                        <div >
+                            <input id="chatInput" name="chatInput" type="text" placeholder="Type your Message" class="form-control input-md" autofocus>
+                        </div>
+                        <div>
+                            <label id="statusMessages"></label>
+                        </div>
+                     </div>
+                  </div>
+
+              </section>
+
+              <!-- END : CHAT SECTION-->
+
+
+
+<script src="https://media.twiliocdn.com/sdk/js/common/v0.1/twilio-common.min.js"></script>
+<script src="https://media.twiliocdn.com/sdk/js/chat/v0.11/twilio-chat.min.js"></script>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 <script src="index.js"></script>
+<script src="chat.js"></script>
+
 </body>
 </html>
