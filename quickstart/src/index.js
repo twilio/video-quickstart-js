@@ -42,8 +42,6 @@ window.addEventListener('beforeunload', leaveRoomIfJoined);
 // Obtain a token from the server in order to connect to the Room.
 $.getJSON('/token', function(data) {
   identity = data.identity;
-  document.getElementById('room-controls').style.display = 'block';
-
   // Bind button to join Room.
   document.getElementById('button-join').onclick = function() {
     roomName = document.getElementById('room-name').value;
@@ -196,7 +194,6 @@ function roomJoined(room) {
     log("Joining: '" + participant.identity + "'");
   });
 
-    var setVideo = false;
   // When a Participant adds a Track, attach it to the DOM.
   room.on('trackAdded', function(track, participant) {
     log(participant.identity + " added track: " + track.kind);
@@ -264,3 +261,14 @@ function leaveRoomIfJoined() {
     activeRoom.disconnect();
   }
 }
+
+const gotToHomepage = () => {
+  document.getElementById('chat-page').style.display = 'none';
+  document.getElementById('home-page').style.display = 'block';
+}
+
+// Navigate to Homepage
+document.getElementById('logo-title-container').onclick =gotToHomepage;
+
+
+
