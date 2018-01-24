@@ -13,6 +13,7 @@ var http = require('http');
 var path = require('path');
 var AccessToken = require('twilio').jwt.AccessToken;
 var VideoGrant = AccessToken.VideoGrant;
+var ChatGrant = AccessToken.ChatGrant;
 var express = require('express');
 var randomName = require('./randomname');
 
@@ -52,7 +53,12 @@ app.get('/', function(request, response) {
  * parameter.
  */
 app.get('/token', function(request, response) {
-  var identity = randomName();
+  var identity = randomName(); // video
+  var endpointId = request.query.endpointId;
+  var isChat = request.query.isChat;
+  if (isChat) {
+     identity = request.query.identity; // chat
+  }
 
   // Create an access token which we will sign and return to the client,
   // containing the grant we just created.
@@ -68,6 +74,12 @@ app.get('/token', function(request, response) {
   // Grant the access token Twilio Video capabilities.
   var grant = new VideoGrant();
   token.addGrant(grant);
+
+  var chatGrant = new ChatGrant({
+        serviceSid: process.env.TWILIO_IPM_SERVICE_SID,
+        endpointId: endpointId
+    });
+  token.addGrant(chatGrant);
 
   // Serialize the token to a JWT string and include it in a JSON response.
   response.send({

@@ -22,7 +22,7 @@ function getTokenAndSetupChat(memberName,endpointId)
     return new Promise(function(resolve, reject)
     {
 
-      $.get('/token?identity=' + memberName + '&endpointId=' + endpointId, function( data )
+      $.get('/token?identity=' + memberName + '&endpointId=' + endpointId + '&isChat=1', function( data )
                {
                      resolve(data);
                      console.log(data);
