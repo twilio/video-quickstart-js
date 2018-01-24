@@ -33,7 +33,7 @@ body {
 
 #local-media {
   width: 100%;
-  min-height: 15rem;
+  min-height: 271px;
   /*border: 1px dotted #cececc;*/
   background: rgba(255, 255, 255, 0.1);
   border-radius: 2px;
@@ -42,11 +42,19 @@ body {
   background-position: center;
   background-repeat: no-repeat;
   margin: 0 auto;
+  position: relative;
 }
 
 #local-media video {
   max-width: 100%;
   border: none;
+}
+
+#local-media video:nth-child(2) {
+  max-width: 40%;
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
 }
 
 #button-preview {
@@ -178,7 +186,7 @@ body {
 /* HEADER */
 
 .header {
-  position: fixed;
+  position: absolute;
   background: #1589ee;
   background: linear-gradient(45deg, #0070d2, #1589ee);
   background: rgba(0,0,0,0);
