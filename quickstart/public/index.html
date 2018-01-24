@@ -23,7 +23,9 @@
       <div id="go-to-room-page">Room</div>
       <div id="activate-stream">Present</div>
       <input id="room-name" type="text" placeholder="Room name..." />
-      <div id="button-join" class="log-in">Join</div>
+      <a href="#" class="btn btn-block btn-info" id="startChat" onclick="startChat();showChatWindow()">
+        <div id="button-join"  class="log-in">Join</div>
+      </a>
       <div id="button-leave" class="sign-up">Leave</div>
     </div>
   </div>
@@ -116,7 +118,7 @@
 </div>
 
 
-<div class="container" id="signInWindow">
+<div class="container" id="signInWindow" style="display: none" >
 
           <form class="form-horizontal" onsubmit="event.preventDefault();">
           <h2 class="form-signin-heading"  align="center">Please sign in</h2>
