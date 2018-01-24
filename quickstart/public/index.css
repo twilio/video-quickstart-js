@@ -1,6 +1,6 @@
 @import url(https://fonts.googleapis.com/css?family=Share+Tech+Mono);
 
-@import url(assets/styles/salesforce-lightning-design-system.css)
+@import url(assets/styles/salesforce-lightning-design-system.min.css);
 
 body,
 p {
@@ -15,9 +15,6 @@ body {
 }
 
 #remote-media {
-  /*height: 43%;*/
-  /*width: 100%;*/
-  /*max-width: 5rem;*/
   background-color: #fff;
   text-align: center;
   margin: auto;
@@ -25,9 +22,6 @@ body {
 
 #remote-media video {
   border: 1px solid #272726;
-  /*margin: 3em 2em;*/
-  /*height: 70%;*/
-  /*max-width: 27% !important;*/
   max-width: 10rem;
   background-color: #272726;
   background-repeat: no-repeat;
@@ -35,8 +29,7 @@ body {
 
 #local-media {
   width: 100%;
-  min-height: 271px;
-  /*border: 1px dotted #cececc;*/
+  min-height: 300px;
   background: rgba(255, 255, 255, 0.1);
   border-radius: 2px;
   box-sizing: border-box;
@@ -44,20 +37,35 @@ body {
   background-position: center;
   background-repeat: no-repeat;
   margin: 0 auto;
+  position: absolute;
+  max-width: 100%;
+}
+
+.picture-in-picture {
   position: relative;
 }
 
-#local-media video {
-  max-width: 100%;
+#video-stream-1, #video-stream-2 {
+  border-radius: 2px;
+  overflow: hidden;
+  width: 100%;
   border: none;
+  position: relative;
 }
 
-#local-media video:nth-child(2) {
+#video-stream-1 {
+  z-index: 1;
   max-width: 40%;
-  position: absolute;
   bottom: 1rem;
   right: 1rem;
+  position: absolute;
 }
+
+#video-stream-1 video, #video-stream-2 video {
+  width: 100%;
+}
+
+
 
 #button-preview {
   background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+Cjxzdmcgd2lkdGg9IjE3cHgiIGhlaWdodD0iMTJweCIgdmlld0JveD0iMCAwIDE3IDEyIiB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHhtbG5zOnNrZXRjaD0iaHR0cDovL3d3dy5ib2hlbWlhbmNvZGluZy5jb20vc2tldGNoL25zIj4KICAgIDwhLS0gR2VuZXJhdG9yOiBTa2V0Y2ggMy4zLjEgKDEyMDAyKSAtIGh0dHA6Ly93d3cuYm9oZW1pYW5jb2RpbmcuY29tL3NrZXRjaCAtLT4KICAgIDx0aXRsZT5GaWxsIDM0PC90aXRsZT4KICAgIDxkZXNjPkNyZWF0ZWQgd2l0aCBTa2V0Y2guPC9kZXNjPgogICAgPGRlZnM+PC9kZWZzPgogICAgPGcgaWQ9IlBhZ2UtMSIgc3Ryb2tlPSJub25lIiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiIGZpbGwtcnVsZT0iZXZlbm9kZCIgc2tldGNoOnR5cGU9Ik1TUGFnZSI+CiAgICAgICAgPGcgaWQ9ImN1bW1hY2siIHNrZXRjaDp0eXBlPSJNU0xheWVyR3JvdXAiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC0xMjUuMDAwMDAwLCAtMTkwOS4wMDAwMDApIiBmaWxsPSIjMEEwQjA5Ij4KICAgICAgICAgICAgPHBhdGggZD0iTTEzNi40NzEsMTkxOS44NyBMMTM2LjQ3MSwxOTE5LjYyIEwxMjUuNzY3LDE5MTkuNjIgTDEyNS43NjcsMTkxMC4wOCBMMTM2LjIyMSwxOTEwLjA4IEwxMzYuMjIxLDE5MTQuMTUgTDE0MC43ODUsMTkxMS4yNyBMMTQwLjc4NSwxOTE4LjQyIEwxMzYuMjIxLDE5MTUuNTUgTDEzNi4yMjEsMTkxOS44NyBMMTM2LjQ3MSwxOTE5Ljg3IEwxMzYuNDcxLDE5MTkuNjIgTDEzNi40NzEsMTkxOS44NyBMMTM2LjcyMSwxOTE5Ljg3IEwxMzYuNzIxLDE5MTYuNDUgTDE0MS4yODUsMTkxOS4zMyBMMTQxLjI4NSwxOTEwLjM3IEwxMzYuNzIxLDE5MTMuMjQgTDEzNi43MjEsMTkwOS41OCBMMTI1LjI2NywxOTA5LjU4IEwxMjUuMjY3LDE5MjAuMTIgTDEzNi43MjEsMTkyMC4xMiBMMTM2LjcyMSwxOTE5Ljg3IEwxMzYuNDcxLDE5MTkuODciIGlkPSJGaWxsLTM0IiBza2V0Y2g6dHlwZT0iTVNTaGFwZUdyb3VwIj48L3BhdGg+CiAgICAgICAgPC9nPgogICAgPC9nPgo8L3N2Zz4=)1em center no-repeat #fff;
@@ -179,10 +187,11 @@ body {
 }
 
 body {
-  background: white;
+  background: rgba(0,0,0,0);
 }
 
 .page {
+  /*z-index: 1;*/
   padding-top: 4rem;
   max-width: 60rem;
   margin: 0 auto;
@@ -191,6 +200,7 @@ body {
 /* HEADER */
 
 .header {
+  z-index: 2;
   position: absolute;
   background: #1589ee;
   background: linear-gradient(45deg, #0070d2, #1589ee);
@@ -263,6 +273,7 @@ body {
 
 .header .header-inner .title {
   font-weight: 600;
+  font-size: 1rem;
   text-transform: uppercase;
 }
 
@@ -293,12 +304,12 @@ body {
 }
 
 #chat-page>div {
-  /*padding: 1rem;*/
-  flex-grow: 1;
+  position: relative;
   flex-basis: 50%;
-  /*border: 1px solid red;*/
+  max-width: 50%;
+  max-width: 50%;
+  flex-grow: 0;
 }
-
 
 /* CHAT WINDOW */
 
@@ -328,6 +339,11 @@ body {
 }
 
 /* HOME PAGE */
+
+body {
+  /*z-index: -2 !important;*/
+  /*background: blue;*/
+}
 
 div.home-page {
   color: white;

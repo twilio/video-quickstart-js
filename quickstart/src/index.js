@@ -293,13 +293,22 @@ function leaveRoomIfJoined() {
   }
 }
 
-const gotToHomepage = () => {
-  document.getElementById('chat-page').style.display = 'none';
-  document.getElementById('home-page').style.display = 'block';
+
+// ----- PAGE NAVIGATION -----
+
+const gotToHomePage = () => {
+  document.getElementById('chat-page').style.visibility = 'hidden';
+  document.getElementById('home-page').style.visibility = 'visible';
+};
+
+const gotToRoomPage = () => {
+  document.getElementById('home-page').style.visibility = 'hidden';
+  document.getElementById('chat-page').style.visibility = 'visible';
 }
 
-// Navigate to Homepage
-document.getElementById('logo-title-container').onclick =gotToHomepage;
+document.getElementById('logo-title-container').onclick = gotToHomePage;
+
+document.getElementById('go-to-room-page').onclick = gotToRoomPage;
 
 
 
