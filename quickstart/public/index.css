@@ -228,7 +228,8 @@ div#controls div#log p {
 
 * {
   font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
-   font-weight: 300;
+   font-weight: 0.2em !important;
+   /*letter-spacing: normal;*/
 }
 
 body {
@@ -258,14 +259,19 @@ body {
   max-width: 60rem;
   margin: 0 auto;
   display: flex;
-  line-height: 4rem;
+  line-height: 3rem;
+  letter-spacing: 0.0625em;
 }
 
 .header-inner input {
   color: white;
   border: none;
-  padding: 0 1rem;
+  border-radius: 2px;
   background: rgba(0,0,0,0.1);
+}
+
+.header-inner input::placeholder {
+  color: white;
 }
 
 .header-inner input:hover {
@@ -282,7 +288,9 @@ body {
 }
 
 .header-links>div, .header-links>input {
+  border-radius: 2px;
   padding: 0 1rem;
+  margin: 0.75rem 0;
   cursor: pointer;
 }
 
@@ -294,8 +302,34 @@ body {
   background: rgba(255, 255, 255, 0.4);
 }
 
+.header-links .sign-up, 
+.header-links .log-in {
+  color: white;
+  margin-left: 1rem;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.logo-title-container {
+  margin-top: 0.5rem;
+  display: flex;
+}
+
 .header .header-inner .title {
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.header .header-inner .logo {
   font-weight: 500;
+  height: 3rem;
+  width: 3rem;
+  margin-right: 1rem;
+  display: inline-block;
+  /*margin-bottom: -1rem;*/
+  background: url('./logo.svg');
+  background-position: center center; 
+  background-repeat: no-repeat;
+  background-size: contain;
 }
 
 
