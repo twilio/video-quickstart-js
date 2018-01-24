@@ -1,6 +1,6 @@
 @import url(https://fonts.googleapis.com/css?family=Share+Tech+Mono);
 
-@import url(assets/styles/salesforce-lightning-design-system.min.css);
+@import url(./assets/styles/salesforce-lightning-design-system.min.css);
 
 body,
 p {
@@ -29,7 +29,7 @@ body {
 
 #local-media {
   width: 100%;
-  min-height: 300px;
+  min-height: 271px;
   background: rgba(255, 255, 255, 0.1);
   border-radius: 2px;
   box-sizing: border-box;

@@ -297,13 +297,13 @@ function leaveRoomIfJoined() {
 // ----- PAGE NAVIGATION -----
 
 const gotToHomePage = () => {
-  document.getElementById('chat-page').style.visibility = 'hidden';
-  document.getElementById('home-page').style.visibility = 'visible';
+  document.getElementById('chat-page').style.display = 'none';
+  document.getElementById('home-page').style.display = 'block';
 };
 
 const gotToRoomPage = () => {
-  document.getElementById('home-page').style.visibility = 'hidden';
-  document.getElementById('chat-page').style.visibility = 'visible';
+  document.getElementById('home-page').style.display = 'none';
+  document.getElementById('chat-page').style.display = 'flex';
 }
 
 document.getElementById('logo-title-container').onclick = gotToHomePage;
