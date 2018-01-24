@@ -1,0 +1,121 @@
+@charset "utf-8";
+
+body {
+    font-size: 100%;
+		height:100vh;
+}
+
+
+input {
+	border: 0;
+	color: inherit;
+    font-family: inherit;
+    font-size: 100%;
+    line-height: normal;
+    margin: 0;
+}
+
+
+.chatArea {
+border: 1px  ;
+border-radius: 10px;
+margin-top: 15px;
+margin-bottom: 15px;
+height:90vh;
+position: absolute;
+top:0px;
+left:800px;
+width: 200px;
+margin-left:  20px;
+margin-right:  20px;
+}
+
+.chatMessages{
+	width:100% ;
+	position:absolute;
+	top:0;
+}
+
+.scrollable {
+    height: 90%; /* or any value */
+    overflow-y: auto;
+}
+
+
+#statusMessages{
+	font-size: 9px;
+	color: #5BC0DE;
+	font-style: oblique;
+	margin-left: 10px;
+}
+
+.typingArea
+{
+	position:absolute;
+  bottom: 0;
+	width: 100% ;
+	margin-left:  5px;
+	margin-right:  5px;
+}
+
+
+
+.twilioConnect-button 
+{
+		background: url(https://cdn.glitch.com/dc415a0e-213d-4b6e-9f5b-181c910c5294%2Ffullsizerender_11_9uM_1.ico?1490138481665);
+		width: 128px; height: 128px; display: block; margin: 0 auto;
+    opacity: 0.8;
+}
+
+
+.twilioConnect-button:hover 
+{ 
+  background-position: 0 128px; 
+}
+
+
+.avatar {
+  width: 40px;
+}
+
+.bubble-left {
+    line-height: 100%;
+    display: block;
+    position: relative;
+    padding: .25em .5em;
+    background: #5BC0DE;
+    border: black solid 0;
+    -webkit-border-radius: 11px;
+    -moz-border-radius: 11px;
+    border-radius: 11px;
+    margin-bottom: 2em;
+    clear: both;
+    max-width:50%;
+		color: white;
+}
+
+
+.bubble-right {
+    line-height: 100%;
+    display: block;
+    position: relative;
+    padding: .25em .5em;
+    background: #5CB85C;
+    border: black solid 0;
+    -webkit-border-radius: 11px;
+    -moz-border-radius: 11px;
+    border-radius: 11px;
+    margin-bottom: 2em;
+    clear: both;
+    max-width:50%;
+		color: white;
+}
+
+.bubble-left {
+    margin-right:10%;
+		float:left;
+}
+.bubble-right {
+    margin-left:10% ;
+ 		float:right;
+}
