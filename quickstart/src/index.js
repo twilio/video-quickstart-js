@@ -23,7 +23,17 @@ function attachTracks(tracks, container) {
 // Attach the Participant's Tracks to the DOM.
 function attachParticipantTracks(participant, container) {
   var tracks = Array.from(participant.tracks.values());
-  attachTracks(tracks, container);
+    var firstVideoTrack = true;
+    tracks.forEach(function(track) {
+        if (track.kind === "video") {
+            if (firstVideoTrack) {
+                attachTracks([track], document.getElementById('video-stream-1'))
+                firstVideoTrack = false;
+            } else {
+                attachTracks([track], document.getElementById('video-stream-2'))
+            }
+        }
+    })
 }
 
 // Detach the Tracks from the DOM.
@@ -203,19 +213,19 @@ function roomJoined(room) {
   room.on('participantConnected', function(participant) {
     log("Joining: '" + participant.identity + "'");
   });
-
+  var setFirstVideoTrack = false;
   // When a Participant adds a Track, attach it to the DOM.
   room.on('trackAdded', function(track, participant) {
     log(participant.identity + " added track: " + track.kind);
     var container = document.getElementById('local-media');
 
       if (track.kind === "video") {
-          if (!setVideo) {
-            container = document.getElementById('video-stream');
-            setVideo = true;
+          if (!setFirstVideoTrack) {
+            container = document.getElementById('video-stream-1');
+            setFirstVideoTrack = true;
           } else {
-             container = document.getElementById('screen-stream');
-             setVideo = false;
+             container = document.getElementById('video-stream-2');
+             setFirstVideoTrack = false;
           }
 
       }
