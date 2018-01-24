@@ -1,50 +1,115 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Twilio Video - Video Quickstart</title>
+  <title>Salesforce Live</title>
   <link rel="stylesheet" href="index.css">
   <link rel="stylesheet" href="chat.css">
+  <link rel="icon" type="image/png" href="favicons/favicon-32x32.png" sizes="32x32">
+  <link rel="icon" type="image/png" href="favicons/favicon-32x32.png" sizes="194x194">
+  <link rel="icon" type="image/png" href="favicons/favicon-32x32.png" sizes="16x16">
 </head>
 <body>
 
 <div class="header">
   <div class="header-inner">
-    <div class="title">DemoForce</div>
+    <div
+      id="logo-title-container"
+      class="logo-title-container"
+    >
+      <div class="logo"></div>
+      <div class="title">Live</div>
+    </div>
     <div class="header-links">
-      <div>Browse</div>
-      <div id="activate-stream">Get Desktop</div>
-      <input type="text" placeholder="Search..." />
-      <div class="log-in">Log In</div>
-      <div class="sign-up">Sign Up</div>
+      <div id="room-page">Room</div>
+      <div id="activate-stream">Present</div>
+      <input id="room-name" type="text" placeholder="Room name..." />
+      <div id="button-join" class="log-in">Join</div>
+      <div id="button-leave" class="sign-up">Leave</div>
     </div>
   </div>
 </div>
-<div class="page">
-  <div class="stripes-container blue-stripes">
-      <div class="stripes">
-          <div class="stripe s4" ></div>
-          <div class="stripe s5" ></div>
-          <div class="background" ></div>
-          <div class="stripe s1" ></div>
-          <div class="stripe s2" ></div>
-          <div class="stripe s3" ></div>
+<!-- BLUE STRIPES -->
+<div class="stripes-container blue-stripes">
+    <div class="stripes">
+        <div class="stripe s4"></div>
+        <div class="stripe s5"></div>
+        <div class="background"></div>
+        <div class="stripe s1"></div>
+        <div class="stripe s2"></div>
+        <div class="stripe s3"></div>
+    </div>
+</div>
+
+<div id="home-page" class="page">
+  <div class="hero-text">Livestream Community</div>
+  <div class="livestreams">
+    <div class="livestream">
+      <div class="bottom-bar">
+        <div class="title">Sales Keynote</div>
+        <div class="viewers">500</div>
       </div>
+    </div>
+    <div class="livestream">
+      <div class="bottom-bar">
+        <div class="title">Sales Keynote</div>
+        <div class="viewers">500</div>
+      </div>
+    </div>
+    <div class="livestream">
+      <div class="bottom-bar">
+        <div class="title">Sales Keynote</div>
+        <div class="viewers">500</div>
+      </div>
+    </div>
+    <div class="livestream">
+      <div class="bottom-bar">
+        <div class="title">Sales Keynote</div>
+        <div class="viewers">500</div>
+      </div>
+    </div>
+    <div class="livestream">
+      <div class="bottom-bar">
+        <div class="title">Sales Keynote</div>
+        <div class="viewers">500</div>
+      </div>
+    </div>
+    <div class="livestream">
+      <div class="bottom-bar">
+        <div class="title">Sales Keynote</div>
+        <div class="viewers">500</div>
+      </div>
+    </div>
+    <div class="livestream">
+      <div class="bottom-bar">
+        <div class="title">Sales Keynote</div>
+        <div class="viewers">500</div>
+      </div>
+    </div>
   </div>
-  <div id="remote-media"></div>
-  <div id="controls">
-    <div id="preview">
-      <div id="local-media"></div>
-      <div id="video-stream"></div>
-      <div id="screen-stream"></div>
-      <button id="button-preview">Preview My Camera</button>
-    </div>
-    <div id="room-controls">
-      <p class="instructions">Room Name:</p>
-      <input id="room-name" type="text" placeholder="Enter a room name" />
-      <button id="button-join">Join Room</button>
-      <button id="button-leave">Leave Room</button>
-    </div>
+</div>
+<div id="chat-page" class="page">
+  <!-- VIDEO COLUMN -->
+  <div class="video-column">
+    <div id="remote-media"></div>
+    <div id="local-media"></div>
+    <div id="video-stream-1"></div>
+    <div id="video-stream-2"></div>
+    <div id="video-stream"></div>
+    <div id="screen-stream"></div>
+<!--     <button id="button-preview">
+      Preview My Camera
+    </button> -->
     <div id="log"></div>
+  </div>
+  <!-- CHAT COLUMN -->
+  <div class="chat-column">
+    <div class="chat-window">
+      <div class="message"><div>Hello there</div></div>
+      <div class="message"><div>Howdy!</div></div>
+      <div class="message"><div>Lorem ipsum yo. Lorem ipsum yo. Lorem ipsum yo. Lorem ipsum yo. Lorem ipsum yo. Lorem ipsum yo. Lorem ipsum yo. Lorem ipsum yo. Lorem ipsum yo. </div></div>
+      <div class="message"><div>Yeeeeeeeeee eeeeee eeee</div></div>
+
+    </div>
   </div>
 </div>
 
@@ -119,7 +184,7 @@
                             <label id="statusMessages"></label>
                         </div>
                      </div>
-                  </div> 
+                  </div>
 
               </section>
 

@@ -23,7 +23,17 @@ function attachTracks(tracks, container) {
 // Attach the Participant's Tracks to the DOM.
 function attachParticipantTracks(participant, container) {
   var tracks = Array.from(participant.tracks.values());
-  attachTracks(tracks, container);
+    var firstVideoTrack = true;
+    tracks.forEach(function(track) {
+        if (track.kind === "video") {
+            if (firstVideoTrack) {
+                attachTracks([track], document.getElementById('video-stream-1'))
+                firstVideoTrack = false;
+            } else {
+                attachTracks([track], document.getElementById('video-stream-2'))
+            }
+        }
+    })
 }
 
 // Detach the Tracks from the DOM.
@@ -48,8 +58,6 @@ window.addEventListener('beforeunload', leaveRoomIfJoined);
 // Obtain a token from the server in order to connect to the Room.
 $.getJSON('/token', function(data) {
   identity = data.identity;
-  document.getElementById('room-controls').style.display = 'block';
-
   // Bind button to join Room.
   document.getElementById('button-join').onclick = function() {
     roomName = document.getElementById('room-name').value;
@@ -205,20 +213,19 @@ function roomJoined(room) {
   room.on('participantConnected', function(participant) {
     log("Joining: '" + participant.identity + "'");
   });
-
-    var setVideo = false;
+  var setFirstVideoTrack = false;
   // When a Participant adds a Track, attach it to the DOM.
   room.on('trackAdded', function(track, participant) {
     log(participant.identity + " added track: " + track.kind);
     var container = document.getElementById('local-media');
 
       if (track.kind === "video") {
-          if (!setVideo) {
-            container = document.getElementById('video-stream');
-            setVideo = true;
+          if (!setFirstVideoTrack) {
+            container = document.getElementById('video-stream-1');
+            setFirstVideoTrack = true;
           } else {
-             container = document.getElementById('screen-stream');
-             setVideo = false;
+             container = document.getElementById('video-stream-2');
+             setFirstVideoTrack = false;
           }
 
       }
@@ -255,22 +262,22 @@ function roomJoined(room) {
 }
 
 // Preview LocalParticipant's Tracks.
-document.getElementById('button-preview').onclick = function() {
-  var localTracksPromise = previewTracks
-    ? Promise.resolve(previewTracks)
-    : Video.createLocalTracks();
+// document.getElementById('button-preview').onclick = function() {
+//   var localTracksPromise = previewTracks
+//     ? Promise.resolve(previewTracks)
+//     : Video.createLocalTracks();
 
-  localTracksPromise.then(function(tracks) {
-    window.previewTracks = previewTracks = tracks;
-    var previewContainer = document.getElementById('local-media');
-    if (!previewContainer.querySelector('video')) {
-      attachTracks(tracks, previewContainer);
-    }
-  }, function(error) {
-    console.error('Unable to access local media', error);
-    log('Unable to access Camera and Microphone');
-  });
-};
+//   localTracksPromise.then(function(tracks) {
+//     window.previewTracks = previewTracks = tracks;
+//     var previewContainer = document.getElementById('local-media');
+//     if (!previewContainer.querySelector('video')) {
+//       attachTracks(tracks, previewContainer);
+//     }
+//   }, function(error) {
+//     console.error('Unable to access local media', error);
+//     log('Unable to access Camera and Microphone');
+//   });
+// };
 
 // Activity log.
 function log(message) {
@@ -285,3 +292,14 @@ function leaveRoomIfJoined() {
     activeRoom.disconnect();
   }
 }
+
+const gotToHomepage = () => {
+  document.getElementById('chat-page').style.display = 'none';
+  document.getElementById('home-page').style.display = 'block';
+}
+
+// Navigate to Homepage
+document.getElementById('logo-title-container').onclick =gotToHomepage;
+
+
+
