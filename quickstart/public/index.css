@@ -1,5 +1,7 @@
 @import url(https://fonts.googleapis.com/css?family=Share+Tech+Mono);
 
+@import url(assets/styles/salesforce-lightning-design-system.css)
+
 body,
 p {
   padding: 0;
@@ -168,9 +170,12 @@ body {
 /* PAGE */
 
 * {
-  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
-   font-weight: 0.2em !important;
-   /*letter-spacing: normal;*/
+  font-family: 'Salesforce Sans', "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
+  font-weight: 400;
+   /*font-weight: 0.2em !important;*/
+   letter-spacing: 0.05em;
+   -webkit-font-smoothing: antialiased;
+   font-smoothing: antialiased;
 }
 
 body {
@@ -321,3 +326,15 @@ body {
   margin-top: 0.5rem;
   border-radius: 1rem;
 }
+
+/* HOME PAGE */
+
+div.home-page {
+  color: white;
+}
+
+.hero-text {
+  font-size: 4rem;
+}
+
+
