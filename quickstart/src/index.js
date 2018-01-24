@@ -6,12 +6,6 @@ var activeRoom;
 var previewTracks;
 var identity;
 var roomName;
-var IS_STREAMER = false;
-var screenShareId;
-
-$("#activate-stream").click(function() {
-    IS_STREAMER = true;
-})
 
 // Attach the Tracks to the DOM.
 function attachTracks(tracks, container) {
@@ -77,27 +71,23 @@ $.getJSON('/token', function(data) {
       // test screen share
       Video.connect(data.token, {
           name: roomName,
-          tracks: IS_STREAMER ? previewTracks : []
+          tracks: previewTracks
       }).then(function(room) {
           // Need to replace extension id here ------>
           // Maria:   ckgnaeohbcodmadmmnilmfeidecicpdn
           // Jackson: oekhbnepgdpgjbegkpheihipdingedin
           // Ben:     oekhbnepgdpgjbegkpheihipdingedin
-          if (IS_STREAMER) {
-              getUserScreen(['window', 'screen', 'tab'], 'oekhbnepgdpgjbegkpheihipdingedin').then(function(stream) {
-                  var screenLocalTrack = new Video.LocalVideoTrack(stream.getVideoTracks()[0]);
+          getUserScreen(['window', 'screen', 'tab'], 'oekhbnepgdpgjbegkpheihipdingedin').then(function(stream) {
+              var screenLocalTrack = new Video.LocalVideoTrack(stream.getVideoTracks()[0]);
 
-                  /*  screenLocalTracks.once('stopped', () => {*/
-                  //// Handle "stopped" event.
-                  /*});*/
+              /*  screenLocalTracks.once('stopped', () => {*/
+              //// Handle "stopped" event.
+              /*});*/
 
-                  room.localParticipant.publishTrack(screenLocalTrack);
+              room.localParticipant.publishTrack(screenLocalTrack);
 
-                  roomJoined(room);
-              })
-          } else {
-                  roomJoined(room);
-          }
+              roomJoined(room);
+          })
       })
   };
 
@@ -197,7 +187,7 @@ function roomJoined(room) {
   // Attach the Tracks of the Room's Participants.
   room.participants.forEach(function(participant) {
     log("Already in Room: '" + participant.identity + "'");
-    var previewContainer = document.getElementById('local-media');
+    var previewContainer = document.getElementById('remote-media');
     attachParticipantTracks(participant, previewContainer);
   });
 
@@ -210,19 +200,8 @@ function roomJoined(room) {
   // When a Participant adds a Track, attach it to the DOM.
   room.on('trackAdded', function(track, participant) {
     log(participant.identity + " added track: " + track.kind);
-    var container = document.getElementById('local-media');
-
-      if (track.kind === "video") {
-          if (!setVideo) {
-            container = document.getElementById('video-stream');
-            setVideo = true;
-          } else {
-             container = document.getElementById('screen-stream');
-             setVideo = false;
-          }
-
-      }
-    attachTracks([track], container);
+    var previewContainer = document.getElementById('remote-media');
+    attachTracks([track], previewContainer);
   });
 
   // When a Participant removes a Track, detach it from the DOM.
