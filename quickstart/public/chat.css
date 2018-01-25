@@ -6,59 +6,57 @@ body {
 }
 
 
-input {
+.typingArea input {
 	border: 0;
 	color: inherit;
     font-family: inherit;
     font-size: 100%;
     line-height: normal;
     margin: 0;
+    padding: 1rem;
+    width: 100%;
+    border-radius: 3rem;
+    outline: none;
 }
 
-
-.chatArea {
-border: 1px  ;
-border-radius: 10px;
-margin-top: 15px;
-margin-bottom: 15px;
-height:90vh;
-position: absolute;
-top:0px;
-left:800px;
-width: 200px;
-margin-left:  20px;
-margin-right:  20px;
+#chat-section {
+    margin-left: 2rem;
+    min-height: 30rem;
+    width: calc(100% - 2rem);
+    /*border: 1px solid orange;*/
+    display: flex;
+    justify-content: flex-end;
+    flex-direction: column;
+    position: relative;
 }
 
-.chatMessages{
-	width:100% ;
-	position:absolute;
-	top:0;
+.chatMessages {
+    /*flex-grow: 1;*/
+    /*border: 1px solid green;*/
+	width: 100% ;
+    align-self: flex-end;
+	/*position: absolute;*/
+	bottom: 0;
 }
 
 .scrollable {
-    height: 90%; /* or any value */
+    /*border: 1px solid pink;*/
     overflow-y: auto;
 }
 
-
 #statusMessages{
 	font-size: 9px;
-	color: #5BC0DE;
+	color: black;
 	font-style: oblique;
 	margin-left: 10px;
 }
 
-.typingArea
-{
-	position:absolute;
-  bottom: 0;
-	width: 100% ;
-	margin-left:  5px;
-	margin-right:  5px;
+.typingArea {
+    /*border: 1px solid purple;*/
+    align-self: flex-end;
+    bottom: 0;
+    width: 100% ;
 }
-
-
 
 .twilioConnect-button 
 {
