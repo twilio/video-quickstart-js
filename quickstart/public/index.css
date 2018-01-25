@@ -7,9 +7,14 @@ p {
   padding: 0;
   margin: 0;
 }
+html {
+  background-image:url(codey.png),url(right-mountain.png),url(mountain-range.png),linear-gradient(-180deg, #9DD1ED 10%, #C7E4EB 90%);;
+background-position: left -20px bottom -50px, right -50px bottom 0, left 0 bottom 0, 0 0;
+overflow: hidden;
+background-repeat: no-repeat;
+}
 
 body {
-  background: #272726;
   height: 100%;
   overflow-y: scroll;
 }
@@ -178,7 +183,7 @@ body {
 /* PAGE */
 
 * {
-  font-family: 'Salesforce Sans', "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
+  font-family: 'Salesforce Sans', "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
   font-weight: 400;
    /*font-weight: 0.2em !important;*/
    letter-spacing: 0.05em;
@@ -258,7 +263,7 @@ body {
   background: rgba(255, 255, 255, 0.4);
 }
 
-.header-links .sign-up, 
+.header-links .sign-up,
 .header-links .log-in {
   color: white;
   margin-left: 1rem;
@@ -284,7 +289,7 @@ body {
   margin-right: 1rem;
   display: inline-block;
   background-image: url('./logo.svg');
-  background-position: center center; 
+  background-position: center center;
   background-repeat: no-repeat;
   background-size: contain;
 }
