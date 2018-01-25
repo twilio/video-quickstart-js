@@ -6,6 +6,12 @@ var activeRoom;
 var previewTracks;
 var identity;
 var roomName;
+var IS_STREAMER = false;
+var screenShareId;
+
+$("#activate-stream").click(function() {
+    IS_STREAMER = true;
+})
 
 // Attach the Tracks to the DOM.
 function attachTracks(tracks, container) {
@@ -17,7 +23,17 @@ function attachTracks(tracks, container) {
 // Attach the Participant's Tracks to the DOM.
 function attachParticipantTracks(participant, container) {
   var tracks = Array.from(participant.tracks.values());
-  attachTracks(tracks, container);
+    var firstVideoTrack = true;
+    tracks.forEach(function(track) {
+        if (track.kind === "video") {
+            if (firstVideoTrack) {
+                attachTracks([track], document.getElementById('video-stream-1'))
+                firstVideoTrack = false;
+            } else {
+                attachTracks([track], document.getElementById('video-stream-2'))
+            }
+        }
+    })
 }
 
 // Detach the Tracks from the DOM.
@@ -42,8 +58,6 @@ window.addEventListener('beforeunload', leaveRoomIfJoined);
 // Obtain a token from the server in order to connect to the Room.
 $.getJSON('/token', function(data) {
   identity = data.identity;
-  document.getElementById('room-controls').style.display = 'block';
-
   // Bind button to join Room.
   document.getElementById('button-join').onclick = function() {
     roomName = document.getElementById('room-name').value;
@@ -64,9 +78,35 @@ $.getJSON('/token', function(data) {
 
     // Join the Room with the token from the server and the
     // LocalParticipant's Tracks.
-    Video.connect(data.token, connectOptions).then(roomJoined, function(error) {
-      log('Could not connect to Twilio: ' + error.message);
-    });
+      //Video.connect(data.token, connectOptions).then(roomJoined, function(error) {
+      //log('Could not connect to Twilio: ' + error.message);
+      // });
+
+      // test screen share
+      Video.connect(data.token, {
+          name: roomName,
+          tracks: IS_STREAMER ? previewTracks : []
+      }).then(function(room) {
+          // Need to replace extension id here ------>
+          // Maria:   ckgnaeohbcodmadmmnilmfeidecicpdn
+          // Jackson: oekhbnepgdpgjbegkpheihipdingedin
+          // Ben:     oekhbnepgdpgjbegkpheihipdingedin
+          if (IS_STREAMER) {
+              getUserScreen(['window', 'screen', 'tab'], 'oekhbnepgdpgjbegkpheihipdingedin').then(function(stream) {
+                  var screenLocalTrack = new Video.LocalVideoTrack(stream.getVideoTracks()[0]);
+
+                  /*  screenLocalTracks.once('stopped', () => {*/
+                  //// Handle "stopped" event.
+                  /*});*/
+
+                  room.localParticipant.publishTrack(screenLocalTrack);
+
+                  roomJoined(room);
+              })
+          } else {
+                  roomJoined(room);
+          }
+      })
   };
 
   // Bind button to leave Room.
@@ -75,6 +115,78 @@ $.getJSON('/token', function(data) {
     activeRoom.disconnect();
   };
 });
+
+/*
+ const { connect, LocalVideoTrack } = Video;
+
+	// Option 1. Provide the screenLocalTrack when connecting.
+	async function option1(token) {
+  	const stream = await getUserScreen(['window', 'screen', 'tab'], 'ckgnaeohbcodmadmmnilmfeidecicpdn');
+  	const screenLocalTrack = new LocalVideoTrack(stream.getVideoTracks()[0]);
+
+  screenLocalTracks.once('stopped', () => {
+    // Handle "stopped" event.
+  })
+
+  const room = await connect(token, {
+    name: roomName,
+    tracks: [screenLocalTrack]
+  });
+
+  return room;
+}
+
+*/
+
+/**
+ * Get a MediaStream containing a MediaStreamTrack that represents the user's
+ * screen.
+ *
+ * This function sends a "getUserScreen" request to our Chrome Extension which,
+ * if successful, responds with the sourceId of one of the specified sources. We
+ * then use the sourceId to call getUserMedia.
+ *
+ * @param {Array<DesktopCaptureSourceType>} sources
+ * @param {string} extensionId
+ * @returns {Promise<MediaStream>} stream
+ */
+function getUserScreen(sources, extensionId) {
+  const request = {
+    type: 'getUserScreen',
+    sources: sources
+  };
+  return new Promise((resolve, reject) => {
+    chrome.runtime.sendMessage(extensionId, request, response => {
+      switch (response && response.type) {
+        case 'success':
+          resolve(response.streamId);
+          break;
+
+        case 'error':
+          reject(new Error(error.message));
+          break;
+
+        default:
+          reject(new Error('Unknown response'));
+          break;
+      }
+    });
+  }).then(streamId => {
+    return navigator.mediaDevices.getUserMedia({
+      video: {
+        mandatory: {
+          chromeMediaSource: 'desktop',
+          chromeMediaSourceId: streamId,
+          // You can provide additional constraints. For example,
+          maxWidth: 1920,
+          maxHeight: 1080,
+          maxFrameRate: 10,
+          minAspectRatio: 1.77
+        }
+      }
+    });
+  });
+}
 
 // Successfully connected!
 function roomJoined(room) {
@@ -93,7 +205,7 @@ function roomJoined(room) {
   // Attach the Tracks of the Room's Participants.
   room.participants.forEach(function(participant) {
     log("Already in Room: '" + participant.identity + "'");
-    var previewContainer = document.getElementById('remote-media');
+    var previewContainer = document.getElementById('local-media');
     attachParticipantTracks(participant, previewContainer);
   });
 
@@ -101,12 +213,23 @@ function roomJoined(room) {
   room.on('participantConnected', function(participant) {
     log("Joining: '" + participant.identity + "'");
   });
-
+  var setFirstVideoTrack = false;
   // When a Participant adds a Track, attach it to the DOM.
   room.on('trackAdded', function(track, participant) {
     log(participant.identity + " added track: " + track.kind);
-    var previewContainer = document.getElementById('remote-media');
-    attachTracks([track], previewContainer);
+    var container = document.getElementById('local-media');
+
+      if (track.kind === "video") {
+          if (!setFirstVideoTrack) {
+            container = document.getElementById('video-stream-1');
+            setFirstVideoTrack = true;
+          } else {
+             container = document.getElementById('video-stream-2');
+             setFirstVideoTrack = false;
+          }
+
+      }
+    attachTracks([track], container);
   });
 
   // When a Participant removes a Track, detach it from the DOM.
@@ -139,22 +262,22 @@ function roomJoined(room) {
 }
 
 // Preview LocalParticipant's Tracks.
-document.getElementById('button-preview').onclick = function() {
-  var localTracksPromise = previewTracks
-    ? Promise.resolve(previewTracks)
-    : Video.createLocalTracks();
+// document.getElementById('button-preview').onclick = function() {
+//   var localTracksPromise = previewTracks
+//     ? Promise.resolve(previewTracks)
+//     : Video.createLocalTracks();
 
-  localTracksPromise.then(function(tracks) {
-    window.previewTracks = previewTracks = tracks;
-    var previewContainer = document.getElementById('local-media');
-    if (!previewContainer.querySelector('video')) {
-      attachTracks(tracks, previewContainer);
-    }
-  }, function(error) {
-    console.error('Unable to access local media', error);
-    log('Unable to access Camera and Microphone');
-  });
-};
+//   localTracksPromise.then(function(tracks) {
+//     window.previewTracks = previewTracks = tracks;
+//     var previewContainer = document.getElementById('local-media');
+//     if (!previewContainer.querySelector('video')) {
+//       attachTracks(tracks, previewContainer);
+//     }
+//   }, function(error) {
+//     console.error('Unable to access local media', error);
+//     log('Unable to access Camera and Microphone');
+//   });
+// };
 
 // Activity log.
 function log(message) {
@@ -169,3 +292,26 @@ function leaveRoomIfJoined() {
     activeRoom.disconnect();
   }
 }
+
+
+// ----- PAGE NAVIGATION -----
+
+const gotToHomePage = () => {
+  document.getElementById('chat-page').style.display = 'none';
+  document.getElementById('home-page').style.display = 'block';
+};
+
+const gotToRoomPage = () => {
+  document.getElementById('home-page').style.display = 'none';
+  document.getElementById('chat-page').style.display = 'flex';
+}
+
+document.getElementById('logo-title-container').onclick = gotToHomePage;
+
+document.getElementById('go-to-room-page').onclick = gotToRoomPage;
+
+
+
+
+
+

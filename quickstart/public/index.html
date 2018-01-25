@@ -1,27 +1,196 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Twilio Video - Video Quickstart</title>
+  <title>Salesforce Trailcast</title>
   <link rel="stylesheet" href="index.css">
+  <link rel="stylesheet" href="chat.css">
+  <link rel="icon" type="image/png" href="favicons/favicon-32x32.png" sizes="32x32">
+  <link rel="icon" type="image/png" href="favicons/favicon-32x32.png" sizes="194x194">
+  <link rel="icon" type="image/png" href="favicons/favicon-32x32.png" sizes="16x16">
 </head>
 <body>
-<div id="remote-media"></div>
-<div id="controls">
-  <div id="preview">
-    <p class="instructions">Hello Beautiful</p>
+
+<div class="header">
+  <div class="header-inner">
+    <div
+      id="logo-title-container"
+      class="logo-title-container"
+    >
+      <div class="logo"></div>
+      <div class="title">Trailcast</div>
+    </div>
+    <div class="header-links">
+      <div id="go-to-room-page">Room</div>
+      <div id="activate-stream">Present</div>
+      <input id="room-name" type="text" placeholder="Room name..." />
+      <a href="#" class="btn btn-block btn-info" id="startChat" onclick="startChat();">
+        <div id="button-join"  class="log-in">Join</div>
+      </a>
+      <div id="button-leave" class="sign-up">Leave</div>
+      <div id="start_button" class="sign-up" onClick="startButton(event)">Show Subtitle</div>   
+ </div>
+  </div>
+</div>
+<!-- BLUE STRIPES -->
+<!--<div class="stripes-container blue-stripes">-->
+    <!--<div class="stripes">-->
+        <!--<div class="stripe s4"></div>-->
+        <!--<div class="stripe s5"></div>-->
+        <!--<div class="background"></div>-->
+        <!--<div class="stripe s1"></div>-->
+        <!--<div class="stripe s2"></div>-->
+        <!--<div class="stripe s3"></div>-->
+    <!--</div>-->
+<!--</div>-->
+
+<div id="home-page" class="page">
+  <div class="hero-text">Livestream Community</div>
+  <div class="livestreams">
+    <div class="livestream">
+      <div class="bottom-bar">
+        <div class="title">Sales Keynote</div>
+        <div class="viewers">500</div>
+      </div>
+    </div>
+    <div class="livestream">
+      <div class="bottom-bar">
+        <div class="title">Sales Keynote</div>
+        <div class="viewers">500</div>
+      </div>
+    </div>
+    <div class="livestream">
+      <div class="bottom-bar">
+        <div class="title">Sales Keynote</div>
+        <div class="viewers">500</div>
+      </div>
+    </div>
+    <div class="livestream">
+      <div class="bottom-bar">
+        <div class="title">Sales Keynote</div>
+        <div class="viewers">500</div>
+      </div>
+    </div>
+    <div class="livestream">
+      <div class="bottom-bar">
+        <div class="title">Sales Keynote</div>
+        <div class="viewers">500</div>
+      </div>
+    </div>
+    <div class="livestream">
+      <div class="bottom-bar">
+        <div class="title">Sales Keynote</div>
+        <div class="viewers">500</div>
+      </div>
+    </div>
+    <div class="livestream">
+      <div class="bottom-bar">
+        <div class="title">Sales Keynote</div>
+        <div class="viewers">500</div>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="chat-page" class="page">
+  <!-- VIDEO COLUMN -->
+  <div class="video-column">
+    <div id="remote-media"></div>
     <div id="local-media"></div>
-    <button id="button-preview">Preview My Camera</button>
+    <div class="picture-in-picture">
+      <div id="video-stream-1"></div>
+      <div id="video-stream-2"></div>
+    </div>
+    <div id="video-stream"></div>
+    <div id="screen-stream"></div>
+<!--     <button id="button-preview">
+      Preview My Camera
+    </button> -->
+    <div id="log"></div>
   </div>
-  <div id="room-controls">
-    <p class="instructions">Room Name:</p>
-    <input id="room-name" type="text" placeholder="Enter a room name" />
-    <button id="button-join">Join Room</button>
-    <button id="button-leave">Leave Room</button>
+  <!-- CHAT COLUMN -->
+  <div class="chat-column">
+    <!-- START : CHAT SECTION  -->
+
+    <section id="chat-section" >
+       <!-- start chat-history -->
+        <div class="scrollable chatMessages" id="chatHistory" >
+        </div>
+        <!-- end chat-history -->
+        <div class="typingArea">
+            <input
+              id="chatInput"
+              name="chatInput"
+              type="text"
+              placeholder="Type your Message"
+              class="form-control input-md"
+              autofocus
+            >
+            <label id="statusMessages"></label>
+         </div>
+      </section>
+
+      <!-- END : CHAT SECTION-->
   </div>
-  <div id="log"></div>
 </div>
 
+
+<div class="container" id="signInWindow" style="display: none" >
+
+          <form class="form-horizontal" onsubmit="event.preventDefault();">
+          <h2 class="form-signin-heading"  align="center">Please sign in</h2>
+          <fieldset>
+
+          <!-- Form Name -->
+          <legend></legend>
+
+          <!-- Select Basic -->
+          <div class="form-group">
+            <label class="col-md-4 control-label" for="channelType">Channel Visibility</label>
+            <div class="col-md-4">
+              <select id="channelType" name="channelType" class="form-control">
+                <option value="1">Public</option>
+                <option value="2">Private</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Text input-->
+          <div class="form-group">
+            <label class="col-md-4 control-label" for="memberName">Your Name</label>
+            <div class="col-md-4">
+            <input id="memberName" name="memberName" type="text" placeholder="your name" class="form-control input-md" required="">
+            <span class="help-block">This will be your name for chat</span>
+            </div>
+          </div>
+
+          <!-- Text input-->
+          <div class="form-group">
+            <label class="col-md-4 control-label" for="channelName">Channel Name</label>
+            <div class="col-md-4">
+            <input id="channelName" name="channelName" type="text" placeholder="myChannel" class="form-control input-md" required="">
+            <span class="help-block">Enter a name for channel you want to create</span>
+            </div>
+          </div>
+
+          <!-- Button -->
+          <div class="form-group">
+            <label class="col-md-4 control-label" for="singlebutton"></label>
+            <div class="col-md-4">
+              <!--  <button id="singlebutton" name="singlebutton" class="btn btn-primary">Button</button>   -->
+              <a href="#" class="btn btn-block btn-info" id="startChat" onclick="startChat();hideSignInWindow()"><span class="glyphicon glyphicon-comment"></span> Start Chating</a>
+            </div>
+          </div>
+
+          </fieldset>
+          </form>
+    </div>
+
+
+
+<script src="https://media.twiliocdn.com/sdk/js/common/v0.1/twilio-common.min.js"></script>
+<script src="https://media.twiliocdn.com/sdk/js/chat/v0.11/twilio-chat.min.js"></script>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 <script src="index.js"></script>
+<script src="chat.js"></script>
+<script src="speech.js"></script>
 </body>
 </html>
