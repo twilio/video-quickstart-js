@@ -295,7 +295,6 @@ body {
   display: none;
 }
 
-
 /* CHAT PAGE */
 
 #chat-page {
@@ -304,6 +303,7 @@ body {
 }
 
 #chat-page>div {
+  overflow: hidden;
   position: relative;
   flex-basis: 50%;
   max-width: 50%;

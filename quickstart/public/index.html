@@ -107,6 +107,45 @@
   </div>
   <!-- CHAT COLUMN -->
   <div class="chat-column">
+
+
+            <!-- START : CHAT SECTION  -->
+
+            <section id="chat-section" >
+
+              <div
+                class="chatArea"
+                id="chatWindow"
+                hidden="true"
+              >
+
+                   <!-- start chat-history -->
+                    <div class="scrollable chatMessages" id="chatHistory" >
+                    </div>
+                    <!-- end chat-history -->
+
+                    <div class="typingArea">
+                        <div>
+                            <input
+                              id="chatInput"
+                              name="chatInput"
+                              type="text"
+                              placeholder="Type your Message"
+                              class="form-control input-md" autofocus
+                            >
+                        </div>
+                        <div>
+                            <label id="statusMessages"></label>
+                        </div>
+                     </div>
+                  </div>
+
+              </section>
+
+              <!-- END : CHAT SECTION-->
+
+
+
     <div class="chat-window">
       <div class="message"><div>Hello there</div></div>
       <div class="message"><div>Howdy!</div></div>
@@ -168,31 +207,6 @@
           </fieldset>
           </form>
     </div>
-
-
-              <!-- START : CHAT SECTION  -->
-              <section id="chat-section" >
-
-              <div class="chatArea" id="chatWindow" hidden="true">
-
-                   <!-- start chat-history -->
-                    <div class="scrollable chatMessages" id="chatHistory" >
-                    </div>
-                    <!-- end chat-history -->
-
-                    <div class="typingArea">
-                        <div >
-                            <input id="chatInput" name="chatInput" type="text" placeholder="Type your Message" class="form-control input-md" autofocus>
-                        </div>
-                        <div>
-                            <label id="statusMessages"></label>
-                        </div>
-                     </div>
-                  </div>
-
-              </section>
-
-              <!-- END : CHAT SECTION-->
 
 
 
