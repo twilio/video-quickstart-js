@@ -74,46 +74,34 @@ body {
 
 .avatar {
   width: 40px;
+  display: none;
 }
 
-.bubble-left {
+.bubble-left, .bubble-right {
     line-height: 100%;
     display: block;
     position: relative;
-    padding: .25em .5em;
+    border-radius: 2rem;
+    margin-bottom: 1rem;
+    padding: 0.5rem 1rem;
+    border: black solid 0;
+    clear: both;
+    max-width:60%;
+    color: white;
+}
+
+.bubble-right img {
+    display: none;
+}
+
+.bubble-left {
     background: #5BC0DE;
-    border: black solid 0;
-    -webkit-border-radius: 11px;
-    -moz-border-radius: 11px;
-    border-radius: 11px;
-    margin-bottom: 2em;
-    clear: both;
-    max-width:50%;
-		color: white;
-}
-
-
-.bubble-right {
-    line-height: 100%;
-    display: block;
-    position: relative;
-    padding: .25em .5em;
-    background: #5CB85C;
-    border: black solid 0;
-    -webkit-border-radius: 11px;
-    -moz-border-radius: 11px;
-    border-radius: 11px;
-    margin-bottom: 2em;
-    clear: both;
-    max-width:50%;
-		color: white;
-}
-
-.bubble-left {
     margin-right:10%;
-		float:left;
+    float:left;
 }
+
 .bubble-right {
+    background: #5CB85C;
     margin-left:10% ;
- 		float:right;
+    float:right;
 }
