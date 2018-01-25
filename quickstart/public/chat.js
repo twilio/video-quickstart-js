@@ -84,8 +84,7 @@ function startChat(cobrowserId,sessionKey)
                                     {
                                         console.log(channelName  + "already exists ") ;
                                         myChannel=chosenChannel;
-
-
+										window.myChannel= myChannel;
 
                                         myChannel.join().then(function(channel)
                                             {
@@ -181,6 +180,8 @@ function getHistory()
         );
 
 }
+
+window.sendMessage= sendMessage;
 
 function sendMessage(body)
 {
