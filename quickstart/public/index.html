@@ -23,7 +23,7 @@
       <div id="go-to-room-page">Room</div>
       <div id="activate-stream">Present</div>
       <input id="room-name" type="text" placeholder="Room name..." />
-      <a href="#" class="btn btn-block btn-info" id="startChat" onclick="startChat();showChatWindow()">
+      <a href="#" class="btn btn-block btn-info" id="startChat" onclick="startChat();">
         <div id="button-join"  class="log-in">Join</div>
       </a>
       <div id="button-leave" class="sign-up">Leave</div>
@@ -107,52 +107,27 @@
   </div>
   <!-- CHAT COLUMN -->
   <div class="chat-column">
+    <!-- START : CHAT SECTION  -->
 
+    <section id="chat-section" >
+       <!-- start chat-history -->
+        <div class="scrollable chatMessages" id="chatHistory" >
+        </div>
+        <!-- end chat-history -->
+        <div class="typingArea">
+            <input
+              id="chatInput"
+              name="chatInput"
+              type="text"
+              placeholder="Type your Message"
+              class="form-control input-md"
+              autofocus
+            >
+            <label id="statusMessages"></label>
+         </div>
+      </section>
 
-            <!-- START : CHAT SECTION  -->
-
-            <section id="chat-section" >
-
-              <div
-                class="chatArea"
-                id="chatWindow"
-                hidden="true"
-              >
-
-                   <!-- start chat-history -->
-                    <div class="scrollable chatMessages" id="chatHistory" >
-                    </div>
-                    <!-- end chat-history -->
-
-                    <div class="typingArea">
-                        <div>
-                            <input
-                              id="chatInput"
-                              name="chatInput"
-                              type="text"
-                              placeholder="Type your Message"
-                              class="form-control input-md" autofocus
-                            >
-                        </div>
-                        <div>
-                            <label id="statusMessages"></label>
-                        </div>
-                     </div>
-                  </div>
-
-              </section>
-
-              <!-- END : CHAT SECTION-->
-
-
-
-    <div class="chat-window">
-      <div class="message"><div>Hello there</div></div>
-      <div class="message"><div>Howdy!</div></div>
-      <div class="message"><div>Lorem ipsum yo. Lorem ipsum yo. Lorem ipsum yo. Lorem ipsum yo. Lorem ipsum yo. Lorem ipsum yo. Lorem ipsum yo. Lorem ipsum yo. Lorem ipsum yo. </div></div>
-      <div class="message"><div>Yeeeeeeeeee eeeeee eeee</div></div>
-
-    </div>
+      <!-- END : CHAT SECTION-->
   </div>
 </div>
 
@@ -200,7 +175,7 @@
             <label class="col-md-4 control-label" for="singlebutton"></label>
             <div class="col-md-4">
               <!--  <button id="singlebutton" name="singlebutton" class="btn btn-primary">Button</button>   -->
-              <a href="#" class="btn btn-block btn-info" id="startChat" onclick="startChat();showChatWindow();hideSignInWindow()"><span class="glyphicon glyphicon-comment"></span> Start Chating</a>
+              <a href="#" class="btn btn-block btn-info" id="startChat" onclick="startChat();hideSignInWindow()"><span class="glyphicon glyphicon-comment"></span> Start Chating</a>
             </div>
           </div>
 

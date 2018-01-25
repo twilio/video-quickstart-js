@@ -170,16 +170,12 @@ function getHistory()
 
 function sendMessage(body)
 {
-
     myChannel.sendMessage(body);
     console.log("Message Sent");
     $('#statusMessages').text("Sent");
     firstTypedLetter='Y';
     printMessage(memberName,body)
-
-
 }
-
 
 function printMessage(auth,msg)
 {
@@ -255,12 +251,6 @@ $('#chatInput').on('keydown', function(e)
 );
 
 
-function showChatWindow()
-{
-    $('#chatWindow').show();
-
-}
-
 
 function showSignInWindow()
 {
@@ -269,11 +259,6 @@ function showSignInWindow()
 }
 
 
-function hideChatWindow()
-{
-    $('#chatWindow').hide();
-
-}
 
 
 function hideSignInWindow()
