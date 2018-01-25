@@ -15,41 +15,45 @@ body {
     margin: 0;
     padding: 1rem;
     width: 100%;
+    border-radius: 3rem;
+    outline: none;
 }
 
 #chat-section {
     margin-left: 2rem;
     min-height: 30rem;
     width: calc(100% - 2rem);
-    border: 1px solid orange;
+    /*border: 1px solid orange;*/
     display: flex;
+    justify-content: flex-end;
     flex-direction: column;
     position: relative;
 }
 
 .chatMessages {
-    flex-grow: 1;
-    border: 1px solid green;
+    /*flex-grow: 1;*/
+    /*border: 1px solid green;*/
 	width: 100% ;
-	position: absolute;
-	top: 0;
+    align-self: flex-end;
+	/*position: absolute;*/
+	bottom: 0;
 }
 
 .scrollable {
-    border: 1px solid pink;
+    /*border: 1px solid pink;*/
     overflow-y: auto;
 }
 
 #statusMessages{
 	font-size: 9px;
-	color: #5BC0DE;
+	color: black;
 	font-style: oblique;
 	margin-left: 10px;
 }
 
 .typingArea {
-    border: 1px solid purple;
-    position: absolute;
+    /*border: 1px solid purple;*/
+    align-self: flex-end;
     bottom: 0;
     width: 100% ;
 }
