@@ -107,6 +107,17 @@ function disconnectFromRoom() {
 }
 
 /**
+ * Get the Tracks of the given Participant.
+ */
+function getTracks(participant) {
+  return Array.from(participant.tracks.values()).filter(function(publication) {
+    return publication.track;
+  }).map(function(publication) {
+    return publication.track;
+  });
+}
+
+/**
  * Hide the codec used to encode the media of a particular kind in a Room.
  */
 function hideAppliedCodec(kind) {
@@ -174,22 +185,22 @@ function wait(ms) {
   // media should join.
   roomName = someRoom.name;
 
-  // Attach the newly added Track to the DOM.
-  someRoom.on('trackAdded', attachTrack.bind(
+  // Attach the newly subscribed Track to the DOM.
+  someRoom.on('trackSubscribed', attachTrack.bind(
     null,
     audioPreview,
     videoPreview,
     showAppliedCodec.bind(null, someRoom)));
 
-  // Detach the removed Track from the DOM.
-  someRoom.on('trackRemoved', detachTrack.bind(
+  // Detach the unsubscribed Track from the DOM.
+  someRoom.on('trackUnsubscribed', detachTrack.bind(
     null,
     audioPreview,
     videoPreview));
 
   // Detach Participant's Tracks upon disconnect.
   someRoom.on('participantDisconnected', function(participant) {
-    participant.tracks.forEach(detachTrack.bind(
+    getTracks(participant).forEach(detachTrack.bind(
       null,
       audioPreview,
       videoPreview));

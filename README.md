@@ -3,6 +3,8 @@
 [![OS X/Linus Build Status](https://secure.travis-ci.org/twilio/video-quickstart-js.png?branch=master)](http://travis-ci.org/twilio/video-quickstart-js) [![Windows Build status](https://ci.appveyor.com/api/projects/status/3u69uy9c0lsap3dr?svg=true
 )](https://ci.appveyor.com/project/markandrus/video-quickstart-js)
 
+_For Twilio Video 1.x Quickstart, go [here](https://github.com/twilio/video-quickstart-js/tree/1.x)._
+
 This application should give you a ready-made starting point for writing your
 own video apps with Twilio Video. Before we begin, we need to collect
 all the config values we need to run the application:

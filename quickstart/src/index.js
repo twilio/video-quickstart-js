@@ -16,7 +16,7 @@ function attachTracks(tracks, container) {
 
 // Attach the Participant's Tracks to the DOM.
 function attachParticipantTracks(participant, container) {
-  var tracks = Array.from(participant.tracks.values());
+  var tracks = getTracks(participant);
   attachTracks(tracks, container);
 }
 
@@ -31,7 +31,7 @@ function detachTracks(tracks) {
 
 // Detach the Participant's Tracks from the DOM.
 function detachParticipantTracks(participant) {
-  var tracks = Array.from(participant.tracks.values());
+  var tracks = getTracks(participant);
   detachTracks(tracks);
 }
 
@@ -76,6 +76,15 @@ $.getJSON('/token', function(data) {
   };
 });
 
+// Get the Participant's Tracks.
+function getTracks(participant) {
+  return Array.from(participant.tracks.values()).filter(function(publication) {
+    return publication.track;
+  }).map(function(publication) {
+    return publication.track;
+  });
+}
+
 // Successfully connected!
 function roomJoined(room) {
   window.room = activeRoom = room;
@@ -102,22 +111,22 @@ function roomJoined(room) {
     log("Joining: '" + participant.identity + "'");
   });
 
-  // When a Participant adds a Track, attach it to the DOM.
-  room.on('trackAdded', function(track, participant) {
-    log(participant.identity + " added track: " + track.kind);
+  // When a Participant's Track is subscribed to, attach it to the DOM.
+  room.on('trackSubscribed', function(track, publication, participant) {
+    log("Subscribed to " + participant.identity + "'s track: " + track.kind);
     var previewContainer = document.getElementById('remote-media');
     attachTracks([track], previewContainer);
   });
 
-  // When a Participant removes a Track, detach it from the DOM.
-  room.on('trackRemoved', function(track, participant) {
-    log(participant.identity + " removed track: " + track.kind);
+  // When a Participant's Track is unsubscribed from, detach it from the DOM.
+  room.on('trackUnsubscribed', function(track, publication, participant) {
+    log("Unsubscribed from " + participant.identity + "'s track: " + track.kind);
     detachTracks([track]);
   });
 
   // When a Participant leaves the Room, detach its Tracks.
   room.on('participantDisconnected', function(participant) {
-    log("Participant '" + participant.identity + "' left the room");
+    log("RemoteParticipant '" + participant.identity + "' left the room");
     detachParticipantTracks(participant);
   });
 
