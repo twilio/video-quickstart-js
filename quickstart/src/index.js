@@ -138,6 +138,7 @@ function roomJoined(room) {
       previewTracks.forEach(function(track) {
         track.stop();
       });
+      previewTracks = null;
     }
     detachParticipantTracks(room.localParticipant);
     room.participants.forEach(detachParticipantTracks);
