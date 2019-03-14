@@ -16,6 +16,9 @@ var VideoGrant = AccessToken.VideoGrant;
 var express = require('express');
 var randomName = require('./randomname');
 
+// Max. period that a Participant is allowed to be in a Room (currently 14400 seconds or 4 hours)
+const MAX_ALLOWED_SESSION_DURATION = 14400;
+
 // Create Express webapp.
 var app = express();
 
@@ -59,7 +62,8 @@ app.get('/token', function(request, response) {
   var token = new AccessToken(
     process.env.TWILIO_ACCOUNT_SID,
     process.env.TWILIO_API_KEY,
-    process.env.TWILIO_API_SECRET
+    process.env.TWILIO_API_SECRET,
+    { ttl: MAX_ALLOWED_SESSION_DURATION }
   );
 
   // Assign the generated identity to the token.
