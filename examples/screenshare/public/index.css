@@ -48,10 +48,6 @@ div.card {
   overflow-y: auto;
 }
 
-div.input-group > select {
-  width: 100%;
-}
-
 div.col-sm-8 > .card {
   height: 100%;
 }
@@ -64,39 +60,11 @@ div.col-sm-4 > .card:last-child {
   height: 70%;
 }
 
-div#audiowaveform {
-  position: absolute;
-  left: 20px;
-  top: 58px;
-  width: 20%;
-  height: 20%;
-  background-color: darkgrey !important;
-  background-image: url('https://www.twilio.com/docs/static/img/wordmark.06c5f14fff7c.svg');
-  background-position: 50%;
-  background-size: 50%;
-  background-repeat: no-repeat;
-}
-
-div#audiowaveform > canvas {
-  background-color: #aaa;
-}
-
-div.bitrategraph {
-  margin-top: 5px;
-  text-align: center;
-}
-
-video#videopreview {
-  width: 160px;
+video#screenpreview {
   background-color: lightgrey !important;
   background-image: url('https://static0.twilio.com/marketing/bundles/archetype/img/logo-wordmark.svg');
   background-position: 50%;
   background-repeat: no-repeat;
-}
-
-select#maxaudiobitrate,
-select#maxvideobitrate {
-  width: 100%;
 }
 
 @media (max-width: 900px) {
