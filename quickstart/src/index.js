@@ -16,8 +16,22 @@ function attachTracks(tracks, container) {
 
 // Attach the Participant's Tracks to the DOM.
 function attachParticipantTracks(participant, container) {
+  // Attach any existing tracks to DOM
   var tracks = getTracks(participant);
+  log("attaching tracks for " + participant.identity + ":" + tracks.length);
   attachTracks(tracks, container);
+
+  // When a Participant's Track is subscribed to, attach it to the DOM.
+  participant.on('trackSubscribed', function (track) {
+    log("Subscribed to " + participant.identity + "'s track: " + track.kind);
+    attachTracks([track], container);
+  });
+
+  // When a Participant's Track is unsubscribed, remove it from the DOM.
+  participant.on('trackUnsubscribed', function (track) {
+    log("Unsubscribed from " + participant.identity + "'s track: " + track.kind);
+    detachTracks([track]);
+  });
 }
 
 // Detach the Tracks from the DOM.
@@ -109,19 +123,8 @@ function roomJoined(room) {
   // When a Participant joins the Room, log the event.
   room.on('participantConnected', function(participant) {
     log("Joining: '" + participant.identity + "'");
-  });
-
-  // When a Participant's Track is subscribed to, attach it to the DOM.
-  room.on('trackSubscribed', function(track, publication, participant) {
-    log("Subscribed to " + participant.identity + "'s track: " + track.kind);
     var previewContainer = document.getElementById('remote-media');
-    attachTracks([track], previewContainer);
-  });
-
-  // When a Participant's Track is unsubscribed from, detach it from the DOM.
-  room.on('trackUnsubscribed', function(track, publication, participant) {
-    log("Unsubscribed from " + participant.identity + "'s track: " + track.kind);
-    detachTracks([track]);
+    attachParticipantTracks(participant, previewContainer);
   });
 
   // When a Participant leaves the Room, detach its Tracks.
