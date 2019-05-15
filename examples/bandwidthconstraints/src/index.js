@@ -41,10 +41,13 @@ function attachAudioTrack(track, audioElement) {
  */
 function attachTrack(audioElement, videoElement, starAudioBitrateGraph, startVideoBitrateGraph, track) {
   if (track.kind === 'audio') {
+    console.log("makarand: attaching audio track");
     attachAudioTrack(track, audioElement);
     stopAudioBitrateGraph = starAudioBitrateGraph(1000);
     return;
   }
+
+  console.log("makarand: attaching video track");
   track.attach(videoElement);
   stopVideoBitrateGraph = startVideoBitrateGraph(1000);
 }
@@ -133,6 +136,7 @@ function setupBitrateGraph(kind, containerId, canvasId) {
 
   bitrateGraph.graphDiv_.style.display = 'none';
   return function startBitrateGraph(room, intervalMs) {
+    console.log("makarand: in startBitrateGraph");
     let bytesReceivedPrev = 0;
     let timestampPrev = Date.now();
     const interval = setInterval(async function() {
@@ -217,19 +221,24 @@ function updateBandwidthParametersInRoom() {
   // media should join.
   roomName = someRoom.name;
 
-  // Attach the newly subscribed Track to the DOM and start the bitrate graph.
-  someRoom.on('trackSubscribed', attachTrack.bind(
-    null,
-    audioPreview,
-    videoPreview,
-    startAudioBitrateGraph.bind(null, someRoom),
-    startVideoBitrateGraph.bind(null, someRoom)));
+  // When a Participant joins the Room...
+  someRoom.on('participantConnected', function(participant) {
+    // Attach the newly subscribed Track to the DOM and start the bitrate graph.
+    participant.on('trackSubscribed', attachTrack.bind(
+      null,
+      audioPreview,
+      videoPreview,
+      startAudioBitrateGraph.bind(null, someRoom),
+      startVideoBitrateGraph.bind(null, someRoom)
+    ));
 
-  // Detach the unsubscribed Track from the DOM and stop the bitrate graph.
-  someRoom.on('trackUnsubscribed', detachTrack.bind(
-    null,
-    audioPreview,
-    videoPreview));
+    // Detach the unsubscribed Track from the DOM and stop the bitrate graph.
+    participant.on('trackUnsubscribed', detachTrack.bind(
+      null,
+      audioPreview,
+      videoPreview
+    ));
+  });
 
   // Detach Participant's Tracks and stop the bitrate graphs upon disconnect.
   someRoom.on('participantDisconnected', function(participant) {
