@@ -41,13 +41,11 @@ function attachAudioTrack(track, audioElement) {
  */
 function attachTrack(audioElement, videoElement, starAudioBitrateGraph, startVideoBitrateGraph, track) {
   if (track.kind === 'audio') {
-    console.log("makarand: attaching audio track");
     attachAudioTrack(track, audioElement);
     stopAudioBitrateGraph = starAudioBitrateGraph(1000);
     return;
   }
 
-  console.log("makarand: attaching video track");
   track.attach(videoElement);
   stopVideoBitrateGraph = startVideoBitrateGraph(1000);
 }
@@ -136,7 +134,6 @@ function setupBitrateGraph(kind, containerId, canvasId) {
 
   bitrateGraph.graphDiv_.style.display = 'none';
   return function startBitrateGraph(room, intervalMs) {
-    console.log("makarand: in startBitrateGraph");
     let bytesReceivedPrev = 0;
     let timestampPrev = Date.now();
     const interval = setInterval(async function() {

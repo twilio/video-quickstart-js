@@ -18,7 +18,6 @@ function attachTracks(tracks, container) {
 function attachParticipantTracks(participant, container) {
   // Attach any existing tracks to DOM
   var tracks = getTracks(participant);
-  log("attaching tracks for " + participant.identity + ":" + tracks.length);
   attachTracks(tracks, container);
 
   // When a Participant's Track is subscribed to, attach it to the DOM.
