@@ -7,45 +7,50 @@ var previewTracks;
 var identity;
 var roomName;
 
-// Attach the Tracks to the DOM.
-function attachTracks(tracks, container) {
-  tracks.forEach(function(track) {
-    container.appendChild(track.attach());
-  });
+
+// Attach given track to the DOM.
+function attachTrack(container, track) {
+  container.appendChild(track.attach());
+}
+
+// Attach array of Tracks to the DOM.
+function attachTracks(container, tracks) {
+  tracks.forEach(track => attachTrack(container, track));
+}
+
+// Detach given track from the DOM
+function detachTrack(track) {
+  track.detach().forEach(element => element.remove());
+}
+
+function trackPublished(container, publication) {
+  if (publication.isSubscribed) {
+    attachTrack(container, publication.track);
+  }
+  publication.on('subscribed', track => attachTrack(container, track));
+  publication.on('unsubscribed', detachTrack);
+}
+
+function trackUnpublished(publication) {
+  if (publication.isSubscribed) {
+    detachTrack(publication.track);
+  }
 }
 
 // Attach the Participant's Tracks to the DOM.
-function attachParticipantTracks(participant, container) {
-  // Attach any existing tracks to DOM
-  var tracks = getTracks(participant);
-  attachTracks(tracks, container);
+function onRemoteParticipantConnected(participant, container) {
+  // Attach any existing tracks published to DOM
+  participant.tracks.forEach(published => trackPublished(container, published));
 
-  // When a Participant's Track is subscribed to, attach it to the DOM.
-  participant.on('trackSubscribed', function (track) {
-    log("Subscribed to " + participant.identity + "'s track: " + track.kind);
-    attachTracks([track], container);
-  });
-
-  // When a Participant's Track is unsubscribed, remove it from the DOM.
-  participant.on('trackUnsubscribed', function (track) {
-    log("Unsubscribed from " + participant.identity + "'s track: " + track.kind);
-    detachTracks([track]);
-  });
-}
-
-// Detach the Tracks from the DOM.
-function detachTracks(tracks) {
-  tracks.forEach(function(track) {
-    track.detach().forEach(function(detachedElement) {
-      detachedElement.remove();
-    });
-  });
+  // And watch for the tracks that get published/unblished afterwords
+  participant.on('trackPublished', published => trackPublished(container, published));
+  participant.on('trackUnpublished', trackUnpublished);
 }
 
 // Detach the Participant's Tracks from the DOM.
 function detachParticipantTracks(participant) {
   var tracks = getTracks(participant);
-  detachTracks(tracks);
+  tracks.forEach(detachTrack);
 }
 
 // When we are about to transition away from this page, disconnect
@@ -109,21 +114,20 @@ function roomJoined(room) {
   // Attach LocalParticipant's Tracks, if not already attached.
   var previewContainer = document.getElementById('local-media');
   if (!previewContainer.querySelector('video')) {
-    attachParticipantTracks(room.localParticipant, previewContainer);
+    attachTracks(previewContainer, getTracks(room.localParticipant));
   }
 
   // Attach the Tracks of the Room's Participants.
+  var remoteMediaContainer = document.getElementById('remote-media');
   room.participants.forEach(function(participant) {
     log("Already in Room: '" + participant.identity + "'");
-    var previewContainer = document.getElementById('remote-media');
-    attachParticipantTracks(participant, previewContainer);
+    onRemoteParticipantConnected(participant, remoteMediaContainer);
   });
 
   // When a Participant joins the Room, log the event.
   room.on('participantConnected', function(participant) {
     log("Joining: '" + participant.identity + "'");
-    var previewContainer = document.getElementById('remote-media');
-    attachParticipantTracks(participant, previewContainer);
+    onRemoteParticipantConnected(participant, remoteMediaContainer);
   });
 
   // When a Participant leaves the Room, detach its Tracks.
@@ -160,7 +164,7 @@ document.getElementById('button-preview').onclick = function() {
     window.previewTracks = previewTracks = tracks;
     var previewContainer = document.getElementById('local-media');
     if (!previewContainer.querySelector('video')) {
-      attachTracks(tracks, previewContainer);
+      attachTracks(previewContainer, tracks);
     }
   }, function(error) {
     console.error('Unable to access local media', error);
