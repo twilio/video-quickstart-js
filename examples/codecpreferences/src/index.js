@@ -185,23 +185,18 @@ function wait(ms) {
   // media should join.
   roomName = someRoom.name;
 
-  // When a Participant joins the Room...
-  someRoom.on('participantConnected', function(participant) {
-    // Attach the newly subscribed Track to the DOM.
-    participant.on('trackSubscribed', attachTrack.bind(
-      null,
-      audioPreview,
-      videoPreview,
-      showAppliedCodec.bind(null, someRoom)
-    ));
+  // Attach the newly subscribed Track to the DOM.
+  someRoom.on('trackSubscribed', attachTrack.bind(
+    null,
+    audioPreview,
+    videoPreview,
+    showAppliedCodec.bind(null, someRoom)));
 
-    // Detach the unsubscribed Track from the DOM.
-    participant.on('trackUnsubscribed', detachTrack.bind(
-      null,
-      audioPreview,
-      videoPreview
-    ));
-  });
+  // Detach the unsubscribed Track from the DOM.
+  someRoom.on('trackUnsubscribed', detachTrack.bind(
+    null,
+    audioPreview,
+    videoPreview));
 
   // Detach Participant's Tracks upon disconnect.
   someRoom.on('participantDisconnected', function(participant) {
