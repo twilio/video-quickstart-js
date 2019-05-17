@@ -29,7 +29,8 @@ var app = express();
   'localvideofilter',
   'localvideosnapshot',
   'mediadevices',
-  'screenshare'
+  'screenshare',
+  'dominantspeaker'
 ].forEach(function(example) {
   var examplePath = path.join(__dirname, `../examples/${example}/public`);
   app.use(`/${example}`, express.static(examplePath));

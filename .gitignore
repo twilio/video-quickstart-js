@@ -54,6 +54,7 @@ examples/localvideofilter/public/index.js
 examples/localvideosnapshot/public/index.js
 examples/mediadevices/public/index.js
 examples/screenshare/public/index.js
+examples/dominantspeaker/public/index.js
 
 # The generated helpers.js
 examples/bandwidthconstraints/public/helpers.js
@@ -62,3 +63,5 @@ examples/localvideofilter/public/helpers.js
 examples/localvideosnapshot/public/helpers.js
 examples/mediadevices/public/helpers.js
 examples/screenshare/public/helpers.js
+examples/dominantspeaker/public/helpers.js
+

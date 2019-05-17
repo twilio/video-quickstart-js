@@ -12,6 +12,7 @@
     "build:examples:localvideosnapshot": "copyfiles -f examples/localvideosnapshot/src/helpers.js examples/localvideosnapshot/public && browserify examples/localvideosnapshot/src/index.js > examples/localvideosnapshot/public/index.js",
     "build:examples:mediadevices": "copyfiles -f examples/mediadevices/src/helpers.js examples/mediadevices/public && browserify examples/mediadevices/src/index.js > examples/mediadevices/public/index.js",
     "build:examples:screenshare": "copyfiles -f examples/screenshare/src/helpers.js examples/screenshare/public && browserify examples/screenshare/src/index.js > examples/screenshare/public/index.js",
+    "build:examples:dominantspeaker": "copyfiles -f examples/dominantspeaker/src/helpers.js examples/dominantspeaker/public && browserify examples/dominantspeaker/src/index.js > examples/dominantspeaker/public/index.js",
     "build:quickstart": "browserify quickstart/src/index.js > quickstart/public/index.js",
     "clean": "npm-run-all clean:*",
     "clean:examples": "npm-run-all clean:examples:*",
@@ -21,6 +22,7 @@
     "clean:examples:localvideosnapshot": "rimraf examples/localvideosnapshot/public/index.js examples/localvideosnapshot/public/helpers.js",
     "clean:examples:mediadevices": "rimraf examples/mediadevices/public/index.js examples/mediadevices/public/helpers.js",
     "clean:examples:screenshare": "rimraf examples/screenshare/public/index.js examples/screenshare/public/helpers.js",
+    "clean:examples:dominantspeaker": "rimraf examples/dominantspeaker/public/index.js examples/dominantspeaker/public/helpers.js",
     "clean:quickstart": "rimraf quickstart/public/index.js",
     "start": "npm run clean && npm run build && node server"
   },
