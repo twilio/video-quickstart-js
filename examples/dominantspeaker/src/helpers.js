@@ -1,28 +1,35 @@
 'use strict';
 
-const Video = require('twilio-video');
+var Video = require('twilio-video');
 
 /**
- * Create a LocalVideoTrack for your screen. You can then share it
- * with other Participants in the Room.
- * @param {number} height - Desired vertical resolution in pixels
- * @param {number} width - Desired horizontal resolution in pixels
- * @returns {Promise<LocalVideoTrack>}
+ * Connect to a Room with and listne for dominant speaker change.
+ * @param {string} token - Token for joining the Room
+ * @param {string} roomName - Room name
+ * @param {function} onDominantSpeakerChanged - Callback for dominant speaker change
+ * @returns {CancelablePromise<Room>}
  */
-function createScreenTrack(height, width) {
-  if (typeof navigator === 'undefined'
-    || !navigator.mediaDevices
-    || !navigator.mediaDevices.getDisplayMedia) {
-    return Promise.reject(new Error('getDisplayMedia is not supported'));
-  }
-  return navigator.mediaDevices.getDisplayMedia({
-    video: {
-      height: height,
-      width: width
-    }
-  }).then(function(stream) {
-    return new Video.LocalVideoTrack(stream.getVideoTracks()[0]);
+function createRoomAndUpdateOnSpeakerchange(token, onDominantSpeakerChanged) {
+  return Video.connect(token, {
+    dominantSpeaker: true,
+  }).then(function (room) {
+    room.on('dominantSpeakerChanged', onDominantSpeakerChanged);
+    return room;
   });
 }
 
-exports.createScreenTrack = createScreenTrack;
+/**
+ * Update the bandwidth constraints of a Room.
+ * @param {Room} room - The Room whose bandwidth constraints have to be updated
+ * @param {?number} maxAudioBitrate - Max audio bitrate (bps)
+ * @param {?number} maxVideoBitrate - Max video bitrate (bps)
+ */
+function updateBandwidthConstraints(room, maxAudioBitrate, maxVideoBitrate) {
+  room.localParticipant.setParameters({
+    maxAudioBitrate: maxAudioBitrate,
+    maxVideoBitrate: maxVideoBitrate
+  });
+}
+
+exports.createRoomAndUpdateOnSpeakerchange = createRoomAndUpdateOnSpeakerchange;
+exports.updateBandwidthConstraints = updateBandwidthConstraints;
