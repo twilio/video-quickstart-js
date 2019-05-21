@@ -26,11 +26,11 @@ var app = express();
 [
   'bandwidthconstraints',
   'codecpreferences',
+  'dominantspeaker',
   'localvideofilter',
   'localvideosnapshot',
   'mediadevices',
-  'screenshare',
-  'dominantspeaker'
+  'screenshare'
 ].forEach(function(example) {
   var examplePath = path.join(__dirname, `../examples/${example}/public`);
   app.use(`/${example}`, express.static(examplePath));

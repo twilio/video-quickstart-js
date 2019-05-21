@@ -7,9 +7,9 @@ const getSnippet = require('../../util/getsnippet');
 const helpers = require('./helpers');
 const createRoomAndUpdateOnSpeakerchange = helpers.createRoomAndUpdateOnSpeakerchange;
 const connectNewUserBtn = document.querySelector('input#connectNewUser');
-let roomName = null;
 const mediaContainer = document.getElementById('remote-media');
 const userControls = document.getElementById('user-controls');
+let roomName = null;
 
 /**
  * creates a button and adds to given container.
