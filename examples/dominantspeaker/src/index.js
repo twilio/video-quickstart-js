@@ -24,27 +24,29 @@ function connectNewUser(event) {
 function createUserControls(room) {
   const localUser = room.localParticipant;
   const currentUserControls = document.createElement('div');
-  currentUserControls.innerText = localUser.identity;
+
+  const title = document.createElement('h4');
+  title.appendChild(document.createTextNode(localUser.identity));
+  currentUserControls.appendChild(title);
+
+  // disconnect button for the user
   const disconnectBtn = document.createElement("input");
   disconnectBtn.value = 'Disconnect';
-  disconnectBtn.classList.add("btn", "btn-primary", "btn-sm");
-  const muteBtn = document.createElement("input");
-  muteBtn.classList.add("btn", "btn-primary", "btn-sm");
-  currentUserControls.appendChild(disconnectBtn);
-  currentUserControls.appendChild(muteBtn);
-
+  disconnectBtn.classList.add("btn", "btn-outline-primary", "btn-sm");
   disconnectBtn.onclick = function () {
-    console.log()
-    room.disconnect(" Disconnecting: localUser");
+    room.disconnect();
     currentUserControls.parentNode.removeChild(currentUserControls);
+    console.log(localUser.identity + ' disconnected.');
   }
+  currentUserControls.appendChild(disconnectBtn);
 
+  // mute button.
+  const muteBtn = document.createElement("input");
   muteBtn.value = "Mute";
+  muteBtn.classList.add("btn", "btn-outline-primary", "btn-sm");
   muteBtn.onclick = function () {
     const mute = muteBtn.value == "Mute";
-    console.log("mute = ", mute);
     getTracks(localUser).forEach(function(track) {
-      console.log('track.kind :', track.kind);
       if (track.kind === 'audio') {
         if (mute) {
           track.disable();
@@ -55,6 +57,7 @@ function createUserControls(room) {
     });
     muteBtn.value = mute ? "UnMute" : "Mute";
   }
+  currentUserControls.appendChild(muteBtn);
   userControls.appendChild(currentUserControls);
 }
 /**
