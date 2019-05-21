@@ -2,9 +2,8 @@
 
 var Video = require('twilio-video');
 
-
 /**
- * adds/removes css attribute per dominant speaker change.
+ * add/removes css attribute per dominant speaker change.
  * @param {Participant} speaker - Participant
  * @param {boolean} add - boolean true when new speaker is detected. false for old speaker
  * @returns {void}
@@ -19,7 +18,7 @@ function updateDominantSpeaker(speaker, add) {
 }
 
 /**
- * Creates a Room with and handles dominant speaker changes.
+ * Creates a Room and handles dominant speaker changes.
  * @param {string} token - Token for joining the Room
  * @returns {CancelablePromise<Room>}
  */

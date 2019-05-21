@@ -6,19 +6,26 @@ const getRoomCredentials = require('../../util/getroomcredentials');
 const getSnippet = require('../../util/getsnippet');
 const helpers = require('./helpers');
 const createRoomAndUpdateOnSpeakerchange = helpers.createRoomAndUpdateOnSpeakerchange;
-const connectOrDisconnect = document.querySelector('input#connectordisconnect');
 const connectNewUserBtn = document.querySelector('input#connectNewUser');
 let roomName = null;
-let room = null;
 const mediaContainer = document.getElementById('remote-media');
 const userControls = document.getElementById('user-controls');
 
-
-function connectNewUser(event) {
-  event.preventDefault();
-  connectToRoom();
+/**
+ * creates a button and adds to given container.
+ */
+function createButton(text, container) {
+  const btn = document.createElement('button');
+  btn.innerHTML = text; // 'Disconnect';
+  btn.classList.add('btn', 'btn-outline-primary', 'btn-sm');
+  container.appendChild(btn);
+  return btn;
 }
-
+/**
+ *
+ * creates controls for user to mute/unmute and disconnect
+ * from the room.
+ */
 function createUserControls(room) {
   const localUser = room.localParticipant;
   const currentUserControls = document.createElement('div');
@@ -28,20 +35,14 @@ function createUserControls(room) {
   title.appendChild(document.createTextNode(localUser.identity));
   currentUserControls.appendChild(title);
 
-  // disconnect button for the user
-  const disconnectBtn = document.createElement('button');
-  disconnectBtn.innerHTML = 'Disconnect';
-  disconnectBtn.classList.add('btn', 'btn-outline-primary', 'btn-sm');
+  const disconnectBtn = createButton('Disconnect', currentUserControls);
   disconnectBtn.onclick = function() {
     room.disconnect();
     currentUserControls.parentNode.removeChild(currentUserControls);
   }
-  currentUserControls.appendChild(disconnectBtn);
 
   // mute button.
-  const muteBtn = document.createElement('button');
-  muteBtn.innerHTML = 'Mute';
-  muteBtn.classList.add('btn', 'btn-outline-primary', 'btn-sm');
+  const muteBtn = createButton('Mute', currentUserControls);
   muteBtn.onclick = function() {
     const mute = muteBtn.innerHTML == 'Mute';
     getTracks(localUser).forEach(function(track) {
@@ -55,29 +56,19 @@ function createUserControls(room) {
     });
     muteBtn.innerHTML = mute ? 'Unmute' : 'Mute';
   }
-  currentUserControls.appendChild(muteBtn);
   userControls.appendChild(currentUserControls);
 }
+
 /**
  * Connect the Participant with media to the Room.
  */
 async function connectToRoom() {
   const creds = await getRoomCredentials();
-  room = await Video.connect( creds.token, {
+  const room = await Video.connect( creds.token, {
     name: roomName
   });
 
   createUserControls(room);
-}
-
-/**
- * Disconnect the Participant with media from the Room.
- */
-function disconnectFromRoom() {
-  room.disconnect();
-  room = null;
-  connectOrDisconnect.value = 'Connect to Room';
-  return;
 }
 
 /**
@@ -91,7 +82,6 @@ function getTracks(participant) {
   });
 }
 
-
 (async function() {
   // Load the code snippet.
   const snippet = await getSnippet('./helpers.js');
@@ -103,19 +93,19 @@ function getTracks(participant) {
   const creds = await getRoomCredentials();
 
   // Connect to a random Room with no media. This Participant will
-  // display the media of the second Participant that will enter
-  // the Room with bandwidth constraints.
+  // display the media of the other Participants that will enter
+  // the Room and watch for dominant speaker updates.
   const someRoom = await createRoomAndUpdateOnSpeakerchange(creds.token);
 
-  // set listener to connect new user users to the room.
-  connectNewUserBtn.onclick = connectNewUser;
+  // set listener to connect new users to the room.
+  connectNewUserBtn.style.display = 'block';
+  connectNewUserBtn.onclick = function(event) {
+    event.preventDefault();
+    connectToRoom();
+  };
 
   // Disconnect from the Room on page unload.
   window.onbeforeunload = function() {
-    if (room) {
-      room.disconnect();
-      room = null;
-    }
     someRoom.disconnect();
   };
 
@@ -136,6 +126,7 @@ function getTracks(participant) {
       div.appendChild(track.attach());
     });
   });
+
   someRoom.on('participantDisconnected', function(participant) {
     getTracks(participant).forEach(function(track) {
       track.detach().forEach(function(element) {
