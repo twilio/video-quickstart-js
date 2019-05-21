@@ -30,11 +30,38 @@ div.col-sm-8, div.col-sm-4 {
 }
 
 div#remote-media {
+  display: flex;
+  justify-content: flex-start;
   height: 43%;
   width: 100%;
   background-color: #fff;
   text-align: center;
   margin: auto;
+}
+
+div#remote-media video {
+  border: 1px solid #272726;
+  margin: 3em 2em;
+  max-width: 40% !important;
+  background-color: #272726;
+  background-repeat: no-repeat;
+}
+
+
+div#user-controls {
+  height: 43%;
+  width: 100%;
+  margin: auto;
+}
+
+div#user-controls button {
+  height: 30px;
+  height: 30px;
+  margin: 5px;
+}
+
+div.dominent_speaker {
+  border: 4px solid red;
 }
 
 pre.language-javascript {
@@ -72,18 +99,8 @@ div.col-sm-4 > .card:last-child {
   height: 70%;
 }
 
-div#audiowaveform {
-  position: absolute;
-  left: 20px;
-  top: 58px;
-  width: 20%;
-  height: 20%;
-  background-color: darkgrey !important;
-  background-image: url('https://www.twilio.com/docs/static/img/wordmark.06c5f14fff7c.svg');
-  background-position: 50%;
-  background-size: 50%;
-  background-repeat: no-repeat;
-}
+
+
 
 div#audiowaveform > canvas {
   background-color: #aaa;

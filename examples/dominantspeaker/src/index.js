@@ -16,43 +16,44 @@ const mediaContainer = document.getElementById('remote-media');
 const userControls = document.getElementById('user-controls');
 
 
-/**
- * Connect to or disconnect the Participant with media from the Room.
- */
-function connectToOrDisconnectFromRoom(event) {
-  event.preventDefault();
-  return room ? disconnectFromRoom() : connectToRoom();
-}
-
-
 function connectNewUser(event) {
   event.preventDefault();
   connectToRoom();
 }
 
-function createUserControls(localUser) {
+function createUserControls(room) {
+  const localUser = room.localParticipant;
   const currentUserControls = document.createElement('div');
   currentUserControls.innerText = localUser.identity;
-  const disconnectBtn = document.createElement("button");
-  disconnectBtn.value = 'Disconnect from Room'
-  const muteBtn = document.createElement("button");
+  const disconnectBtn = document.createElement("input");
+  disconnectBtn.value = 'Disconnect';
+  disconnectBtn.classList.add("btn", "btn-primary", "btn-sm");
+  const muteBtn = document.createElement("input");
+  muteBtn.classList.add("btn", "btn-primary", "btn-sm");
   currentUserControls.appendChild(disconnectBtn);
   currentUserControls.appendChild(muteBtn);
 
   disconnectBtn.onclick = function () {
-    room.disconnect();
+    console.log()
+    room.disconnect(" Disconnecting: localUser");
+    currentUserControls.parentNode.removeChild(currentUserControls);
   }
 
   muteBtn.value = "Mute";
   muteBtn.onclick = function () {
-    if (muteBtn.value == "Mute") {
-      console.log("Muting: ", localUser.identity);
-      muteBtn.value = "UnMute";
-    } else {
-      console.log("UnMuting: ", localUser.identity);
-      muteBtn.value = "Mute";
-
-    }
+    const mute = muteBtn.value == "Mute";
+    console.log("mute = ", mute);
+    getTracks(localUser).forEach(function(track) {
+      console.log('track.kind :', track.kind);
+      if (track.kind === 'audio') {
+        if (mute) {
+          track.disable();
+        } else {
+          track.enable();
+        }
+      }
+    });
+    muteBtn.value = mute ? "UnMute" : "Mute";
   }
   userControls.appendChild(currentUserControls);
 }
@@ -65,7 +66,7 @@ async function connectToRoom() {
     name: roomName
   });
 
-  createUserControls(room.localParticipant);
+  createUserControls(room);
 }
 
 function onDominantSpeakerChanged(participant) {
@@ -103,8 +104,6 @@ function getTracks(participant) {
 
 
   // Set listener to the connect or disconnect button.
-  connectOrDisconnect.onclick = connectToOrDisconnectFromRoom;
-
   connectNewUserBtn.onclick = connectNewUser;
 
 
@@ -114,15 +113,20 @@ function getTracks(participant) {
   // Connect to a random Room with no media. This Participant will
   // display the media of the second Participant that will enter
   // the Room with bandwidth constraints.
-  const dominantSpeaker = null;
+  let dominantSpeaker = null;
   const someRoom = await createRoomAndUpdateOnSpeakerchange(creds.token, function (participant) {
-    const participantDiv = document.getElementById(participant.sid);
     if (dominantSpeaker) {
-      participantDiv.classList.remove("activeParticipant");
+      const participantDiv = document.getElementById(dominantSpeaker.sid);
+      if (participantDiv) {
+        participantDiv.classList.remove("dominent_speaker");
+      }
     }
     dominantSpeaker = participant;
     if (dominantSpeaker) {
-      participantDiv.classList.add("activeParticipant");
+      const participantDiv = document.getElementById(dominantSpeaker.sid);
+      if (participantDiv) {
+        participantDiv.classList.add("dominent_speaker");
+      }
     }
   });
 
@@ -154,5 +158,8 @@ function getTracks(participant) {
         element.remove();
       });
     });
+    const participantDiv = document.getElementById(participant.sid);
+    console.log("removing node ", participantDiv);
+    participantDiv.parentNode.removeChild(participantDiv);
   });
 }());
