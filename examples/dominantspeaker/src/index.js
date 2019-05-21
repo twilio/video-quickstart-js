@@ -6,8 +6,6 @@ const getRoomCredentials = require('../../util/getroomcredentials');
 const getSnippet = require('../../util/getsnippet');
 const helpers = require('./helpers');
 const createRoomAndUpdateOnSpeakerchange = helpers.createRoomAndUpdateOnSpeakerchange;
-const updateBandwidthConstraints = helpers.updateBandwidthConstraints;
-
 const connectOrDisconnect = document.querySelector('input#connectordisconnect');
 const connectNewUserBtn = document.querySelector('input#connectNewUser');
 let roomName = null;
@@ -24,28 +22,28 @@ function connectNewUser(event) {
 function createUserControls(room) {
   const localUser = room.localParticipant;
   const currentUserControls = document.createElement('div');
+  currentUserControls.classList.add('usercontrol');
 
-  const title = document.createElement('h4');
+  const title = document.createElement('h6');
   title.appendChild(document.createTextNode(localUser.identity));
   currentUserControls.appendChild(title);
 
   // disconnect button for the user
-  const disconnectBtn = document.createElement("input");
-  disconnectBtn.value = 'Disconnect';
-  disconnectBtn.classList.add("btn", "btn-outline-primary", "btn-sm");
-  disconnectBtn.onclick = function () {
+  const disconnectBtn = document.createElement('button');
+  disconnectBtn.innerHTML = 'Disconnect';
+  disconnectBtn.classList.add('btn', 'btn-outline-primary', 'btn-sm');
+  disconnectBtn.onclick = function() {
     room.disconnect();
     currentUserControls.parentNode.removeChild(currentUserControls);
-    console.log(localUser.identity + ' disconnected.');
   }
   currentUserControls.appendChild(disconnectBtn);
 
   // mute button.
-  const muteBtn = document.createElement("input");
-  muteBtn.value = "Mute";
-  muteBtn.classList.add("btn", "btn-outline-primary", "btn-sm");
-  muteBtn.onclick = function () {
-    const mute = muteBtn.value == "Mute";
+  const muteBtn = document.createElement('button');
+  muteBtn.innerHTML = 'Mute';
+  muteBtn.classList.add('btn', 'btn-outline-primary', 'btn-sm');
+  muteBtn.onclick = function() {
+    const mute = muteBtn.innerHTML == 'Mute';
     getTracks(localUser).forEach(function(track) {
       if (track.kind === 'audio') {
         if (mute) {
@@ -55,7 +53,7 @@ function createUserControls(room) {
         }
       }
     });
-    muteBtn.value = mute ? "UnMute" : "Mute";
+    muteBtn.innerHTML = mute ? 'Unmute' : 'Mute';
   }
   currentUserControls.appendChild(muteBtn);
   userControls.appendChild(currentUserControls);
@@ -70,10 +68,6 @@ async function connectToRoom() {
   });
 
   createUserControls(room);
-}
-
-function onDominantSpeakerChanged(participant) {
-  console.log('The new dominant speaker in the Room is:', participant);
 }
 
 /**
@@ -105,33 +99,16 @@ function getTracks(participant) {
 
   pre.innerHTML = Prism.highlight(snippet, Prism.languages.javascript);
 
-
-  // Set listener to the connect or disconnect button.
-  connectNewUserBtn.onclick = connectNewUser;
-
-
   // Get the credentials to connect to the Room.
   const creds = await getRoomCredentials();
 
   // Connect to a random Room with no media. This Participant will
   // display the media of the second Participant that will enter
   // the Room with bandwidth constraints.
-  let dominantSpeaker = null;
-  const someRoom = await createRoomAndUpdateOnSpeakerchange(creds.token, function (participant) {
-    if (dominantSpeaker) {
-      const participantDiv = document.getElementById(dominantSpeaker.sid);
-      if (participantDiv) {
-        participantDiv.classList.remove("dominent_speaker");
-      }
-    }
-    dominantSpeaker = participant;
-    if (dominantSpeaker) {
-      const participantDiv = document.getElementById(dominantSpeaker.sid);
-      if (participantDiv) {
-        participantDiv.classList.add("dominent_speaker");
-      }
-    }
-  });
+  const someRoom = await createRoomAndUpdateOnSpeakerchange(creds.token);
+
+  // set listener to connect new user users to the room.
+  connectNewUserBtn.onclick = connectNewUser;
 
   // Disconnect from the Room on page unload.
   window.onbeforeunload = function() {
@@ -149,9 +126,13 @@ function getTracks(participant) {
   someRoom.on('participantConnected', function(participant) {
     const div = document.createElement('div');
     div.id = participant.sid;
-    div.innerText = participant.identity;
+
+    const title = document.createElement('h6');
+    title.appendChild(document.createTextNode(participant.identity));
+    div.appendChild(title);
+
     mediaContainer.appendChild(div);
-    participant.on('trackSubscribed', function (track) {
+    participant.on('trackSubscribed', function(track) {
       div.appendChild(track.attach());
     });
   });
@@ -162,7 +143,6 @@ function getTracks(participant) {
       });
     });
     const participantDiv = document.getElementById(participant.sid);
-    console.log("removing node ", participantDiv);
     participantDiv.parentNode.removeChild(participantDiv);
   });
 }());

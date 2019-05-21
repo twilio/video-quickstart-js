@@ -2,34 +2,39 @@
 
 var Video = require('twilio-video');
 
+
 /**
- * Connect to a Room with and listne for dominant speaker change.
+ * adds/removes css attribute per dominant speaker change.
+ * @param {Participant} speaker - Participant
+ * @param {boolean} add - boolean true when new speaker is detected. false for old speaker
+ * @returns {void}
+ */
+function updateDominantSpeaker(speaker, add) {
+  if (speaker) {
+    const participantDiv = document.getElementById(speaker.sid);
+    if (participantDiv) {
+      participantDiv.classList[add ? 'add' : 'remove']('dominent_speaker');
+    }
+  }
+}
+
+/**
+ * Creates a Room with and handles dominant speaker changes.
  * @param {string} token - Token for joining the Room
- * @param {string} roomName - Room name
- * @param {function} onDominantSpeakerChanged - Callback for dominant speaker change
  * @returns {CancelablePromise<Room>}
  */
-function createRoomAndUpdateOnSpeakerchange(token, onDominantSpeakerChanged) {
+let dominantSpeaker = null;
+function createRoomAndUpdateOnSpeakerchange(token) {
   return Video.connect(token, {
     dominantSpeaker: true,
-  }).then(function (room) {
-    room.on('dominantSpeakerChanged', onDominantSpeakerChanged);
+  }).then(function(room) {
+    room.on('dominantSpeakerChanged', function(participant) {
+      updateDominantSpeaker(dominantSpeaker, false);
+      dominantSpeaker = participant;
+      updateDominantSpeaker(dominantSpeaker, true);
+    });
     return room;
   });
 }
 
-/**
- * Update the bandwidth constraints of a Room.
- * @param {Room} room - The Room whose bandwidth constraints have to be updated
- * @param {?number} maxAudioBitrate - Max audio bitrate (bps)
- * @param {?number} maxVideoBitrate - Max video bitrate (bps)
- */
-function updateBandwidthConstraints(room, maxAudioBitrate, maxVideoBitrate) {
-  room.localParticipant.setParameters({
-    maxAudioBitrate: maxAudioBitrate,
-    maxVideoBitrate: maxVideoBitrate
-  });
-}
-
 exports.createRoomAndUpdateOnSpeakerchange = createRoomAndUpdateOnSpeakerchange;
-exports.updateBandwidthConstraints = updateBandwidthConstraints;
