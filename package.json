@@ -12,6 +12,7 @@
     "build:examples:localvideofilter": "copyfiles -f examples/localvideofilter/src/helpers.js examples/localvideofilter/public && browserify examples/localvideofilter/src/index.js > examples/localvideofilter/public/index.js",
     "build:examples:localvideosnapshot": "copyfiles -f examples/localvideosnapshot/src/helpers.js examples/localvideosnapshot/public && browserify examples/localvideosnapshot/src/index.js > examples/localvideosnapshot/public/index.js",
     "build:examples:mediadevices": "copyfiles -f examples/mediadevices/src/helpers.js examples/mediadevices/public && browserify examples/mediadevices/src/index.js > examples/mediadevices/public/index.js",
+    "build:examples:roomevents": "copyfiles -f examples/roomevents/src/helpers.js examples/roomevents/public && browserify examples/roomevents/src/index.js > examples/roomevents/public/index.js",
     "build:examples:screenshare": "copyfiles -f examples/screenshare/src/helpers.js examples/screenshare/public && browserify examples/screenshare/src/index.js > examples/screenshare/public/index.js",
     "build:quickstart": "browserify quickstart/src/index.js > quickstart/public/index.js",
     "clean": "npm-run-all clean:*",
@@ -22,9 +23,13 @@
     "clean:examples:localvideofilter": "rimraf examples/localvideofilter/public/index.js examples/localvideofilter/public/helpers.js",
     "clean:examples:localvideosnapshot": "rimraf examples/localvideosnapshot/public/index.js examples/localvideosnapshot/public/helpers.js",
     "clean:examples:mediadevices": "rimraf examples/mediadevices/public/index.js examples/mediadevices/public/helpers.js",
+    "clean:examples:roomevents": "rimraf examples/roomevents/public/index.js examples/roomevents/public/helpers.js",
     "clean:examples:screenshare": "rimraf examples/screenshare/public/index.js examples/screenshare/public/helpers.js",
     "clean:quickstart": "rimraf quickstart/public/index.js",
-    "start": "npm run clean && npm run build && node server"
+    "start": "npm run clean && npm run build && node server",
+    "watch:quickstart": "watchify quickstart/src/index.js -d -o quickstart/public/index.js",
+    "watch:roomevents": "copyfiles -f examples/roomevents/src/helpers.js examples/roomevents/public && watchify examples/roomevents/src/index.js -d -o examples/roomevents/public/index.js -v"
+
   },
   "repository": {
     "type": "git",
