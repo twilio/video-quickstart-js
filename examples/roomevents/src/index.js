@@ -12,12 +12,10 @@ let roomName = null;
 let room = null;
 let someRoom = null;
 
-
 /**
  * Connect the Participant with media to the Room.
  */
 async function connectToRoom() {
-  console.log("connectToRoom start");
   const creds = await getRoomCredentials();
   room = await Video.connect( creds.token, {
     name: roomName
@@ -43,21 +41,8 @@ function connectToOrDisconnectFromRoom(event) {
 /**
  * Get the Tracks of the given Participant.
  */
-function getTracks(participant) {
-  return Array.from(participant.tracks.values()).filter(function(publication) {
-    return publication.track;
-  }).map(function(publication) {
-    return publication.track;
-  });
-}
-
-/**
- * Get the Tracks of the given Participant.
- */
 let lastRoomState = "unknown";
 function onRoomStateChange(newState) {
-  console.log("StateChange: ", newState);
-
   const oldStateBtn = document.getElementById("roomstate-" + lastRoomState);
   oldStateBtn.classList.remove('current');
 
@@ -82,13 +67,11 @@ function onRoomStateChange(newState) {
   someRoom = await createRoomAndUpdateOnStateChange(creds.token, onRoomStateChange);
   onRoomStateChange();
 
-  console.log("makarand: created room!", someRoom.name);
-
   // Set the name of the Room to which the Participant that shares
   // media should join.
   roomName = someRoom.name;
 
-  // set listener to connect new users to the room.
+  // set listener to connect new user to the room.
   connectOrDisconnect.style.display = 'block';
   connectOrDisconnect.onclick = connectToOrDisconnectFromRoom;
 
@@ -98,21 +81,15 @@ function onRoomStateChange(newState) {
   };
 
   someRoom.on('participantConnected', function(participant) {
-    console.log("participantConnected: ", participant);
-    // const div = document.createElement('div');
-    // div.id = participant.sid;
-    // mediaContainer.appendChild(div);
+    const div = document.createElement('div');
+    div.id = participant.sid;
+    mediaContainer.appendChild(div);
     participant.on('trackSubscribed', function(track) {
-      mediaContainer.appendChild(track.attach());
+      div.appendChild(track.attach());
     });
   });
 
   someRoom.on('participantDisconnected', function(participant) {
-    getTracks(participant).forEach(function(track) {
-      track.detach().forEach(function(element) {
-        element.remove();
-      });
-    });
     const participantDiv = document.getElementById(participant.sid);
     participantDiv.parentNode.removeChild(participantDiv);
   });
