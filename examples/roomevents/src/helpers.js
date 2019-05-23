@@ -3,8 +3,9 @@
 var Video = require('twilio-video');
 
 /**
- * Creates a Room and handles dominant speaker changes.
+ * Creates a Room and watches for room status events.
  * @param {string} token - Token for joining the Room
+ * @param {function} onStateChange - Callback for state change.
  * @returns {CancelablePromise<Room>}
  */
 function createRoomAndUpdateOnStateChange(token, onStateChange) {

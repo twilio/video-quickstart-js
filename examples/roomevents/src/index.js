@@ -11,6 +11,7 @@ const mediaContainer = document.getElementById('remote-media');
 let roomName = null;
 let room = null;
 let someRoom = null;
+let lastRoomState = "unknown";
 
 /**
  * Connect the Participant with media to the Room.
@@ -39,9 +40,8 @@ function connectToOrDisconnectFromRoom(event) {
 }
 
 /**
- * Get the Tracks of the given Participant.
+ * update the UI to indicate room state.
  */
-let lastRoomState = "unknown";
 function onRoomStateChange(newState) {
   const oldStateBtn = document.getElementById("roomstate-" + lastRoomState);
   oldStateBtn.classList.remove('current');
