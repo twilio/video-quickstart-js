@@ -63,6 +63,31 @@ div#user-controls {
   padding: 10px;
 }
 
+div.roomstate {
+  background: white;
+  margin: 2px;
+  color: black;
+  border: solid 1px black;
+  padding: 20px;
+  margin: 10px;
+}
+
+div.roomstate.unknown.current {
+  background:gray;
+}
+
+div.roomstate.connected.current {
+  background: green;
+}
+
+div.roomstate.disconnected.current {
+  background:red;
+}
+
+div.roomstate.reconnecting.current {
+  background: yellow;
+}
+
 div.usercontrol {
   margin: 5px;
   border: 1px solid black;

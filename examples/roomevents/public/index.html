@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <title>Dominant Speaker</title>
+  <title>Room State Changes</title>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
   <link rel="stylesheet" href="prism.css">
   <link rel="stylesheet" href="index.css">
@@ -15,7 +15,7 @@
         <div class="card">
           <div class="card-block">
             <h4 class="card-title">
-              Dominant Speaker Detection
+              Room State Changes
             </h4>
             <pre class="language-javascript"></pre>
           </div>
@@ -23,9 +23,16 @@
       </div>
       <div class="col-sm-6">
         <div class="card-block">
-            <input id="connectNewUser" type="submit" class="btn btn-primary btn-block" value="Connect New User" style="display:none">
+            <h5>  Room state is: </h5>
+            <div id="roomstate-unknown" class="roomstate unknown current">Unknown</div>
+            <div id="roomstate-connected" class="roomstate connected">Connected</div>
+            <div id="roomstate-disconnected" class="roomstate disconnected">Disconnected</div>
+            <div id="roomstate-reconnecting" class="roomstate reconnecting">Reconnecting</div>
+            <p>
+              Try turning off your network or WiFi connection, or switching to another Wifi network to see how Room state changes.
+            </p>
         </div>
-        <div id="user-controls"></div>
+        <input id="connectordisconnect" type="submit" class="btn btn-primary btn-block" value="Connect New User" style="display:none">
         <div id="remote-media"></div>
       </div>
     </div>

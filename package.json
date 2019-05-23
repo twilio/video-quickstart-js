@@ -29,7 +29,6 @@
     "start": "npm run clean && npm run build && node server",
     "watch:quickstart": "watchify quickstart/src/index.js -d -o quickstart/public/index.js",
     "watch:roomevents": "copyfiles -f examples/roomevents/src/helpers.js examples/roomevents/public && watchify examples/roomevents/src/index.js -d -o examples/roomevents/public/index.js -v"
-
   },
   "repository": {
     "type": "git",
@@ -56,7 +55,8 @@
     "prismjs": "^1.6.0",
     "stackblur-canvas": "^1.4.0",
     "twilio": "^3.19.1",
-    "twilio-video": "^2.0.0-beta9"
+    "twilio-video": "file:../twilio-video.js",
+    "watchify": "^3.11.1"
   },
   "devDependencies": {
     "browserify": "^14.3.0",
