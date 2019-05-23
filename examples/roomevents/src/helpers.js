@@ -8,9 +8,7 @@ var Video = require('twilio-video');
  * @returns {CancelablePromise<Room>}
  */
 function createRoomAndUpdateOnStateChange(token, onStateChange) {
-  return Video.connect(token, {
-    dominantSpeaker: true,
-  }).then(function(room) {
+  return Video.connect(token, {}).then(function(room) {
     room.on('disconnected', function(room, error) {
       console.log('disconnected from ', room);
       console.log('error was  ', error);
