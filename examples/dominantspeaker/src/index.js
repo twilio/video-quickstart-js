@@ -31,8 +31,8 @@ function createButton(text, container) {
  * creates controls for user to mute/unmute and disconnect
  * from the room.
  */
-async function createUserControls() {
-  const creds = await getRoomCredentials();
+async function createUserControls(userIdentity) {
+  const creds = await getRoomCredentials(userIdentity);
   let room = null;
 
   const currentUserControls = document.createElement('div');
@@ -144,23 +144,24 @@ function updateDominantSpeaker(speaker, add) {
   roomName = someRoom.name;
   roomNameText.appendChild(document.createTextNode(roomName));
 
-  // create few user controls.
-  for (let i = 0; i < SAMPLE_USER_COUNT; i++) {
-    createUserControls();
-  }
+  // create controls to connect few users
+  ['Alice', 'Bob', 'Charlie', 'Mak'].forEach(createUserControls);
 
   someRoom.on('participantConnected', function(participant) {
-    const div = document.createElement('div');
-    div.id = participant.sid;
+    const participantdiv = document.createElement('div');
+    participantdiv.id = participant.sid;
+    const mediaDiv = document.createElement('div');
+    mediaDiv.classList.add("mediadiv");
 
     const title = document.createElement('h6');
     title.appendChild(document.createTextNode(participant.identity));
-    div.appendChild(title);
+    mediaDiv.appendChild(title);
 
-    mediaContainer.appendChild(div);
     participant.on('trackSubscribed', function(track) {
-      div.appendChild(track.attach());
+      mediaDiv.appendChild(track.attach());
     });
+    participantdiv.appendChild(mediaDiv);
+    mediaContainer.appendChild(participantdiv);
   });
 
   someRoom.on('participantDisconnected', function(participant) {
