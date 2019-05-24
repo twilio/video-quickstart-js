@@ -5,11 +5,15 @@ const Video = require('twilio-video');
 const getRoomCredentials = require('../../util/getroomcredentials');
 const getSnippet = require('../../util/getsnippet');
 const helpers = require('./helpers');
-const createRoomAndUpdateOnSpeakerchange = helpers.createRoomAndUpdateOnSpeakerchange;
-const connectNewUserBtn = document.querySelector('input#connectNewUser');
+const connectToRoomWithDominantSpeaker = helpers.connectToRoomWithDominantSpeaker;
+const setupDominantSpeakerUpdates = helpers.setupDominantSpeakerUpdates;
+
+const joinRoomBlock = document.querySelector('#joinRoom');
+const roomNameText = document.querySelector('#roomName');
 const mediaContainer = document.getElementById('remote-media');
 const userControls = document.getElementById('user-controls');
 let roomName = null;
+const SAMPLE_USER_COUNT = 4;
 
 /**
  * creates a button and adds to given container.
@@ -21,30 +25,45 @@ function createButton(text, container) {
   container.appendChild(btn);
   return btn;
 }
+
 /**
  *
  * creates controls for user to mute/unmute and disconnect
  * from the room.
  */
-function createUserControls(room) {
-  const localUser = room.localParticipant;
+async function createUserControls() {
+  const creds = await getRoomCredentials();
+  let room = null;
+
   const currentUserControls = document.createElement('div');
   currentUserControls.classList.add('usercontrol');
 
   const title = document.createElement('h6');
-  title.appendChild(document.createTextNode(localUser.identity));
+  title.appendChild(document.createTextNode(creds.identity));
   currentUserControls.appendChild(title);
 
-  const disconnectBtn = createButton('Disconnect', currentUserControls);
-  disconnectBtn.onclick = function() {
-    room.disconnect();
-    currentUserControls.parentNode.removeChild(currentUserControls);
+  // connect button
+  const connectDisconnect = createButton('Connect', currentUserControls);
+  connectDisconnect.onclick = async function(event) {
+    connectDisconnect.disabled = true;
+    const connected = room !== null;
+    if (connected) {
+      room.disconnect();
+      room = null;
+      muteBtn.innerHTML = 'Mute';
+    } else {
+      room = await connectToRoom(creds);
+    }
+    connectDisconnect.innerHTML = connected ? 'Connect' : 'Disconnect';
+    muteBtn.style.display = connected ? 'none' : 'inline';
+    connectDisconnect.disabled = false;
   }
 
   // mute button.
   const muteBtn = createButton('Mute', currentUserControls);
   muteBtn.onclick = function() {
     const mute = muteBtn.innerHTML == 'Mute';
+    const localUser = room.localParticipant;
     getTracks(localUser).forEach(function(track) {
       if (track.kind === 'audio') {
         if (mute) {
@@ -56,19 +75,19 @@ function createUserControls(room) {
     });
     muteBtn.innerHTML = mute ? 'Unmute' : 'Mute';
   }
+  muteBtn.style.display = 'none';
   userControls.appendChild(currentUserControls);
 }
 
 /**
  * Connect the Participant with media to the Room.
  */
-async function connectToRoom() {
-  const creds = await getRoomCredentials();
+async function connectToRoom(creds) {
   const room = await Video.connect( creds.token, {
     name: roomName
   });
 
-  createUserControls(room);
+  return room;
 }
 
 /**
@@ -80,6 +99,21 @@ function getTracks(participant) {
   }).map(function(publication) {
     return publication.track;
   });
+}
+
+/**
+ * add/removes css attribute per dominant speaker change.
+ * @param {Participant} speaker - Participant
+ * @param {boolean} add - boolean true when new speaker is detected. false for old speaker
+ * @returns {void}
+ */
+function updateDominantSpeaker(speaker, add) {
+  if (speaker) {
+    const participantDiv = document.getElementById(speaker.sid);
+    if (participantDiv) {
+      participantDiv.classList[add ? 'add' : 'remove']('dominent_speaker');
+    }
+  }
 }
 
 (async function() {
@@ -95,23 +129,25 @@ function getTracks(participant) {
   // Connect to a random Room with no media. This Participant will
   // display the media of the other Participants that will enter
   // the Room and watch for dominant speaker updates.
-  const someRoom = await createRoomAndUpdateOnSpeakerchange(creds.token);
+  const someRoom = await connectToRoomWithDominantSpeaker(creds.token);
 
-  // set listener to connect new users to the room.
-  connectNewUserBtn.style.display = 'block';
-  connectNewUserBtn.onclick = function(event) {
-    event.preventDefault();
-    connectToRoom();
-  };
-
-  // Disconnect from the Room on page unload.
-  window.onbeforeunload = function() {
-    someRoom.disconnect();
-  };
+  let dominantSpeaker = null;
+  setupDominantSpeakerUpdates(someRoom, function(participant) {
+    updateDominantSpeaker(dominantSpeaker, false);
+    dominantSpeaker = participant;
+    updateDominantSpeaker(dominantSpeaker, true);
+  });
 
   // Set the name of the Room to which the Participant that shares
   // media should join.
+  joinRoomBlock.style.display = 'block';
   roomName = someRoom.name;
+  roomNameText.appendChild(document.createTextNode(roomName));
+
+  // create few user controls.
+  for (let i = 0; i < SAMPLE_USER_COUNT; i++) {
+    createUserControls();
+  }
 
   someRoom.on('participantConnected', function(participant) {
     const div = document.createElement('div');
@@ -136,4 +172,10 @@ function getTracks(participant) {
     const participantDiv = document.getElementById(participant.sid);
     participantDiv.parentNode.removeChild(participantDiv);
   });
+
+  // Disconnect from the Room on page unload.
+  window.onbeforeunload = function() {
+    someRoom.disconnect();
+    someRoom = null;
+  };
 }());

@@ -29,6 +29,12 @@ div.col-sm-6, div.col-sm-6 {
   height: 100%;
 }
 
+#roomName {
+  padding: 2px;
+  border: 1px solid black;
+  margin: 2px;
+}
+
 div#remote-media {
   display: flex;
   justify-content: flex-start;
