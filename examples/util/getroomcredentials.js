@@ -2,7 +2,7 @@
 
 /**
  * Get the Room credentials from the server.
- * @param {?string} identity optional identitiy to use, if not specified server generates random one.
+ * @param {string} [identity] identitiy to use, if not specified server generates random one.
  * @returns {Promise<{identity: string, token: string}>}
  */
 async function getRoomCredentials(identity) {

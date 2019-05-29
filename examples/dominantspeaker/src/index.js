@@ -103,15 +103,18 @@ function getTracks(participant) {
 
 /**
  * add/removes css attribute per dominant speaker change.
- * @param {Participant} speaker - Participant
- * @param {boolean} add - boolean true when new speaker is detected. false for old speaker
+ * @param {?Participant} speaker - Participant
  * @returns {void}
  */
-function updateDominantSpeaker(speaker, add) {
+function updateDominantSpeaker(speaker) {
+  const dominantSpeakerDiv = document.querySelector('div.dominant_speaker');
+  if (dominantSpeakerDiv) {
+    dominantSpeakerDiv.classList.remove('dominant_speaker');
+  }
   if (speaker) {
-    const participantDiv = document.getElementById(speaker.sid);
-    if (participantDiv) {
-      participantDiv.classList[add ? 'add' : 'remove']('dominent_speaker');
+    const newDominantSpeakerDiv = document.getElementById(speaker.sid);
+    if (newDominantSpeakerDiv) {
+      newDominantSpeakerDiv.classList.add('dominant_speaker');
     }
   }
 }
@@ -131,12 +134,7 @@ function updateDominantSpeaker(speaker, add) {
   // the Room and watch for dominant speaker updates.
   const someRoom = await connectToRoomWithDominantSpeaker(creds.token);
 
-  let dominantSpeaker = null;
-  setupDominantSpeakerUpdates(someRoom, function(participant) {
-    updateDominantSpeaker(dominantSpeaker, false);
-    dominantSpeaker = participant;
-    updateDominantSpeaker(dominantSpeaker, true);
-  });
+  setupDominantSpeakerUpdates(someRoom, updateDominantSpeaker);
 
   // Set the name of the Room to which the Participant that shares
   // media should join.
