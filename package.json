@@ -27,6 +27,7 @@
     "clean:examples:screenshare": "rimraf examples/screenshare/public/index.js examples/screenshare/public/helpers.js",
     "clean:quickstart": "rimraf quickstart/public/index.js",
     "start": "npm run clean && npm run build && node server",
+    "watch:roomevents": "copyfiles -f examples/roomevents/src/helpers.js examples/roomevents/public && watchify examples/roomevents/src/index.js -d -o examples/roomevents/public/index.js",
     "watch:quickstart": "watchify quickstart/src/index.js -d -o quickstart/public/index.js"
   },
   "repository": {

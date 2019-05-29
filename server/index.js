@@ -58,7 +58,7 @@ app.get('/', function(request, response) {
  * parameter.
  */
 app.get('/token', function(request, response) {
-  var identity = randomName();
+  var identity = request.query.identity || randomName();
 
   // Create an access token which we will sign and return to the client,
   // containing the grant we just created.

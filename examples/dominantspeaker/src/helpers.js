@@ -3,37 +3,33 @@
 var Video = require('twilio-video');
 
 /**
- * add/removes css attribute per dominant speaker change.
- * @param {Participant} speaker - Participant
- * @param {boolean} add - boolean true when new speaker is detected. false for old speaker
- * @returns {void}
- */
-function updateDominantSpeaker(speaker, add) {
-  if (speaker) {
-    const participantDiv = document.getElementById(speaker.sid);
-    if (participantDiv) {
-      participantDiv.classList[add ? 'add' : 'remove']('dominent_speaker');
-    }
-  }
-}
-
-/**
- * Creates a Room and handles dominant speaker changes.
+ * Connect to a Room with the Dominant Speaker API enabled.
+ * This API is available only in Small Group or Group Rooms.
  * @param {string} token - Token for joining the Room
+ * @param {string} roomName - Room name
  * @returns {CancelablePromise<Room>}
  */
-let dominantSpeaker = null;
-function createRoomAndUpdateOnSpeakerchange(token) {
+function connectToRoomWithDominantSpeaker(token, roomName) {
   return Video.connect(token, {
     dominantSpeaker: true,
-  }).then(function(room) {
-    room.on('dominantSpeakerChanged', function(participant) {
-      updateDominantSpeaker(dominantSpeaker, false);
-      dominantSpeaker = participant;
-      updateDominantSpeaker(dominantSpeaker, true);
-    });
-    return room;
+    name: roomName
   });
 }
 
-exports.createRoomAndUpdateOnSpeakerchange = createRoomAndUpdateOnSpeakerchange;
+/**
+ * Listen to changes in the dominant speaker and update your application.
+ * @param {Room} room - The Room you just joined
+ * @param {function} updateDominantSpeaker - Updates the app UI with the new dominant speaker
+ * @returns {void}
+ */
+function setupDominantSpeakerUpdates(room, updateDominantSpeaker) {
+  room.on('dominantSpeakerChanged', function(participant) {
+    console.log('A new RemoteParticipant is now the dominant speaker:', participant);
+    updateDominantSpeaker(participant);
+  });
+}
+
+exports.connectToRoomWithDominantSpeaker = connectToRoomWithDominantSpeaker;
+exports.setupDominantSpeakerUpdates = setupDominantSpeakerUpdates;
+
+
