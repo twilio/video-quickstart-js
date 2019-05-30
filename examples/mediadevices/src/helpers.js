@@ -50,6 +50,8 @@ function applyVideoInputDeviceSelection(deviceId, video) {
     width: 320
   }).then(function(localTrack) {
     localTrack.attach(video);
+  }).catch(function(error) {
+    if (window.loghere) window.loghere("createLocalVideoTrack failed:", error);
   });
 }
 

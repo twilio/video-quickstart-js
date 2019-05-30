@@ -54,12 +54,13 @@
     "prismjs": "^1.6.0",
     "stackblur-canvas": "^1.4.0",
     "twilio": "^3.19.1",
-    "twilio-video": "^2.0.0-beta9"
+    "twilio-video": "file:../twilio-video.js"
   },
   "devDependencies": {
     "browserify": "^14.3.0",
     "copyfiles": "^1.2.0",
     "npm-run-all": "^4.0.2",
-    "rimraf": "^2.6.1"
+    "rimraf": "^2.6.1",
+    "watchify": "^3.11.1"
   }
 }

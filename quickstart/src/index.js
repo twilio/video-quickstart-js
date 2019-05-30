@@ -164,20 +164,27 @@ function roomJoined(room) {
 
 // Preview LocalParticipant's Tracks.
 document.getElementById('button-preview').onclick = function() {
-  var localTracksPromise = previewTracks
-    ? Promise.resolve(previewTracks)
-    : Video.createLocalTracks();
 
-  localTracksPromise.then(function(tracks) {
-    window.previewTracks = previewTracks = tracks;
-    var previewContainer = document.getElementById('local-media');
-    if (!previewContainer.querySelector('video')) {
-      attachTracks(tracks, previewContainer);
-    }
-  }, function(error) {
-    console.error('Unable to access local media', error);
-    log('Unable to access Camera and Microphone');
-  });
+  try {
+    // navigator.mediaDevices.getUserMedia({audio: true, video: true}).then(function () {
+    //   log("got media!");
+        var localTracksPromise = previewTracks ? Promise.resolve(previewTracks) : Video.createLocalTracks();
+        localTracksPromise.then(function(tracks) {
+          window.previewTracks = previewTracks = tracks;
+          var previewContainer = document.getElementById('local-media');
+          if (!previewContainer.querySelector('video')) {
+            attachTracks(tracks, previewContainer);
+          }
+        }, function(error) {
+          console.error('Unable to access local media', error);
+          log('Unable to access Camera and Microphone');
+        });
+    // }).catch(function () {
+    //   log("did not get media!");
+    // });
+  } catch (e) {
+    log("mak faild!");
+  }
 };
 
 // Activity log.
@@ -186,6 +193,7 @@ function log(message) {
   logDiv.innerHTML += '<p>&gt;&nbsp;' + message + '</p>';
   logDiv.scrollTop = logDiv.scrollHeight;
 }
+window.customLog = log;
 
 // Leave Room.
 function leaveRoomIfJoined() {

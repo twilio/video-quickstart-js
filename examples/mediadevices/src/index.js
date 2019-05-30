@@ -19,7 +19,9 @@ var deviceSelections = {
  * Build the list of available media devices.
  */
 function updateDeviceSelectionOptions() {
+  console.log('makarand: querying deviceSelectionOptions:');
   getDeviceSelectionOptions().then(function (deviceSelectionOptions) {
+    console.log('makarand: deviceSelectionOptions:', deviceSelectionOptions);
     ['audioinput', 'audiooutput', 'videoinput'].forEach(function(kind) {
       var kindDeviceInfos = deviceSelectionOptions[kind];
       var select = deviceSelections[kind];
@@ -50,40 +52,72 @@ getSnippet('./helpers.js').then(function(snippet) {
 });
 
 // Build the list of available media devices.
-updateDeviceSelectionOptions();
+log('hello there!');
+try {
+  if (!navigator.mediaDevices) {
+    log('navigator.mediaDevices is undefined - Are you loading on ngrok http url ? Please try https');
+  }
+  updateDeviceSelectionOptions();
 
-// Whenever a media device is added or removed, update the list.
-navigator.mediaDevices.ondevicechange = updateDeviceSelectionOptions;
+  // Whenever a media device is added or removed, update the list.
+  navigator.mediaDevices.ondevicechange = updateDeviceSelectionOptions;
 
-// Apply the selected audio input media device.
-document.querySelector('button#audioinputapply').onclick = function(event) {
-  var audio = document.querySelector('audio#audioinputpreview');
-  var waveformContainer = document.querySelector('div#audioinputwaveform');
+  // Apply the selected audio input media device.
+  document.querySelector('button#audioinputapply').onclick = function(event) {
+    var audio = document.querySelector('audio#audioinputpreview');
+    var waveformContainer = document.querySelector('div#audioinputwaveform');
 
-  applyAudioInputDeviceSelection(deviceSelections.audioinput.value, audio).then(function() {
-    var canvas = waveformContainer.querySelector('canvas');
-    waveform.setStream(audio.srcObject);
-    if (!canvas) {
-      waveformContainer.appendChild(waveform.element);
+    applyAudioInputDeviceSelection(deviceSelections.audioinput.value, audio).then(function() {
+      var canvas = waveformContainer.querySelector('canvas');
+      waveform.setStream(audio.srcObject);
+      if (!canvas) {
+        waveformContainer.appendChild(waveform.element);
+      }
+    });
+
+    event.preventDefault();
+    event.stopPropagation();
+  };
+
+  // Apply the selected audio output media device.
+  document.querySelector('button#audiooutputapply').onclick = function(event) {
+    var audio = document.querySelector('audio#audioinputpreview');
+    applyAudioOutputDeviceSelection(deviceSelections.audiooutput.value, audio);
+    event.preventDefault();
+    event.stopPropagation();
+  };
+
+  // Apply the selected video input media device.
+  document.querySelector('button#videoinputapply').onclick = function(event) {
+    try {
+      var video = document.querySelector('video#videoinputpreview');
+      applyVideoInputDeviceSelection(deviceSelections.videoinput.value, video);
+      event.preventDefault();
+      event.stopPropagation();
+    } catch (error) {
+      log('videoInput apply failed:', error);
     }
+  };
+} catch (error) {
+  log('error thrown: ', error);
+}
+
+function stringifyError(err, filter, space) {
+  var plainObject = {};
+  Object.getOwnPropertyNames(err).forEach(function(key) {
+    plainObject[key] = err[key];
   });
+  return JSON.stringify(plainObject, filter, space);
+}
 
-  event.preventDefault();
-  event.stopPropagation();
-};
+function log(message, error) {
+  console.log('makarand: ', arguments);
+  var logDiv = document.getElementById('log');
+  if (error) {
+    message += ':' + stringifyError(error);
+  }
+  logDiv.innerHTML += '<p>&gt;&nbsp;' + message + '</p>';
+  logDiv.scrollTop = logDiv.scrollHeight;
+}
+window.loghere = log;
 
-// Apply the selected audio output media device.
-document.querySelector('button#audiooutputapply').onclick = function(event) {
-  var audio = document.querySelector('audio#audioinputpreview');
-  applyAudioOutputDeviceSelection(deviceSelections.audiooutput.value, audio);
-  event.preventDefault();
-  event.stopPropagation();
-};
-
-// Apply the selected video input media device.
-document.querySelector('button#videoinputapply').onclick = function(event) {
-  var video = document.querySelector('video#videoinputpreview');
-  applyVideoInputDeviceSelection(deviceSelections.videoinput.value, video);
-  event.preventDefault();
-  event.stopPropagation();
-};

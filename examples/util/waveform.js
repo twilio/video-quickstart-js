@@ -3,6 +3,12 @@
 const CANVAS_HEIGHT = 150;
 const CANVAS_WIDTH = 300;
 const FFT_SIZE = 512;
+const AudioContext = window.AudioContext // Default
+    || window.webkitAudioContext; // Safari and old versions of Chrome
+
+if (!AudioContext) {
+  alert("AudioContext is not supported on this platform ");
+}
 
 /**
  * Create a waveform element to attach to the DOM.
