@@ -17,10 +17,12 @@ function setupReconnectionUpdates(room, updateRoomState) {
     }
     updateRoomState(room.state);
   });
+
   room.on('reconnected', function() {
     console.log('Reconnected to the Room!');
     updateRoomState(room.state);
   });
+
   room.on('reconnecting', function(error) {
     if (error.code === 53001) {
       console.log('Reconnecting your signaling connection!', error.message);
@@ -30,4 +32,5 @@ function setupReconnectionUpdates(room, updateRoomState) {
     updateRoomState(room.state);
   });
 }
+
 exports.setupReconnectionUpdates = setupReconnectionUpdates;

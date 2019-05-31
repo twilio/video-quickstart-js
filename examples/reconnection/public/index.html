@@ -23,16 +23,21 @@
       </div>
       <div class="col-sm-6">
         <div class="card-block">
-            <h5>  Room state is: </h5>
-            <div class="roomstate unknown current">Unknown</div>
+            <h5> Room state is: </h5>
             <div class="roomstate connected">Connected</div>
-            <div class="roomstate disconnected">Disconnected</div>
+            <div class="roomstate disconnected current">Disconnected</div>
             <div class="roomstate reconnecting">Reconnecting</div>
+            <input id="createRoom" type="submit" class="btn btn-primary btn-block" value="Create Room">
             <p>
-              After you have joined the Room, please either turn off your internet network for a little while and then turn it back on, or switch between networks. The Twilio Video SDK will try to re-establish connection to the Room, which will transition to the "connecting" state. Once reconnection is complete, the Room will transition back to the "connected" state.
+              After you have created the Room, please either turn off your internet network for a little while
+              and then turn it back on, or switch between networks. The Twilio Video SDK will try to re-establish
+              connection to the Room, which will transition to the "connecting" state. Once reconnection is complete,
+              the Room will transition back to the "connected" state.
+
+              You can join other user to the room using button below.
             </p>
+            <input id="connectordisconnect" type="submit" class="btn btn-primary btn-block" value="Join Room">
         </div>
-        <input id="connectordisconnect" type="submit" class="btn btn-primary btn-block" value="Join Room" style="display:none">
         <div id="remote-media"></div>
       </div>
     </div>

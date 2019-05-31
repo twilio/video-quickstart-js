@@ -26,7 +26,9 @@
     "clean:examples:reconnection": "rimraf examples/reconnection/public/index.js examples/reconnection/public/helpers.js",
     "clean:examples:screenshare": "rimraf examples/screenshare/public/index.js examples/screenshare/public/helpers.js",
     "clean:quickstart": "rimraf quickstart/public/index.js",
+    "watch": "copyfiles -f examples/reconnection/src/helpers.js examples/reconnection/public && watchify examples/reconnection/src/index.js -d -o examples/reconnection/public/index.js -v",
     "start": "npm run clean && npm run build && node server"
+
   },
   "repository": {
     "type": "git",
