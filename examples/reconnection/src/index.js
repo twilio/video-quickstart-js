@@ -80,7 +80,7 @@ async function setupRoom() {
     // Connect to a random Room with no media. This Participant will
     // display the media of the other Participants that will enter
     // the Room and watch for reconnection updates.
-    someRoom = await Video.connect(creds.token, { /* tracks: [] */ });
+    someRoom = await Video.connect(creds.token, { tracks: [] });
     setupReconnectionUpdates(someRoom, onRoomStateChange);
     onRoomStateChange(someRoom.state);
 
