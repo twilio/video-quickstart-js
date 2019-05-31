@@ -5,13 +5,13 @@ const Video = require('twilio-video');
 const getRoomCredentials = require('../../util/getroomcredentials');
 const getSnippet = require('../../util/getsnippet');
 const helpers = require('./helpers');
-const createRoomAndUpdateOnStateChange = helpers.createRoomAndUpdateOnStateChange;
+const setupReconnectionUpdates = helpers.setupReconnectionUpdates;
 const connectOrDisconnect = document.querySelector('input#connectordisconnect');
 const mediaContainer = document.getElementById('remote-media');
 let roomName = null;
 let room = null;
 let someRoom = null;
-let lastRoomState = "unknown";
+// let lastRoomState = "unknown";
 
 /**
  * Connect the Participant with media to the Room.
@@ -21,7 +21,7 @@ async function connectToRoom() {
   room = await Video.connect( creds.token, {
     name: roomName
   });
-  connectOrDisconnect.value = 'Disconnect from Room';
+  connectOrDisconnect.value = 'Leave Room';
 }
 
 /**
@@ -30,7 +30,7 @@ async function connectToRoom() {
 function disconnectFromRoom() {
   room.disconnect();
   room = null;
-  connectOrDisconnect.value = 'Connect to Room';
+  connectOrDisconnect.value = 'Join Room';
   return;
 }
 
@@ -43,11 +43,15 @@ function connectToOrDisconnectFromRoom(event) {
  * update the UI to indicate room state.
  */
 function onRoomStateChange(newState) {
-  const oldStateBtn = document.getElementById("roomstate-" + lastRoomState);
-  oldStateBtn.classList.remove('current');
+  const oldStateBtn = document.querySelector('div.current');
+  // const oldStateBtn = document.getElementById("roomstate-" + lastRoomState);
+  if (oldStateBtn) {
+    oldStateBtn.classList.remove('current');
+  }
 
-  lastRoomState = someRoom.state;
-  const newStateBtn = document.getElementById("roomstate-" + someRoom.state);
+
+  // lastRoomState = someRoom.state;
+  const newStateBtn = document.querySelector('div.' + newState);
   newStateBtn.classList.add('current');
 }
 
@@ -64,8 +68,9 @@ function onRoomStateChange(newState) {
   // Connect to a random Room with no media. This Participant will
   // display the media of the other Participants that will enter
   // the Room and watch for dominant speaker updates.
-  someRoom = await createRoomAndUpdateOnStateChange(creds.token, onRoomStateChange);
-  onRoomStateChange();
+  someRoom = await Video.connect(creds.token, {});
+  setupReconnectionUpdates(someRoom, onRoomStateChange);
+  onRoomStateChange(someRoom.state);
 
   // Set the name of the Room to which the Participant that shares
   // media should join.

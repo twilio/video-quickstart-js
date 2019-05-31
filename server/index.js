@@ -30,7 +30,7 @@ var app = express();
   'localvideofilter',
   'localvideosnapshot',
   'mediadevices',
-  'roomevents',
+  'reconnection',
   'screenshare'
 ].forEach(function(example) {
   var examplePath = path.join(__dirname, `../examples/${example}/public`);

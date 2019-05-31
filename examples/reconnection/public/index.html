@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <title>Room State Changes</title>
+  <title>Reconnection States and Events</title>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
   <link rel="stylesheet" href="prism.css">
   <link rel="stylesheet" href="index.css">
@@ -15,7 +15,7 @@
         <div class="card">
           <div class="card-block">
             <h4 class="card-title">
-              Room State Changes
+              Reconnection States and Events
             </h4>
             <pre class="language-javascript"></pre>
           </div>
@@ -24,15 +24,15 @@
       <div class="col-sm-6">
         <div class="card-block">
             <h5>  Room state is: </h5>
-            <div id="roomstate-unknown" class="roomstate unknown current">Unknown</div>
-            <div id="roomstate-connected" class="roomstate connected">Connected</div>
-            <div id="roomstate-disconnected" class="roomstate disconnected">Disconnected</div>
-            <div id="roomstate-reconnecting" class="roomstate reconnecting">Reconnecting</div>
+            <div class="roomstate unknown current">Unknown</div>
+            <div class="roomstate connected">Connected</div>
+            <div class="roomstate disconnected">Disconnected</div>
+            <div class="roomstate reconnecting">Reconnecting</div>
             <p>
-              Room once connected start off with `connected` state. Try turning off your network or WiFi connection, or switching to another Wifi network to see how Room state changes.
+              After you have joined the Room, please either turn off your internet network for a little while and then turn it back on, or switch between networks. The Twilio Video SDK will try to re-establish connection to the Room, which will transition to the "connecting" state. Once reconnection is complete, the Room will transition back to the "connected" state.
             </p>
         </div>
-        <input id="connectordisconnect" type="submit" class="btn btn-primary btn-block" value="Connect New User" style="display:none">
+        <input id="connectordisconnect" type="submit" class="btn btn-primary btn-block" value="Join Room" style="display:none">
         <div id="remote-media"></div>
       </div>
     </div>
