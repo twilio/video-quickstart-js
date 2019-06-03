@@ -22,7 +22,7 @@ function getDevicesOfKind(deviceInfos, kind) {
  */
 function applyAudioInputDeviceSelection(deviceId, audio) {
   return Video.createLocalAudioTrack({
-    deviceId: deviceId
+    exact: deviceId // NOTE: on ios safari - it respects the deviceId only if its exact.
   }).then(function(localTrack) {
     localTrack.attach(audio);
   });
@@ -45,9 +45,9 @@ function applyAudioOutputDeviceSelection(deviceId, audio) {
  */
 function applyVideoInputDeviceSelection(deviceId, video) {
   return Video.createLocalVideoTrack({
-    deviceId: deviceId,
-    height: 240,
-    width: 320
+    deviceId: {
+      exact: deviceId // NOTE: on ios safari - it respects the deviceId only if its exact.
+    }
   }).then(function(localTrack) {
     localTrack.attach(video);
   }).catch(function(error) {
@@ -65,7 +65,7 @@ function applyVideoInputDeviceSelection(deviceId, video) {
  */
 function getDeviceSelectionOptions() {
   return navigator.mediaDevices.enumerateDevices().then(function(deviceInfos) {
-    var kinds = [ 'audioinput', 'audiooutput', 'videoinput' ];
+    var kinds = ['audioinput', 'audiooutput', 'videoinput'];
     return kinds.reduce(function(deviceSelectionOptions, kind) {
       deviceSelectionOptions[kind] = getDevicesOfKind(deviceInfos, kind);
       return deviceSelectionOptions;

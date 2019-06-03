@@ -103,7 +103,8 @@ div#log p {
 }
 
 video#videoinputpreview {
-  width: 100%;
+  max-width: 100% !important;
+  max-height: 80% !important;
   background-color: lightgrey !important;
   background-image: url('https://static0.twilio.com/marketing/bundles/archetype/img/logo-wordmark.svg');
   background-position: 50%;
