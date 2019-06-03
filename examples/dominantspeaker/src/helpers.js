@@ -6,13 +6,11 @@ var Video = require('twilio-video');
  * Connect to a Room with the Dominant Speaker API enabled.
  * This API is available only in Small Group or Group Rooms.
  * @param {string} token - Token for joining the Room
- * @param {string} roomName - Room name
  * @returns {CancelablePromise<Room>}
  */
-function connectToRoomWithDominantSpeaker(token, roomName) {
+function connectToRoomWithDominantSpeaker(token) {
   return Video.connect(token, {
-    dominantSpeaker: true,
-    name: roomName
+    dominantSpeaker: true
   });
 }
 

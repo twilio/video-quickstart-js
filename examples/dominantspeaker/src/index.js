@@ -20,7 +20,7 @@ const SAMPLE_USER_COUNT = 4;
  */
 function createButton(text, container) {
   const btn = document.createElement('button');
-  btn.innerHTML = text; // 'Disconnect';
+  btn.innerHTML = text;
   btn.classList.add('btn', 'btn-outline-primary', 'btn-sm');
   container.appendChild(btn);
   return btn;
