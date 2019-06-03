@@ -10,8 +10,7 @@ var Video = require('twilio-video');
  */
 function connectToRoomWithDominantSpeaker(token) {
   return Video.connect(token, {
-    dominantSpeaker: true,
-    tracks: []
+    dominantSpeaker: true
   });
 }
 
