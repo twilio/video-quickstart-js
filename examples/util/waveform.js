@@ -7,7 +7,7 @@ const AudioContext = window.AudioContext // Default
     || window.webkitAudioContext; // Safari and old versions of Chrome
 
 if (!AudioContext) {
-  alert("AudioContext is not supported on this platform ");
+  console.error('AudioContext is not supported on this platform ');
 }
 
 /**
@@ -81,16 +81,20 @@ function Waveform(options) {
  * @returns {void}
  */
 Waveform.prototype.setStream = function setStream(stream) {
-  // Disconnect any existing audio source.
-  this.unsetStream();
+  // audioContext created w/o user action gets started as suspended.
+  // need to resume. ( see: https://goo.gl/7K7WLu )
+  this._audioContext.resume().then(function() {
+    // Disconnect any existing audio source.
+    this.unsetStream();
 
-  // Create a new audio source for the passed stream, and connect it to the analyser.
-  this._audioSource = this._audioContext.createMediaStreamSource(stream);
-  this._audioSource.connect(this._analyser);
+    // Create a new audio source for the passed stream, and connect it to the analyser.
+    this._audioSource = this._audioContext.createMediaStreamSource(stream);
+    this._audioSource.connect(this._analyser);
 
-  // Start the render loop
-  renderFrame(this);
-}
+    // Start the render loop
+    renderFrame(this);
+  }.bind(this));
+};
 
 /**
  * Stop visualizing the current stream.
@@ -101,7 +105,7 @@ Waveform.prototype.unsetStream = function unsetStream() {
     this._audioSource.disconnect(this._analyser);
     this._audioSource = null;
   }
-}
+};
 
 /**
  * Render the current audio frequency snapshot to the canvas.
@@ -143,9 +147,9 @@ function renderFrame(waveform) {
   var x = 0;
   for (var i = 0; i < bufferLength; i++) {
     var v = dataArray[i] / 128.0;
-    var y = v * CANVAS_HEIGHT/2;
+    var y = v * CANVAS_HEIGHT / 2;
 
-    if(i === 0) {
+    if (i === 0) {
       canvasCtx.moveTo(x, y);
     } else {
       canvasCtx.lineTo(x, y);
@@ -155,7 +159,7 @@ function renderFrame(waveform) {
   }
 
   // End the line at the middle right, and draw the line.
-  canvasCtx.lineTo(canvas.width, canvas.height/2);
+  canvasCtx.lineTo(canvas.width, canvas.height / 2);
   canvasCtx.stroke();
 }
 

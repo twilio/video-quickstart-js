@@ -82,26 +82,6 @@ div#audioinputwaveform > canvas {
   background-color: #aaa;
 }
 
-div#log {
-  width: 100%;
-  height: 9.5em;
-  margin-top: 10px;
-  text-align: left;
-  padding: 10px;
-  float: right;
-  overflow-y: scroll;
-}
-
-div#log p {
-  color: #686865;
-  font-family: 'Share Tech Mono', 'Courier New', Courier, fixed-width;
-  font-size: 1.25em;
-  line-height: 1.25em;
-  margin-left: 1em;
-  text-indent: -1.25em;
-  width: 90%;
-}
-
 video#videoinputpreview {
   max-width: 100% !important;
   max-height: 80% !important;

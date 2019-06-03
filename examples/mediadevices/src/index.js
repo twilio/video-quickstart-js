@@ -17,28 +17,17 @@ var deviceSelections = {
 };
 
 function getMediaPermissions() {
-  return new Promise(function(resolve, reject) {
-    return navigator.getUserMedia({ audio: true, video: true }, resolve, reject);
+  return navigator.mediaDevices.getUserMedia({ audio: true, video: true }).catch(function(error) {
+    console.error('failed to obtain media permissions', error);
+    throw error;
   });
 }
-function printMediaDevices() {
-  // You need to call getUserMedia to request microphone/camera permission
-  // before you get the labels.
-  // With your code above I get all empty strings,
-  // but when I request and grant permission I get the proper labels.
-  return getMediaPermissions().then(function() {
-    navigator.mediaDevices.enumerateDevices().then(function(deviceInfos) {
-      log(JSON.stringify(deviceInfos));
-    });
-  });
-}
+
 /**
  * Build the list of available media devices.
  */
 function updateDeviceSelectionOptions() {
-  console.log('makarand: querying deviceSelectionOptions:');
-  getDeviceSelectionOptions().then(function (deviceSelectionOptions) {
-    log('makarand: deviceSelectionOptions:', deviceSelectionOptions);
+  getDeviceSelectionOptions().then(function(deviceSelectionOptions) {
     ['audioinput', 'audiooutput', 'videoinput'].forEach(function(kind) {
       var kindDeviceInfos = deviceSelectionOptions[kind];
       var select = deviceSelections[kind];
@@ -58,7 +47,6 @@ function updateDeviceSelectionOptions() {
         select.appendChild(option);
       });
     });
-
   });
 }
 
@@ -68,77 +56,54 @@ getSnippet('./helpers.js').then(function(snippet) {
   pre.innerHTML = Prism.highlight(snippet, Prism.languages.javascript);
 });
 
-// Build the list of available media devices.
-log('hello there!');
-try {
-  if (!navigator.mediaDevices) {
-    log('navigator.mediaDevices is undefined - Are you loading on ngrok http url ? Please try https');
-  }
+// before quering for devices, we need to get media permssions
+// without media permissions ios does not return the labels (like front camera, back camera) for the devices.
+getMediaPermissions().then(function() {
+  // Build the list of available media devices.
+  updateDeviceSelectionOptions();
 
-  // before we can query for devices, we need to get media permssions
-  // without media permissions ios does not return the labels (like front camera, back camera) for the devices.
-  getMediaPermissions().then(function() {
-    updateDeviceSelectionOptions();
+  // Whenever a media device is added or removed, update the list.
+  navigator.mediaDevices.ondevicechange = updateDeviceSelectionOptions;
 
-    // Whenever a media device is added or removed, update the list.
-    navigator.mediaDevices.ondevicechange = updateDeviceSelectionOptions;
+  // Apply the selected audio input media device.
+  document.querySelector('button#audioinputapply').onclick = function(event) {
+    var audio = document.querySelector('audio#audioinputpreview');
+    var waveformContainer = document.querySelector('div#audioinputwaveform');
 
-    // Apply the selected audio input media device.
-    document.querySelector('button#audioinputapply').onclick = function(event) {
-      var audio = document.querySelector('audio#audioinputpreview');
-      var waveformContainer = document.querySelector('div#audioinputwaveform');
-
-      applyAudioInputDeviceSelection(deviceSelections.audioinput.value, audio).then(function() {
-        var canvas = waveformContainer.querySelector('canvas');
-        waveform.setStream(audio.srcObject);
-        if (!canvas) {
-          waveformContainer.appendChild(waveform.element);
-        }
-      });
-
-      event.preventDefault();
-      event.stopPropagation();
-    };
-
-    // Apply the selected audio output media device.
-    document.querySelector('button#audiooutputapply').onclick = function(event) {
-      var audio = document.querySelector('audio#audioinputpreview');
-      applyAudioOutputDeviceSelection(deviceSelections.audiooutput.value, audio);
-      event.preventDefault();
-      event.stopPropagation();
-    };
-
-    // Apply the selected video input media device.
-    document.querySelector('button#videoinputapply').onclick = function(event) {
-      try {
-        var video = document.querySelector('video#videoinputpreview');
-        applyVideoInputDeviceSelection(deviceSelections.videoinput.value, video);
-        event.preventDefault();
-        event.stopPropagation();
-      } catch (error) {
-        log('videoInput apply failed:', error);
+    applyAudioInputDeviceSelection(deviceSelections.audioinput.value, audio).then(function() {
+      var canvas = waveformContainer.querySelector('canvas');
+      waveform.setStream(audio.srcObject);
+      if (!canvas) {
+        waveformContainer.appendChild(waveform.element);
       }
-    };
-  });
-} catch (error) {
-  log('error thrown: ', error);
-}
+    });
 
-function stringifyError(err, filter, space) {
-  var plainObject = {};
-  Object.getOwnPropertyNames(err).forEach(function(key) {
-    plainObject[key] = err[key];
-  });
-  return JSON.stringify(plainObject, filter, space);
-}
+    event.preventDefault();
+    event.stopPropagation();
+  };
 
-function log(message, error) {
-  var logDiv = document.getElementById('log');
-  if (error) {
-    message += ':' + stringifyError(error);
-  }
-  logDiv.innerHTML += '<p>&gt;&nbsp;' + message + '</p>';
-  logDiv.scrollTop = logDiv.scrollHeight;
-}
-window.loghere = log;
+  // Apply the selected audio output media device.
+  // NOTE: safari does not let us query the output device (and its HTMLAudioElement does not have setSinkId)
+  document.querySelector('button#audiooutputapply').onclick = function(event) {
+    console.log('applying audio output');
+    var audio = document.querySelector('audio#audioinputpreview');
+    applyAudioOutputDeviceSelection(deviceSelections.audiooutput.value, audio);
+    event.preventDefault();
+    event.stopPropagation();
+  };
+
+  // Apply the selected video input media device.
+  document.querySelector('button#videoinputapply').onclick = function(event) {
+    try {
+      var video = document.querySelector('video#videoinputpreview');
+      applyVideoInputDeviceSelection(deviceSelections.videoinput.value, video);
+      event.preventDefault();
+      event.stopPropagation();
+    } catch (error) {
+      console.log('videoInput apply failed:', error);
+    }
+  };
+}).catch(function() {
+  console.error("Error : ", error);
+});
 

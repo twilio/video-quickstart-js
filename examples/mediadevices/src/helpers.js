@@ -22,7 +22,9 @@ function getDevicesOfKind(deviceInfos, kind) {
  */
 function applyAudioInputDeviceSelection(deviceId, audio) {
   return Video.createLocalAudioTrack({
-    exact: deviceId // NOTE: on ios safari - it respects the deviceId only if its exact.
+    deviceId: {
+      exact: deviceId // NOTE: on ios safari - it respects the deviceId only if its exact.
+    }
   }).then(function(localTrack) {
     localTrack.attach(audio);
   });
@@ -34,7 +36,9 @@ function applyAudioInputDeviceSelection(deviceId, audio) {
  * @param {HTMLAudioElement} audio
  */
 function applyAudioOutputDeviceSelection(deviceId, audio) {
-  audio.setSinkId(deviceId);
+  if (deviceId && audio.setSinkId) {
+    audio.setSinkId(deviceId);
+  }
 }
 
 /**
@@ -51,7 +55,7 @@ function applyVideoInputDeviceSelection(deviceId, video) {
   }).then(function(localTrack) {
     localTrack.attach(video);
   }).catch(function(error) {
-    if (window.loghere) window.loghere("createLocalVideoTrack failed:", error);
+    if (window.loghere) window.loghere('createLocalVideoTrack failed:', error);
   });
 }
 
