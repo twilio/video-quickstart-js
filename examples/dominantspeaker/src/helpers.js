@@ -29,5 +29,3 @@ function setupDominantSpeakerUpdates(room, updateDominantSpeaker) {
 
 exports.connectToRoomWithDominantSpeaker = connectToRoomWithDominantSpeaker;
 exports.setupDominantSpeakerUpdates = setupDominantSpeakerUpdates;
-
-

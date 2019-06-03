@@ -5,22 +5,21 @@ const Video = require('twilio-video');
 const getRoomCredentials = require('../../util/getroomcredentials');
 const getSnippet = require('../../util/getsnippet');
 const helpers = require('./helpers');
-const connectToRoomWithDominantSpeaker = helpers.connectToRoomWithDominantSpeaker;
-const setupDominantSpeakerUpdates = helpers.setupDominantSpeakerUpdates;
+const connectToRoomWithNetworkQuality = helpers.connectToRoomWithNetworkQuality;
+const setupNetworkQualityUpdates = helpers.setupNetworkQualityUpdates;
 
 const joinRoomBlock = document.querySelector('#joinRoom');
 const roomNameText = document.querySelector('#roomName');
 const mediaContainer = document.getElementById('remote-media');
 const userControls = document.getElementById('user-controls');
 let roomName = null;
-const SAMPLE_USER_COUNT = 4;
 
 /**
- * creates a button and adds to given container.
+ * creates a button and add to given container.
  */
 function createButton(text, container) {
   const btn = document.createElement('button');
-  btn.innerHTML = text; // 'Disconnect';
+  btn.innerHTML = text;
   btn.classList.add('btn', 'btn-outline-primary', 'btn-sm');
   container.appendChild(btn);
   return btn;
@@ -28,8 +27,7 @@ function createButton(text, container) {
 
 /**
  *
- * creates controls for user to mute/unmute and disconnect
- * from the room.
+ * Creates controls for user to disconnect from the Room.
  */
 async function createUserControls(userIdentity) {
   const creds = await getRoomCredentials(userIdentity);
@@ -50,44 +48,26 @@ async function createUserControls(userIdentity) {
     if (connected) {
       room.disconnect();
       room = null;
-      muteBtn.innerHTML = 'Mute';
     } else {
       room = await connectToRoom(creds);
     }
     connectDisconnect.innerHTML = connected ? 'Connect' : 'Disconnect';
-    muteBtn.style.display = connected ? 'none' : 'inline';
     connectDisconnect.disabled = false;
-  }
-
-  // mute button.
-  const muteBtn = createButton('Mute', currentUserControls);
-  muteBtn.onclick = function() {
-    const mute = muteBtn.innerHTML == 'Mute';
-    const localUser = room.localParticipant;
-    getTracks(localUser).forEach(function(track) {
-      if (track.kind === 'audio') {
-        if (mute) {
-          track.disable();
-        } else {
-          track.enable();
-        }
-      }
-    });
-    muteBtn.innerHTML = mute ? 'Unmute' : 'Mute';
-  }
-  muteBtn.style.display = 'none';
+  };
   userControls.appendChild(currentUserControls);
 }
 
 /**
  * Connect the Participant with media to the Room.
  */
-async function connectToRoom(creds) {
-  const room = await Video.connect( creds.token, {
-    name: roomName
+function connectToRoom(creds) {
+  return Video.connect(creds.token, {
+    name: roomName,
+    networkQuality: {
+      local: 1,
+      remote: 1
+    }
   });
-
-  return room;
 }
 
 /**
@@ -101,22 +81,37 @@ function getTracks(participant) {
   });
 }
 
+function showParticipant(participant, isRemote) {
+  const participantdiv = document.createElement('div');
+  participantdiv.id = participant.sid;
+  const mediaDiv = document.createElement('div');
+  mediaDiv.classList.add('mediadiv');
+
+  const title = document.createElement('h6');
+  mediaDiv.appendChild(title);
+  participantdiv.appendChild(mediaDiv);
+  mediaContainer.appendChild(participantdiv);
+  updateNetworkQualityReport(participant);
+
+  if (isRemote) {
+    participant.on('trackSubscribed', function(track) {
+      mediaDiv.appendChild(track.attach());
+    });
+  } else {
+    getTracks(participant).forEach(function(track) {
+      mediaDiv.appendChild(track.attach());
+    });
+  }
+}
+
+
 /**
- * add/removes css attribute per dominant speaker change.
- * @param {?Participant} speaker - Participant
- * @returns {void}
+ * Updates the Network Quality report for a Participant.
  */
-function updateDominantSpeaker(speaker) {
-  const dominantSpeakerDiv = document.querySelector('div.dominant_speaker');
-  if (dominantSpeakerDiv) {
-    dominantSpeakerDiv.classList.remove('dominant_speaker');
-  }
-  if (speaker) {
-    const newDominantSpeakerDiv = document.getElementById(speaker.sid);
-    if (newDominantSpeakerDiv) {
-      newDominantSpeakerDiv.classList.add('dominant_speaker');
-    }
-  }
+function updateNetworkQualityReport(participant) {
+  const participantDiv = document.getElementById(participant.sid);
+  const title = participantDiv.querySelector('h6');
+  title.innerHTML = `NQ Level (${participant.identity}): ${participant.networkQualityLevel}`
 }
 
 (async function() {
@@ -127,14 +122,13 @@ function updateDominantSpeaker(speaker) {
   pre.innerHTML = Prism.highlight(snippet, Prism.languages.javascript);
 
   // Get the credentials to connect to the Room.
-  const creds = await getRoomCredentials();
+  const creds = await getRoomCredentials('You');
 
   // Connect to a random Room with no media. This Participant will
   // display the media of the other Participants that will enter
-  // the Room and watch for dominant speaker updates.
-  const someRoom = await connectToRoomWithDominantSpeaker(creds.token);
-
-  setupDominantSpeakerUpdates(someRoom, updateDominantSpeaker);
+  // the Room and watch for Network Quality updates.
+  let someRoom = await connectToRoomWithNetworkQuality(creds.token, 1, 1);
+  showParticipant(someRoom.localParticipant, false);
 
   // Set the name of the Room to which the Participant that shares
   // media should join.
@@ -146,20 +140,7 @@ function updateDominantSpeaker(speaker) {
   ['Alice', 'Bob', 'Charlie', 'Mak'].forEach(createUserControls);
 
   someRoom.on('participantConnected', function(participant) {
-    const participantdiv = document.createElement('div');
-    participantdiv.id = participant.sid;
-    const mediaDiv = document.createElement('div');
-    mediaDiv.classList.add("mediadiv");
-
-    const title = document.createElement('h6');
-    title.appendChild(document.createTextNode(participant.identity));
-    mediaDiv.appendChild(title);
-
-    participant.on('trackSubscribed', function(track) {
-      mediaDiv.appendChild(track.attach());
-    });
-    participantdiv.appendChild(mediaDiv);
-    mediaContainer.appendChild(participantdiv);
+    showParticipant(participant, true);
   });
 
   someRoom.on('participantDisconnected', function(participant) {
@@ -171,6 +152,8 @@ function updateDominantSpeaker(speaker) {
     const participantDiv = document.getElementById(participant.sid);
     participantDiv.parentNode.removeChild(participantDiv);
   });
+
+  setupNetworkQualityUpdates(someRoom, updateNetworkQualityReport);
 
   // Disconnect from the Room on page unload.
   window.onbeforeunload = function() {

@@ -48,14 +48,8 @@ div.mediadiv {
 div#remote-media h6 {
   position: absolute;
   font-size: 14px;
-  background-color: rgba(0, 0, 0, 0.4);
+  background-color: black;
   color: white;
-  max-width: calc((100% - 16px) - 0.5em);
-  margin: 0.25em;
-  border-radius: 4px;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
 }
 
 #roomName {
