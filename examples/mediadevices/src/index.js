@@ -7,6 +7,15 @@ var waveform = require('../../util/waveform');
 var applyAudioInputDeviceSelection = helpers.applyAudioInputDeviceSelection;
 var applyAudioOutputDeviceSelection = helpers.applyAudioOutputDeviceSelection;
 var applyVideoInputDeviceSelection = helpers.applyVideoInputDeviceSelection;
+const connectOrDisconnect = document.querySelector('input#connectordisconnect');
+const getRoomCredentials = require('../../util/getroomcredentials');
+const mediaContainer = document.getElementById('remote-media');
+const joinRoomBlock = document.querySelector('#joinRoom');
+const roomNameText = document.querySelector('#roomName');
+const Video = require('twilio-video');
+
+let roomName = null;
+let someRoom = null;
 
 var getDeviceSelectionOptions = helpers.getDeviceSelectionOptions;
 
@@ -50,6 +59,148 @@ function updateDeviceSelectionOptions() {
   });
 }
 
+function setRoom(room) {
+  while (roomNameText.firstChild) {
+    roomNameText.removeChild(roomNameText.firstChild);
+  }
+
+  joinRoomBlock.style.display = room ? 'block' : 'none';
+  connectOrDisconnect.value = room ? 'Disconnect' : 'Connect';
+
+  if (room) {
+    roomNameText.appendChild(document.createTextNode(room.name));
+    room.localParticipant.on('trackDimensionsChanged', function () {
+      console.log('local track: trackDimensionsChanged');
+    });
+    room.localParticipant.on('trackDisabled', function () {
+      console.log('local track: trackDisabled');
+    });
+    room.localParticipant.on('trackEnabled', function () {
+      console.log('local track: trackEnabled');
+    });
+    room.localParticipant.on('trackPublicationFailed', function () {
+      console.log('local track: trackPublicationFailed');
+    });
+    room.localParticipant.on('trackPublished', function () {
+      console.log('local track: trackPublished');
+    });
+    room.localParticipant.on('trackStarted', function () {
+      console.log('local track: trackStarted');
+    });
+    room.localParticipant.on('trackStopped', function () {
+      console.log('local track: trackStopped');
+    });
+  }
+}
+
+// Attach the Track to the DOM.
+function attachTrack(track, container) {
+  container.appendChild(track.attach());
+}
+
+// Attach array of Tracks to the DOM.
+function attachTracks(tracks, container) {
+  tracks.forEach(function(track) {
+    attachTrack(track, container);
+  });
+}
+
+// Detach given track from the DOM
+function detachTrack(track) {
+  track.detach().forEach(function(element) {
+    element.remove();
+  });
+}
+
+// A new RemoteTrack was published to the Room.
+function trackPublished(publication, container) {
+  if (publication.isSubscribed) {
+    attachTrack(publication.track, container);
+  }
+  publication.on('subscribed', function(track) {
+    console.log('Subscribed to ' + publication.kind + ' track');
+    track.on('disabled', function() {
+      console.log('Disabled ' + publication.kind + ' track');
+    });
+
+    track.on('enabled', function() {
+      console.log('Enabled ' + publication.kind + ' track');
+    });
+
+    track.on('started', function() {
+      console.log('started ' + publication.kind + ' track');
+    });
+
+    track.on('dimensionsChanged', function() {
+      console.log('dimensionsChanged ' + publication.kind + ' track');
+    });
+
+    attachTrack(track, container);
+  });
+  publication.on('unsubscribed', detachTrack);
+}
+
+// A RemoteTrack was unpublished from the Room.
+function trackUnpublished(publication) {
+  console.log(publication.kind + ' track was unpublished.');
+}
+
+// A new RemoteParticipant joined the Room
+function participantConnected(participant) {
+  console.log("Participant '" + participant.identity + "' joined the room");
+  let participantDiv = document.getElementById(participant.sid);
+  if (!participantDiv) {
+    participantDiv = document.createElement('div');
+    participantDiv.id = participant.sid;
+    mediaContainer.appendChild(participantDiv);
+  }
+  participant.tracks.forEach(function(publication) {
+    trackPublished(publication, participantDiv);
+  });
+  participant.on('trackPublished', function(publication) {
+    trackPublished(publication, participantDiv);
+  });
+  participant.on('trackUnpublished', trackUnpublished);
+
+  participant.on('trackDimensionsChanged', function() {
+    console.log('remote : trackDimensionsChanged');
+  });
+  participant.on('trackDisabled', function() {
+    console.log('remote : trackDisabled');
+  });
+  participant.on('trackEnabled', function() {
+    console.log('remote : trackEnabled');
+  });
+  participant.on('trackMessage', function() {
+    console.log('remote : trackMessage');
+  });
+  participant.on('trackPublished', function() {
+    console.log('remote : trackPublished');
+  });
+  participant.on('trackStarted', function() {
+    console.log('remote : trackStarted');
+  });
+  participant.on('trackSubscribed', function() {
+    console.log('remote : trackSubscribed');
+  });
+  participant.on('trackSubscriptionFailed', function() {
+    console.log('remote : trackSubscriptionFailed');
+  });
+  participant.on('trackUnpublished', function() {
+    console.log('remote : trackUnpublished');
+  });
+  participant.on('trackUnsubscribed', function() {
+    console.log('remote : trackUnsubscribed');
+  });
+}
+
+// Detach the Participant's Tracks from the DOM.
+function participantDisconnected(participant) {
+  console.log("Participant '" + participant.identity + "' joined the room");
+  const participantDiv = document.getElementById(participant.sid);
+  participantDiv.parentNode.removeChild(participantDiv);
+}
+
 // Load the code snippet.
 getSnippet('./helpers.js').then(function(snippet) {
   var pre = document.querySelector('pre.language-javascript');
@@ -87,7 +238,7 @@ getMediaPermissions().then(function() {
   document.querySelector('button#audiooutputapply').onclick = function(event) {
     console.log('applying audio output');
     var audio = document.querySelector('audio#audioinputpreview');
-    applyAudioOutputDeviceSelection(deviceSelections.audiooutput.value, audio);
+    applyAudioOutputDeviceSelection(deviceSelections.audiooutput.value, audio, someRoom);
     event.preventDefault();
     event.stopPropagation();
   };
@@ -96,13 +247,54 @@ getMediaPermissions().then(function() {
   document.querySelector('button#videoinputapply').onclick = function(event) {
     try {
       var video = document.querySelector('video#videoinputpreview');
-      applyVideoInputDeviceSelection(deviceSelections.videoinput.value, video);
+      applyVideoInputDeviceSelection(deviceSelections.videoinput.value, video, someRoom);
       event.preventDefault();
       event.stopPropagation();
     } catch (error) {
       console.log('videoInput apply failed:', error);
     }
   };
+
+  // Disconnect from the Room on page unload.
+  window.onbeforeunload = function() {
+    if (someRoom) {
+      someRoom.disconnect();
+      someRoom = null;
+    }
+  };
+
+  // Apply the selected video input media device.
+  connectOrDisconnect.onclick = async function(event) {
+    try {
+      connectOrDisconnect.disabled = true;
+      event.preventDefault();
+      event.stopPropagation();
+      if (someRoom) {
+        someRoom.disconnect();
+        someRoom = null;
+      } else {
+        const creds = await getRoomCredentials();
+        someRoom = await Video.connect(creds.token, {
+          name: 'maks',
+          // logLevel: 'debug'
+        });
+
+        someRoom.participants.forEach(participantConnected);
+
+        // When a Participant joins the Room, log the event.
+        someRoom.on('participantConnected', participantConnected);
+
+        // When a Participant leaves the Room, detach its Tracks.
+        someRoom.on('participantDisconnected', participantDisconnected);
+      }
+      setRoom(someRoom);
+      connectOrDisconnect.disabled = false;
+    } catch (error) {
+      console.log('videoInput apply failed:', error);
+    }
+  };
+
+
 }).catch(function() {
   console.error("Error : ", error);
 });

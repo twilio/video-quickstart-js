@@ -20,13 +20,26 @@ function getDevicesOfKind(deviceInfos, kind) {
  * @param {HTMLAudioElement} audio
  * @returns {Promise<void>}
  */
-function applyAudioInputDeviceSelection(deviceId, audio) {
+function applyAudioInputDeviceSelection(deviceId, audio, room) {
   return Video.createLocalAudioTrack({
     deviceId: {
       exact: deviceId // NOTE: on ios safari - it respects the deviceId only if its exact.
     }
   }).then(function(localTrack) {
     localTrack.attach(audio);
+    if (room) {
+      const localParticipant = room.localParticipant;
+
+      // unbublish old video track(s).
+      const trackPublications = Array.from(localParticipant.audioTracks.values());
+      const tracks = trackPublications.map(function(publication) { return publication.track; });
+      localParticipant.unpublishTracks(tracks);
+
+      // publish new video track
+      localParticipant.publishTrack(localTrack);
+    }
+  }).catch(function(error) {
+    console.log('applyAudioInputDeviceSelection failed:', error);
   });
 }
 
@@ -47,15 +60,26 @@ function applyAudioOutputDeviceSelection(deviceId, audio) {
  * @param {HTMLVideoElement} video
  * @returns {Promise<void>}
  */
-function applyVideoInputDeviceSelection(deviceId, video) {
+function applyVideoInputDeviceSelection(deviceId, video, room) {
   return Video.createLocalVideoTrack({
     deviceId: {
       exact: deviceId // NOTE: on ios safari - it respects the deviceId only if its exact.
     }
   }).then(function(localTrack) {
     localTrack.attach(video);
+    if (room) {
+      const localParticipant = room.localParticipant;
+
+      // unbublish old video track(s).
+      const trackPublications = Array.from(localParticipant.videoTracks.values());
+      const tracks = trackPublications.map(function(publication) { return publication.track; });
+      localParticipant.unpublishTracks(tracks);
+
+      // publish new video track
+      localParticipant.publishTrack(localTrack);
+    }
   }).catch(function(error) {
-    if (window.loghere) window.loghere('createLocalVideoTrack failed:', error);
+    console.log('applyVideoInputDeviceSelection failed:', error);
   });
 }
 
