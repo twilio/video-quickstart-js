@@ -2,11 +2,19 @@
 
 var Video = require('twilio-video');
 
-var activeRoom;
 var previewTracks;
 var identity;
-var roomName;
+var activeRoom = {
+  'A': null,
+  'B': null,
+};
+window.activeRoom = activeRoom;
 
+
+function getElement(roomid, elementId) {
+  roomid = roomid === 'A'  ? '' : 'B';
+  return document.getElementById(elementId + roomid);
+}
 
 // Attach the Track to the DOM.
 function attachTrack(track, container) {
@@ -69,37 +77,50 @@ window.addEventListener('beforeunload', leaveRoomIfJoined);
 $.getJSON('/token', function(data) {
   identity = data.identity;
   document.getElementById('room-controls').style.display = 'block';
+  document.getElementById('room-controlsB').style.display = 'block';
+
+
+  function joinRoom(roomid) {
+    return function() {
+      let roomName = getElement(roomid, 'room-name').value;
+      if (!roomName) {
+        alert('Please enter a room name.');
+        return;
+      }
+
+      log('Joining room \'' + roomName + '\'...');
+      var connectOptions = {
+        name: roomName,
+        logLevel: 'debug'
+      };
+
+      if (previewTracks) {
+        connectOptions.tracks = previewTracks;
+      }
+
+      // Join the Room with the token from the server and the
+      // LocalParticipant's Tracks.
+      Video.connect(data.token, connectOptions).then(roomJoined(roomid), function(error) {
+        log('Could not connect to Twilio: ' + error.message);
+      });
+    };
+  }
 
   // Bind button to join Room.
-  document.getElementById('button-join').onclick = function() {
-    roomName = document.getElementById('room-name').value;
-    if (!roomName) {
-      alert('Please enter a room name.');
-      return;
-    }
-
-    log("Joining room '" + roomName + "'...");
-    var connectOptions = {
-      name: roomName,
-      logLevel: 'debug'
-    };
-
-    if (previewTracks) {
-      connectOptions.tracks = previewTracks;
-    }
-
-    // Join the Room with the token from the server and the
-    // LocalParticipant's Tracks.
-    Video.connect(data.token, connectOptions).then(roomJoined, function(error) {
-      log('Could not connect to Twilio: ' + error.message);
-    });
-  };
+  document.getElementById('button-join').onclick = joinRoom('A');
+  document.getElementById('button-joinB').onclick = joinRoom('B');
 
   // Bind button to leave Room.
   document.getElementById('button-leave').onclick = function() {
-    log('Leaving room...');
-    activeRoom.disconnect();
+    log('Leaving room A...');
+    activeRoom.A.disconnect();
   };
+
+  document.getElementById('button-leaveB').onclick = function() {
+    log('Leaving room B...');
+    activeRoom.B.disconnect();
+  };
+
 });
 
 // Get the Participant's Tracks.
@@ -112,54 +133,57 @@ function getTracks(participant) {
 }
 
 // Successfully connected!
-function roomJoined(room) {
-  window.room = activeRoom = room;
 
-  log("Joined as '" + identity + "'");
-  document.getElementById('button-join').style.display = 'none';
-  document.getElementById('button-leave').style.display = 'inline';
+function roomJoined(roomid) {
+  return function(room) {
+    activeRoom[roomid] = room;
 
-  // Attach LocalParticipant's Tracks, if not already attached.
-  var previewContainer = document.getElementById('local-media');
-  if (!previewContainer.querySelector('video')) {
-    attachTracks(getTracks(room.localParticipant), previewContainer);
-  }
+    log('Joined as \'' + identity + '\'');
+    getElement(roomid, 'button-join').style.display = 'none';
+    getElement(roomid, 'button-leave').style.display = 'inline';
 
-  // Attach the Tracks of the Room's Participants.
-  var remoteMediaContainer = document.getElementById('remote-media');
-  room.participants.forEach(function(participant) {
-    log("Already in Room: '" + participant.identity + "'");
-    participantConnected(participant, remoteMediaContainer);
-  });
-
-  // When a Participant joins the Room, log the event.
-  room.on('participantConnected', function(participant) {
-    log("Joining: '" + participant.identity + "'");
-    participantConnected(participant, remoteMediaContainer);
-  });
-
-  // When a Participant leaves the Room, detach its Tracks.
-  room.on('participantDisconnected', function(participant) {
-    log("RemoteParticipant '" + participant.identity + "' left the room");
-    detachParticipantTracks(participant);
-  });
-
-  // Once the LocalParticipant leaves the room, detach the Tracks
-  // of all Participants, including that of the LocalParticipant.
-  room.on('disconnected', function() {
-    log('Left');
-    if (previewTracks) {
-      previewTracks.forEach(function(track) {
-        track.stop();
-      });
-      previewTracks = null;
+    // Attach LocalParticipant's Tracks, if not already attached.
+    var previewContainer = document.getElementById('local-media');
+    if (!previewContainer.querySelector('video')) {
+      attachTracks(getTracks(room.localParticipant), previewContainer);
     }
-    detachParticipantTracks(room.localParticipant);
-    room.participants.forEach(detachParticipantTracks);
-    activeRoom = null;
-    document.getElementById('button-join').style.display = 'inline';
-    document.getElementById('button-leave').style.display = 'none';
-  });
+
+    // Attach the Tracks of the Room's Participants.
+    var remoteMediaContainer = getElement(roomid, 'remote-media');
+    room.participants.forEach(function(participant) {
+      log('Already in Room: \'' + participant.identity + '\'');
+      participantConnected(participant, remoteMediaContainer);
+    });
+
+    // When a Participant joins the Room, log the event.
+    room.on('participantConnected', function(participant) {
+      log('Joining: \'' + participant.identity + '\'');
+      participantConnected(participant, remoteMediaContainer);
+    });
+
+    // When a Participant leaves the Room, detach its Tracks.
+    room.on('participantDisconnected', function(participant) {
+      log('RemoteParticipant \'' + participant.identity + '\' left the room');
+      detachParticipantTracks(participant);
+    });
+
+    // Once the LocalParticipant leaves the room, detach the Tracks
+    // of all Participants, including that of the LocalParticipant.
+    room.on('disconnected', function() {
+      log('Left');
+      if (previewTracks) {
+        previewTracks.forEach(function(track) {
+          track.stop();
+        });
+        previewTracks = null;
+      }
+      detachParticipantTracks(room.localParticipant);
+      room.participants.forEach(detachParticipantTracks);
+      activeRoom[roomid] = null;
+      getElement(roomid, 'button-join').style.display = 'inline';
+      getElement(roomid, 'button-leave').style.display = 'none';
+    });
+  };
 }
 
 // Preview LocalParticipant's Tracks.
@@ -189,7 +213,10 @@ function log(message) {
 
 // Leave Room.
 function leaveRoomIfJoined() {
-  if (activeRoom) {
-    activeRoom.disconnect();
+  if (activeRoom.A) {
+    activeRoom.A.disconnect();
+  }
+  if (activeRoom.B) {
+    activeRoom.B.disconnect();
   }
 }

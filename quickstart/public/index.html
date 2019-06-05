@@ -5,21 +5,35 @@
   <link rel="stylesheet" href="index.css">
 </head>
 <body>
-<div id="remote-media"></div>
-<div id="controls">
-  <div id="preview">
+<div id="preview">
     <p class="instructions">Hello Beautiful</p>
     <div id="local-media"></div>
     <button id="button-preview">Preview My Camera</button>
-  </div>
-  <div id="room-controls">
-    <p class="instructions">Room Name:</p>
-    <input id="room-name" type="text" placeholder="Enter a room name" />
-    <button id="button-join">Join Room</button>
-    <button id="button-leave">Leave Room</button>
-  </div>
-  <div id="log"></div>
 </div>
+<div id="log"></div>
+<div id="roomA" class="room">
+  <div id="remote-media" class="remote-media"></div>
+  <div id="controls" class="controls">
+    <div id="room-controls", class="room-controls">
+      <p class="instructions">Room Name:</p>
+      <input id="room-name" type="text" class="room-name" placeholder="Enter a room name" />
+      <button id="button-join" class="button-join">Join Room</button>
+      <button id="button-leave" class="button-leave">Leave Room</button>
+    </div>
+  </div>
+</div>
+<div id="roomB" class="room">
+  <div id="remote-mediaB" class="remote-media"></div>
+  <div id="controlsB" class="controls">
+    <div id="room-controlsB", class="room-controls">
+      <p class="instructions">Room Name:</p>
+      <input id="room-nameB" type="text" class="room-name" placeholder="Enter a room name" />
+      <button id="button-joinB" class="button-join">Join Room</button>
+      <button id="button-leaveB" class="button-leave">Leave Room</button>
+    </div>
+  </div>
+</div>
+
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 <script src="index.js"></script>
