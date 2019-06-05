@@ -176,9 +176,15 @@ function connectWithSelectedDevices(tokenCreds, audioDeviceId, videoDeviceId) {
   // }).then(function(localTracks) {
     return Video.connect(tokenCreds, {
       name: 'maks', // TODO: temp - remove this.
-      audio: audioDeviceId,
-      video: videoDeviceId
+      tracks: [],
+      // audio: audioDeviceId,
+      // video: videoDeviceId
     });
+
+    // chrome fails with constraint errors for:
+    // audio: { deviceId: { exact: audioDeviceId }}, // audioDeviceId,
+    // video: { deviceId: { exact: videoDeviceId }}, //videoDeviceId
+
   // });
 }
 
@@ -240,6 +246,10 @@ setupDeviceOptions().then(function() {
       } else {
         const creds = await getRoomCredentials();
         someRoom = await connectWithSelectedDevices(creds.token, deviceSelections.videoinput.value, deviceSelections.audioinput.value);
+
+        applyVideoInputDeviceChange();
+        applyAudioInputDeviceChange();
+
         someRoom.participants.forEach(participantConnected);
 
         // listen as participants connect/disconnect
