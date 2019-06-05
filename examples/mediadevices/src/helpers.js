@@ -84,6 +84,22 @@ function getDeviceSelectionOptions() {
   });
 }
 
+/**
+ * Connects to room using specified input devices
+ * @param {string} tokenCreds
+ * @param {string} videoDeviceId
+ * @param {string} audioDeviceId
+ * @returns {Promise<Room>}
+ */
+function connectWithSelectedDevices(tokenCreds, videoDeviceId, audioDeviceId) {
+  return Video.connect(tokenCreds, {
+    name: 'maks', // TODO: temp - remove this.
+    audio: { deviceId: { exact: audioDeviceId } },
+    video: { deviceId: { exact: videoDeviceId } }
+  });
+}
+
 module.exports.applyAudioInputDeviceSelection = applyAudioInputDeviceSelection;
 module.exports.applyVideoInputDeviceSelection = applyVideoInputDeviceSelection;
+module.exports.connectWithSelectedDevices = connectWithSelectedDevices;
 module.exports.getDeviceSelectionOptions = getDeviceSelectionOptions;
