@@ -68,10 +68,6 @@ div.col-sm-8 > .card {
   height: 100%;
 }
 
-/* div.col-sm-4 > .card {
-  height: 50%;
-} */
-
 div#audioinputwaveform {
   position: absolute;
   left: 20px;
