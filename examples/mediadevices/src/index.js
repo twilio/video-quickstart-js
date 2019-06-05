@@ -5,7 +5,6 @@ var getSnippet = require('../../util/getsnippet');
 var helpers = require('./helpers');
 var waveform = require('../../util/waveform');
 var applyAudioInputDeviceSelection = helpers.applyAudioInputDeviceSelection;
-var applyAudioOutputDeviceSelection = helpers.applyAudioOutputDeviceSelection;
 var applyVideoInputDeviceSelection = helpers.applyVideoInputDeviceSelection;
 const connectOrDisconnect = document.querySelector('input#connectordisconnect');
 const getRoomCredentials = require('../../util/getroomcredentials');
@@ -25,18 +24,24 @@ var deviceSelections = {
   videoinput: document.querySelector('select#videoinput')
 };
 
-function getMediaPermissions() {
-  return navigator.mediaDevices.getUserMedia({ audio: true, video: true }).catch(function(error) {
-    console.error('failed to obtain media permissions', error);
-    throw error;
-  });
+function setupDeviceOptions() {
+  // before quering for devices, we need to get media permssions
+  // without media permissions ios does not return the labels
+  // (like front camera, back camera) for the devices.
+
+  return navigator.mediaDevices.getUserMedia({ audio: true, video: true })
+    .then(updateDeviceSelectionOptions)
+    .catch(function(error) {
+      console.error('failed to obtain media permissions', error);
+      throw error;
+    });
 }
 
 /**
  * Build the list of available media devices.
  */
 function updateDeviceSelectionOptions() {
-  getDeviceSelectionOptions().then(function(deviceSelectionOptions) {
+  return getDeviceSelectionOptions().then(function(deviceSelectionOptions) {
     ['audioinput', 'audiooutput', 'videoinput'].forEach(function(kind) {
       var kindDeviceInfos = deviceSelectionOptions[kind];
       var select = deviceSelections[kind];
@@ -59,7 +64,7 @@ function updateDeviceSelectionOptions() {
   });
 }
 
-function setRoom(room) {
+function updateRoomName(room) {
   while (roomNameText.firstChild) {
     roomNameText.removeChild(roomNameText.firstChild);
   }
@@ -69,40 +74,12 @@ function setRoom(room) {
 
   if (room) {
     roomNameText.appendChild(document.createTextNode(room.name));
-    room.localParticipant.on('trackDimensionsChanged', function () {
-      console.log('local track: trackDimensionsChanged');
-    });
-    room.localParticipant.on('trackDisabled', function () {
-      console.log('local track: trackDisabled');
-    });
-    room.localParticipant.on('trackEnabled', function () {
-      console.log('local track: trackEnabled');
-    });
-    room.localParticipant.on('trackPublicationFailed', function () {
-      console.log('local track: trackPublicationFailed');
-    });
-    room.localParticipant.on('trackPublished', function () {
-      console.log('local track: trackPublished');
-    });
-    room.localParticipant.on('trackStarted', function () {
-      console.log('local track: trackStarted');
-    });
-    room.localParticipant.on('trackStopped', function () {
-      console.log('local track: trackStopped');
-    });
   }
 }
 
 // Attach the Track to the DOM.
 function attachTrack(track, container) {
   container.appendChild(track.attach());
-}
-
-// Attach array of Tracks to the DOM.
-function attachTracks(tracks, container) {
-  tracks.forEach(function(track) {
-    attachTrack(track, container);
-  });
 }
 
 // Detach given track from the DOM
@@ -119,22 +96,6 @@ function trackPublished(publication, container) {
   }
   publication.on('subscribed', function(track) {
     console.log('Subscribed to ' + publication.kind + ' track');
-    track.on('disabled', function() {
-      console.log('Disabled ' + publication.kind + ' track');
-    });
-
-    track.on('enabled', function() {
-      console.log('Enabled ' + publication.kind + ' track');
-    });
-
-    track.on('started', function() {
-      console.log('started ' + publication.kind + ' track');
-    });
-
-    track.on('dimensionsChanged', function() {
-      console.log('dimensionsChanged ' + publication.kind + ' track');
-    });
-
     attachTrack(track, container);
   });
   publication.on('unsubscribed', detachTrack);
@@ -161,37 +122,6 @@ function participantConnected(participant) {
     trackPublished(publication, participantDiv);
   });
   participant.on('trackUnpublished', trackUnpublished);
-
-  participant.on('trackDimensionsChanged', function() {
-    console.log('remote : trackDimensionsChanged');
-  });
-  participant.on('trackDisabled', function() {
-    console.log('remote : trackDisabled');
-  });
-  participant.on('trackEnabled', function() {
-    console.log('remote : trackEnabled');
-  });
-  participant.on('trackMessage', function() {
-    console.log('remote : trackMessage');
-  });
-  participant.on('trackPublished', function() {
-    console.log('remote : trackPublished');
-  });
-  participant.on('trackStarted', function() {
-    console.log('remote : trackStarted');
-  });
-  participant.on('trackSubscribed', function() {
-    console.log('remote : trackSubscribed');
-  });
-  participant.on('trackSubscriptionFailed', function() {
-    console.log('remote : trackSubscriptionFailed');
-  });
-  participant.on('trackUnpublished', function() {
-    console.log('remote : trackUnpublished');
-  });
-  participant.on('trackUnsubscribed', function() {
-    console.log('remote : trackUnsubscribed');
-  });
 }
 
 // Detach the Participant's Tracks from the DOM.
@@ -201,59 +131,94 @@ function participantDisconnected(participant) {
   participantDiv.parentNode.removeChild(participantDiv);
 }
 
+function applyAudioInputDeviceChange(event) {
+  var audio = document.querySelector('audio#audioinputpreview');
+  var waveformContainer = document.querySelector('div#audioinputwaveform');
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  return applyAudioInputDeviceSelection(deviceSelections.audioinput.value, audio, someRoom).then(function() {
+    if (audio.srcObject) {
+      var canvas = waveformContainer.querySelector('canvas');
+      waveform.setStream(audio.srcObject);
+      if (!canvas) {
+        waveformContainer.appendChild(waveform.element);
+      }
+    }
+  });
+}
+
+function applyVideoInputDeviceChange(event) {
+  try {
+    var video = document.querySelector('video#videoinputpreview');
+    applyVideoInputDeviceSelection(deviceSelections.videoinput.value, video, someRoom);
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+  } catch (error) {
+    console.log('videoInput apply failed:', error);
+  }
+}
+
+function connectWithSelectedDevices(tokenCreds, audioDeviceId, videoDeviceId) {
+  // this part not working yet - picking up default devices
+  // // and ensuring that they show up.
+  // return Video.createLocalTracks({
+  //   audio: {
+  //     deviceId: { exact: audioDeviceId },
+  //   },
+  //   video: {
+  //     deviceId: { exact: videoDeviceId },
+  //   }
+  // }).then(function(localTracks) {
+    return Video.connect(tokenCreds, {
+      name: 'maks', // TODO: temp - remove this.
+      audio: audioDeviceId,
+      video: videoDeviceId
+    });
+  // });
+}
+
 // Load the code snippet.
 getSnippet('./helpers.js').then(function(snippet) {
   var pre = document.querySelector('pre.language-javascript');
   pre.innerHTML = Prism.highlight(snippet, Prism.languages.javascript);
 });
 
+
 // before quering for devices, we need to get media permssions
 // without media permissions ios does not return the labels (like front camera, back camera) for the devices.
-getMediaPermissions().then(function() {
-  // Build the list of available media devices.
-  updateDeviceSelectionOptions();
+setupDeviceOptions().then(function() {
+  // apply initial selection to show up in preview.
+  applyVideoInputDeviceChange();
+  applyAudioInputDeviceChange();
 
   // Whenever a media device is added or removed, update the list.
   navigator.mediaDevices.ondevicechange = updateDeviceSelectionOptions;
 
   // Apply the selected audio input media device.
-  document.querySelector('button#audioinputapply').onclick = function(event) {
-    var audio = document.querySelector('audio#audioinputpreview');
-    var waveformContainer = document.querySelector('div#audioinputwaveform');
+  document.querySelector('button#audioinputapply').onclick = applyAudioInputDeviceChange;
 
-    applyAudioInputDeviceSelection(deviceSelections.audioinput.value, audio).then(function() {
-      var canvas = waveformContainer.querySelector('canvas');
-      waveform.setStream(audio.srcObject);
-      if (!canvas) {
-        waveformContainer.appendChild(waveform.element);
-      }
-    });
-
-    event.preventDefault();
-    event.stopPropagation();
-  };
+  // Apply the selected video input media device.
+  document.querySelector('button#videoinputapply').onclick = applyVideoInputDeviceChange;
 
   // Apply the selected audio output media device.
   // NOTE: safari does not let us query the output device (and its HTMLAudioElement does not have setSinkId)
   document.querySelector('button#audiooutputapply').onclick = function(event) {
     console.log('applying audio output');
     var audio = document.querySelector('audio#audioinputpreview');
-    applyAudioOutputDeviceSelection(deviceSelections.audiooutput.value, audio, someRoom);
+
+    // Note: not supported on safari
+    if (deviceSelections.audiooutput.value && audio.setSinkId) {
+      audio.setSinkId(deviceSelections.audiooutput.value);
+    }
     event.preventDefault();
     event.stopPropagation();
   };
 
-  // Apply the selected video input media device.
-  document.querySelector('button#videoinputapply').onclick = function(event) {
-    try {
-      var video = document.querySelector('video#videoinputpreview');
-      applyVideoInputDeviceSelection(deviceSelections.videoinput.value, video, someRoom);
-      event.preventDefault();
-      event.stopPropagation();
-    } catch (error) {
-      console.log('videoInput apply failed:', error);
-    }
-  };
 
   // Disconnect from the Room on page unload.
   window.onbeforeunload = function() {
@@ -274,20 +239,14 @@ getMediaPermissions().then(function() {
         someRoom = null;
       } else {
         const creds = await getRoomCredentials();
-        someRoom = await Video.connect(creds.token, {
-          name: 'maks',
-          // logLevel: 'debug'
-        });
-
+        someRoom = await connectWithSelectedDevices(creds.token, deviceSelections.videoinput.value, deviceSelections.audioinput.value);
         someRoom.participants.forEach(participantConnected);
 
-        // When a Participant joins the Room, log the event.
+        // listen as participants connect/disconnect
         someRoom.on('participantConnected', participantConnected);
-
-        // When a Participant leaves the Room, detach its Tracks.
         someRoom.on('participantDisconnected', participantDisconnected);
       }
-      setRoom(someRoom);
+      updateRoomName(someRoom);
       connectOrDisconnect.disabled = false;
     } catch (error) {
       console.log('videoInput apply failed:', error);

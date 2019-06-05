@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 'use strict';
 
 var Video = require('twilio-video');
@@ -14,10 +15,22 @@ function getDevicesOfKind(deviceInfos, kind) {
   });
 }
 
+function switchLocalTracks(room, newLockTrack) {
+  if (room) {
+      room.localParticipant.tracks.forEach(function(trackPublication) {
+      if (trackPublication.kind === newLockTrack.kind) {
+        room.localParticipant.unpublishTrack(trackPublication.track);
+      }
+    });
+    room.localParticipant.publishTrack(newLockTrack);
+  }
+}
+
 /**
  * Apply the selected audio input device.
  * @param {string} deviceId
  * @param {HTMLAudioElement} audio
+ * @param {Room} [room] to switch tracks on.
  * @returns {Promise<void>}
  */
 function applyAudioInputDeviceSelection(deviceId, audio, room) {
@@ -27,37 +40,17 @@ function applyAudioInputDeviceSelection(deviceId, audio, room) {
     }
   }).then(function(localTrack) {
     localTrack.attach(audio);
-    if (room) {
-      const localParticipant = room.localParticipant;
-
-      // unbublish old video track(s).
-      const trackPublications = Array.from(localParticipant.audioTracks.values());
-      const tracks = trackPublications.map(function(publication) { return publication.track; });
-      localParticipant.unpublishTracks(tracks);
-
-      // publish new video track
-      localParticipant.publishTrack(localTrack);
-    }
+    switchLocalTracks(room, localTrack);
   }).catch(function(error) {
     console.log('applyAudioInputDeviceSelection failed:', error);
   });
 }
 
 /**
- * Apply the selected audio output device.
- * @param {string} deviceId
- * @param {HTMLAudioElement} audio
- */
-function applyAudioOutputDeviceSelection(deviceId, audio) {
-  if (deviceId && audio.setSinkId) {
-    audio.setSinkId(deviceId);
-  }
-}
-
-/**
  * Apply the selected video input device.
  * @param {string} deviceId
  * @param {HTMLVideoElement} video
+ * @param {Room} [room] to switch tracks on.
  * @returns {Promise<void>}
  */
 function applyVideoInputDeviceSelection(deviceId, video, room) {
@@ -67,17 +60,7 @@ function applyVideoInputDeviceSelection(deviceId, video, room) {
     }
   }).then(function(localTrack) {
     localTrack.attach(video);
-    if (room) {
-      const localParticipant = room.localParticipant;
-
-      // unbublish old video track(s).
-      const trackPublications = Array.from(localParticipant.videoTracks.values());
-      const tracks = trackPublications.map(function(publication) { return publication.track; });
-      localParticipant.unpublishTracks(tracks);
-
-      // publish new video track
-      localParticipant.publishTrack(localTrack);
-    }
+    switchLocalTracks(room, localTrack);
   }).catch(function(error) {
     console.log('applyVideoInputDeviceSelection failed:', error);
   });
@@ -102,6 +85,5 @@ function getDeviceSelectionOptions() {
 }
 
 module.exports.applyAudioInputDeviceSelection = applyAudioInputDeviceSelection;
-module.exports.applyAudioOutputDeviceSelection = applyAudioOutputDeviceSelection;
 module.exports.applyVideoInputDeviceSelection = applyVideoInputDeviceSelection;
 module.exports.getDeviceSelectionOptions = getDeviceSelectionOptions;
