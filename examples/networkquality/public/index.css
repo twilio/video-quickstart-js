@@ -29,7 +29,7 @@ div.col-sm-6, div.col-sm-6 {
   height: 100%;
 }
 
-div#remote-media {
+div#remotemedia {
   display: flex;
   justify-content: flex-start;
   flex-wrap: wrap;
@@ -45,34 +45,40 @@ div.mediadiv {
   width: 200px;
 }
 
-div#remote-media h6 {
+div#remotemedia h6 {
   position: absolute;
   font-size: 14px;
   background-color: black;
   color: white;
 }
 
-#roomName {
+#roomname {
   padding: 2px;
   border: 1px solid black;
   margin: 2px;
 }
 
-div#remote-media video {
+div#remotemedia video {
   max-width: 100% !important;
   max-height: 80% !important;
   background-color: #272726;
   background-repeat: no-repeat;
 }
 
-div#user-controls {
+div#remotemedia textarea {
+  resize: none;
+  width: 200px;
+  height: 200px;
+  font-size: 0.6em;
+  font-family: Courier, sans-serif;
+}
+
+div#usercontrols {
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
-  height: 40%;
   width: 100%;
-  margin: 10px;
-  padding: 10px;
+  padding: 5px 10px;
 }
 
 div.usercontrol {
@@ -81,9 +87,8 @@ div.usercontrol {
   padding: 10px;
 }
 
-div.dominant_speaker {
-  border: 4px solid red;
-  background: aqua;
+div.usercontrol button {
+  float: right;
 }
 
 pre.language-javascript {

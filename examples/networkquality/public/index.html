@@ -22,15 +22,46 @@
         </div>
       </div>
       <div class="col-sm-6">
-        <div id="joinRoom" class="card-block" style="display:none">
-            <h4>Join room:</h4>
-            <h6 id="roomName"></h6>
-            <p>Please join the above Room using the <a href="/quickstart" target="_blank">QuickStart App</a>
-              or connect the below Participants to the Room.
+        <div class="card">
+          <div class="card-block">
+            <h4 class="card-title">Set Network Quality Verbosity Levels</h4>
+            <form>
+              <div class="form-group">
+                <label class="form-text text-muted">LocalParticipant</label>
+                <div class="input-group">
+                  <select id="local" name="local">
+                    <option value="1" selected>1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-text text-muted">RemoteParticipant(s)</label>
+                <div class="input-group">
+                  <select id="remote" name="remote">
+                    <option value="0" selected>0</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                  </select>
+                </div>
+              </div>
+              <input id="setuproom" class="btn btn-primary btn-block" type="submit" value="Create Room">
+            </form>
+          </div>
+        </div>
+        <div id="joinroom" class="card-block" style="display:none">
+            <h4>Join Room:</h4>
+            <h6 id="roomname"></h6>
+            <p>After creating the Room with the desired verbosity levels, please join the above Room using the
+              <a href="/quickstart" target="_blank">QuickStart App</a> or connect the below Participants to the Room.
+              You can also change the verbosity levels and observe the change in the verbosity of the reported
+              Network Quality stats.
             </p>
         </div>
-        <div id="user-controls"></div>
-        <div id="remote-media"></div>
+        <div id="usercontrols"></div>
+        <div id="remotemedia"></div>
       </div>
     </div>
   </div>
