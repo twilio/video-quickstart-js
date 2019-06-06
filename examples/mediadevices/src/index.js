@@ -55,7 +55,6 @@ function updateDeviceSelectionOptions() {
 }
 
 function updateRoomBlock(room) {
-  window.someRoom = room; // TODO: remove later.
   while (roomNameText.firstChild) {
     roomNameText.removeChild(roomNameText.firstChild);
   }
@@ -179,7 +178,7 @@ async function connectOrDisconnectRoom(event) {
   } else {
 
     const creds = await getRoomCredentials();
-    someRoom = await connectWithSelectedDevices(creds.token, deviceSelections.videoinput.value, deviceSelections.audioinput.value);
+    someRoom = await connectWithSelectedDevices(creds.token, deviceSelections.audioinput.value, deviceSelections.videoinput.value);
 
     // sync the preview with connected tracks.
     applyVideoInputDeviceChange();

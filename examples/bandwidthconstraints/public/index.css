@@ -71,7 +71,6 @@ div#audiowaveform {
   width: 20%;
   height: 20%;
   background-color: darkgrey !important;
-  /* TODO: the image below is not available, */
   background-image: url('https://www.twilio.com/docs/static/img/wordmark.06c5f14fff7c.svg');
   background-position: 50%;
   background-size: 50%;

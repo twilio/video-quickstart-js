@@ -15,14 +15,22 @@ function getDevicesOfKind(deviceInfos, kind) {
   });
 }
 
-function switchLocalTracks(room, newLockTrack) {
+/**
+ * Replace the existing LocalAudioTrack or LocalVideoTrack with
+ * a new one in the Room.
+ * @param {Room} room - The Room you have joined
+ * @param {LocalAudioTrack|LocalVideoTrack} track - The LocalTrack you want to switch to
+ * @returns {void}
+ */
+function switchLocalTracks(room, track) {
   if (room) {
       room.localParticipant.tracks.forEach(function(trackPublication) {
-      if (trackPublication.kind === newLockTrack.kind) {
+      if (trackPublication.kind === track.kind) {
+        trackPublication.track.stop();
         room.localParticipant.unpublishTrack(trackPublication.track);
       }
     });
-    room.localParticipant.publishTrack(newLockTrack);
+    room.localParticipant.publishTrack(track);
   }
 }
 
@@ -30,7 +38,7 @@ function switchLocalTracks(room, newLockTrack) {
  * Apply the selected audio input device.
  * @param {string} deviceId
  * @param {HTMLAudioElement} audio
- * @param {Room} [room] to switch tracks on.
+ * @param {Room} [room] - The Room, if you have already joined one
  * @returns {Promise<void>}
  */
 function applyAudioInputDeviceSelection(deviceId, audio, room) {
@@ -50,13 +58,13 @@ function applyAudioInputDeviceSelection(deviceId, audio, room) {
  * Apply the selected video input device.
  * @param {string} deviceId
  * @param {HTMLVideoElement} video
- * @param {Room} [room] to switch tracks on.
+ * @param {Room} [room] - The Room, if you have already joined one
  * @returns {Promise<void>}
  */
 function applyVideoInputDeviceSelection(deviceId, video, room) {
   return Video.createLocalVideoTrack({
     deviceId: {
-      exact: deviceId // NOTE: on ios safari - it respects the deviceId only if its exact.
+      exact: deviceId
     }
   }).then(function(localTrack) {
     localTrack.attach(video);
@@ -86,14 +94,13 @@ function getDeviceSelectionOptions() {
 
 /**
  * Connects to room using specified input devices
- * @param {string} tokenCreds
- * @param {string} videoDeviceId
+ * @param {string} token
  * @param {string} audioDeviceId
+ * @param {string} videoDeviceId
  * @returns {Promise<Room>}
  */
-function connectWithSelectedDevices(tokenCreds, videoDeviceId, audioDeviceId) {
-  return Video.connect(tokenCreds, {
-    name: 'maks', // TODO: temp - remove this.
+function connectWithSelectedDevices(token, audioDeviceId, videoDeviceId) {
+  return Video.connect(token, {
     audio: { deviceId: { exact: audioDeviceId } },
     video: { deviceId: { exact: videoDeviceId } }
   });
