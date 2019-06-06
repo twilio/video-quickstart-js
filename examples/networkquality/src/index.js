@@ -33,8 +33,7 @@ function createButton(text, container) {
 }
 
 /**
- *
- * Creates controls for user to disconnect from the Room.
+ * Creates controls for additional users to connect/disconnect from the Room.
  */
 async function createUserControls(userIdentity) {
   const creds = await getRoomCredentials(userIdentity);
