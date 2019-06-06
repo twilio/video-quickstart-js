@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Network Quality</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+  <link rel="stylesheet" href="prism.css">
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+  <div class="container-fluid">
+    <div class="row thin-gutters">
+      <div class="col-sm-6">
+        <div class="card">
+          <div class="card-block">
+            <h4 class="card-title">
+              Network Quality
+            </h4>
+            <pre class="language-javascript"></pre>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-6">
+        <div class="card">
+          <div class="card-block">
+            <h4 class="card-title">Set Network Quality Verbosity Levels</h4>
+            <form>
+              <div class="form-group">
+                <label class="form-text text-muted">LocalParticipant</label>
+                <div class="input-group">
+                  <select id="local" name="local">
+                    <option value="1" selected>1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-text text-muted">RemoteParticipant(s)</label>
+                <div class="input-group">
+                  <select id="remote" name="remote">
+                    <option value="0" selected>0</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                  </select>
+                </div>
+              </div>
+              <input id="setuproom" class="btn btn-primary btn-block" type="submit" value="Create Room">
+            </form>
+          </div>
+        </div>
+        <div id="joinroom" class="card-block" style="display:none">
+            <h4>Join Room:</h4>
+            <h6 id="roomname"></h6>
+            <p>After creating the Room with the desired verbosity levels, please join the above Room using the
+              <a href="/quickstart" target="_blank">QuickStart App</a> or connect the below Participants to the Room.
+              You can also change the verbosity levels and observe the change in the verbosity of the reported
+              Network Quality stats.
+            </p>
+        </div>
+        <div id="usercontrols"></div>
+        <div id="remotemedia"></div>
+      </div>
+    </div>
+  </div>
+  <script src="index.js"></script>
+</body>
+</html>
