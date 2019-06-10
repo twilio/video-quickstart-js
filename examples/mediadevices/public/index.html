@@ -12,7 +12,7 @@
 <body>
   <div class="container-fluid">
     <div class="row thin-gutters">
-      <div class="col-sm-8">
+      <div class="col-sm-6">
         <div class="card">
           <div class="card-block">
             <h4 class="card-title">
@@ -22,7 +22,7 @@
           </div>
         </div>
       </div>
-      <div class="col-sm-4">
+      <div class="col-sm-6">
         <div class="card">
           <div class="card-block">
             <h4 class="card-title">Preview Media</h4>
@@ -62,6 +62,15 @@
                   </span>
                 </div>
               </div>
+              <input id="connectordisconnect" type="submit" class="btn btn-primary btn-block" value="Connect">
+              <div id="joinRoom" class="card-block" style="display:none">
+                <h4>Join room:</h4>
+                <h6 id="roomName"></h6>
+                <p>Please join the above Room from another device/browser using <a href="/quickstart" target="_blank">QuickStart App</a>
+                   to see media input device changes taking effect.
+                </p>
+              </div>
+              <div id="remote-media"></div>
             </form>
           </div>
         </div>

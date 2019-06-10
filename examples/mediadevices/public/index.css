@@ -20,6 +20,13 @@ div.row.thin-gutters {
   margin: 0 2px 0 2px;
 }
 
+div#remote-media video {
+  max-width: 100% !important;
+  max-height: 80% !important;
+  background-color: #272726;
+  background-repeat: no-repeat;
+}
+
 div.row.thin-gutters > .col,
 div.row.thin-gutters > [class*="col-"] {
   padding: 0 2px;
@@ -61,10 +68,6 @@ div.col-sm-8 > .card {
   height: 100%;
 }
 
-div.col-sm-4 > .card {
-  height: 50%;
-}
-
 div#audioinputwaveform {
   position: absolute;
   left: 20px;
@@ -83,7 +86,8 @@ div#audioinputwaveform > canvas {
 }
 
 video#videoinputpreview {
-  width: 100%;
+  max-width: 100% !important;
+  max-height: 80% !important;
   background-color: lightgrey !important;
   background-image: url('https://static0.twilio.com/marketing/bundles/archetype/img/logo-wordmark.svg');
   background-position: 50%;

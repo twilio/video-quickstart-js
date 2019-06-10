@@ -30,6 +30,7 @@ var app = express();
   'localvideofilter',
   'localvideosnapshot',
   'mediadevices',
+  'networkquality',
   'reconnection',
   'screenshare'
 ].forEach(function(example) {

@@ -1,6 +1,11 @@
+
 # 1.0.0
 =======
-
+* Updated Media Device Selection app to Connect to Room.
+* Added an example app to demonstrate Network quality API.
+* Added an example app to demonstrate Room State Changes.
+* Added an example app to demonstrate Dominant Speaker API.
+* Updated twilio-video to 2.0.0.
 * Added an example app to demonstrate Codec Preferences API.
 * Added an example app to demonstrate Bandwidth Constraints API.
 * Added an example app to demonstrate Local Video Filter.
