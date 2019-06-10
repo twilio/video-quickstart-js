@@ -39,15 +39,9 @@ function switchLocalTracks(room, track) {
  * @returns {Promise<void>}
  */
 function applyAudioOutputDeviceSelection(deviceId, audio) {
-  // return typeof audio.setSinkId === 'function'
-  //   ? audio.setSinkId(deviceId)
-  //   : Promise.reject('This browser does not support setting an audio output device');
-
-  if (typeof audio.setSinkId === 'function') {
-    return audio.setSinkId(deviceId);
-  }
-  return Promise.reject('This browser does not support setting an audio output device');
-
+  return typeof audio.setSinkId === 'function'
+    ? audio.setSinkId(deviceId)
+    : Promise.reject('This browser does not support setting an audio output device');
 }
 
 /**
