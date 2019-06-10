@@ -1,88 +1,62 @@
+/* eslint-disable no-console */
 'use strict';
 
 var Video = require('twilio-video');
 
-var previewTracks;
-var identity;
+
 var activeRoom = {
   'A': null,
   'B': null,
 };
 window.activeRoom = activeRoom;
 
-
-function getElement(roomid, elementId) {
-  roomid = roomid === 'A'  ? '' : 'B';
-  return document.getElementById(elementId + roomid);
-}
-
-// Attach the Track to the DOM.
-function attachTrack(track, container) {
-  container.appendChild(track.attach());
-}
-
-// Attach array of Tracks to the DOM.
-function attachTracks(tracks, container) {
-  tracks.forEach(function(track) {
-    attachTrack(track, container);
-  });
-}
-
-// Detach given track from the DOM
-function detachTrack(track) {
-  track.detach().forEach(function(element) {
-    element.remove();
-  });
-}
-
-// A new RemoteTrack was published to the Room.
-function trackPublished(publication, container) {
-  if (publication.isSubscribed) {
-    attachTrack(publication.track, container);
+function start(roomid) {
+  // A new RemoteTrack was published to the Room.
+  function trackPublished(publication) {
+    publication.on('subscribed', function(track) {
+      console.log('makarand Subscribed to ' + publication.kind + ' track');
+      if (track.kind === 'data') {
+        track.on('message', data => {
+          console.log('makarand, got data: ' + data);
+          log('received ' + data);
+        });
+      }
+    });
   }
-  publication.on('subscribed', function(track) {
-    log('Subscribed to ' + publication.kind + ' track');
-    attachTrack(track, container);
+
+  // A new RemoteParticipant joined the Room
+  function participantConnected(participant) {
+    participant.tracks.forEach(function(publication) {
+      trackPublished(publication);
+    });
+    participant.on('trackPublished', function(publication) {
+      trackPublished(publication);
+    });
+  }
+  const dataTrack = new Video.LocalDataTrack();
+  const dataTrackPublished = {};
+  dataTrackPublished.promise = new Promise((resolve, reject) => {
+    dataTrackPublished.resolve = resolve;
+    dataTrackPublished.reject = reject;
   });
-  publication.on('unsubscribed', detachTrack);
-}
 
-// A RemoteTrack was unpublished from the Room.
-function trackUnpublished(publication) {
-  log(publication.kind + ' track was unpublished.');
-}
+  var identity;
+  function getElement(elementId) {
+    var room = roomid === 'A'  ? '' : 'B';
+    return document.getElementById(elementId + room);
+  }
 
-// A new RemoteParticipant joined the Room
-function participantConnected(participant, container) {
-  participant.tracks.forEach(function(publication) {
-    trackPublished(publication, container);
-  });
-  participant.on('trackPublished', function(publication) {
-    trackPublished(publication, container);
-  });
-  participant.on('trackUnpublished', trackUnpublished);
-}
+  // When we are about to transition away from this page, disconnect
+  // from the room, if joined.
+  window.addEventListener('beforeunload', leaveRoomIfJoined);
 
-// Detach the Participant's Tracks from the DOM.
-function detachParticipantTracks(participant) {
-  var tracks = getTracks(participant);
-  tracks.forEach(detachTrack);
-}
+  // Obtain a token from the server in order to connect to the Room.
+  $.getJSON('/token', function(data) {
+    identity = data.identity;
+    getElement('room-controls').style.display = 'block';
 
-// When we are about to transition away from this page, disconnect
-// from the room, if joined.
-window.addEventListener('beforeunload', leaveRoomIfJoined);
-
-// Obtain a token from the server in order to connect to the Room.
-$.getJSON('/token', function(data) {
-  identity = data.identity;
-  document.getElementById('room-controls').style.display = 'block';
-  document.getElementById('room-controlsB').style.display = 'block';
-
-
-  function joinRoom(roomid) {
-    return function() {
-      let roomName = getElement(roomid, 'room-name').value;
+    function joinRoom() {
+      let roomName = getElement('room-name').value;
       if (!roomName) {
         alert('Please enter a room name.');
         return;
@@ -91,132 +65,83 @@ $.getJSON('/token', function(data) {
       log('Joining room \'' + roomName + '\'...');
       var connectOptions = {
         name: roomName,
-        logLevel: 'debug'
+        logLevel: 'debug',
+        tracks: [dataTrack]
       };
-
-      if (previewTracks) {
-        connectOptions.tracks = previewTracks;
-      }
 
       // Join the Room with the token from the server and the
       // LocalParticipant's Tracks.
-      Video.connect(data.token, connectOptions).then(roomJoined(roomid), function(error) {
+      Video.connect(data.token, connectOptions).then(roomJoined, function(error) {
         log('Could not connect to Twilio: ' + error.message);
       });
+    }
+
+    // Bind button to join Room.
+    getElement('button-join').onclick = joinRoom;
+
+    // Bind button to leave Room.
+    getElement('button-leave').onclick = function() {
+      log('Leaving room ' + roomid + '...');
+      activeRoom[roomid].disconnect();
     };
-  }
 
-  // Bind button to join Room.
-  document.getElementById('button-join').onclick = joinRoom('A');
-  document.getElementById('button-joinB').onclick = joinRoom('B');
-
-  // Bind button to leave Room.
-  document.getElementById('button-leave').onclick = function() {
-    log('Leaving room A...');
-    activeRoom.A.disconnect();
-  };
-
-  document.getElementById('button-leaveB').onclick = function() {
-    log('Leaving room B...');
-    activeRoom.B.disconnect();
-  };
-
-});
-
-// Get the Participant's Tracks.
-function getTracks(participant) {
-  return Array.from(participant.tracks.values()).filter(function(publication) {
-    return publication.track;
-  }).map(function(publication) {
-    return publication.track;
+    getElement('button-send').onclick = function() {
+      dataTrackPublished.promise.then(() => dataTrack.send(getElement('message').value));
+    };
   });
-}
 
-// Successfully connected!
-
-function roomJoined(roomid) {
-  return function(room) {
+  // Successfully connected!
+  function roomJoined(room) {
     activeRoom[roomid] = room;
 
     log('Joined as \'' + identity + '\'');
-    getElement(roomid, 'button-join').style.display = 'none';
-    getElement(roomid, 'button-leave').style.display = 'inline';
+    getElement('button-join').style.display = 'none';
+    getElement('button-leave').style.display = 'inline';
+    getElement('button-send').style.display = 'inline';
 
-    // Attach LocalParticipant's Tracks, if not already attached.
-    var previewContainer = document.getElementById('local-media');
-    if (!previewContainer.querySelector('video')) {
-      attachTracks(getTracks(room.localParticipant), previewContainer);
-    }
-
-    // Attach the Tracks of the Room's Participants.
-    var remoteMediaContainer = getElement(roomid, 'remote-media');
-    room.participants.forEach(function(participant) {
-      log('Already in Room: \'' + participant.identity + '\'');
-      participantConnected(participant, remoteMediaContainer);
-    });
+    room.participants.forEach(participantConnected);
 
     // When a Participant joins the Room, log the event.
-    room.on('participantConnected', function(participant) {
-      log('Joining: \'' + participant.identity + '\'');
-      participantConnected(participant, remoteMediaContainer);
+    room.on('participantConnected', participantConnected);
+
+    room.localParticipant.on('trackPublished', publication => {
+      if (publication.track === dataTrack) {
+        dataTrackPublished.resolve();
+      }
     });
 
-    // When a Participant leaves the Room, detach its Tracks.
-    room.on('participantDisconnected', function(participant) {
-      log('RemoteParticipant \'' + participant.identity + '\' left the room');
-      detachParticipantTracks(participant);
+    room.localParticipant.on('trackPublicationFailed', (error, track) => {
+      if (track === dataTrack) {
+        dataTrackPublished.reject(error);
+      }
     });
 
     // Once the LocalParticipant leaves the room, detach the Tracks
     // of all Participants, including that of the LocalParticipant.
     room.on('disconnected', function() {
       log('Left');
-      if (previewTracks) {
-        previewTracks.forEach(function(track) {
-          track.stop();
-        });
-        previewTracks = null;
-      }
-      detachParticipantTracks(room.localParticipant);
-      room.participants.forEach(detachParticipantTracks);
       activeRoom[roomid] = null;
-      getElement(roomid, 'button-join').style.display = 'inline';
-      getElement(roomid, 'button-leave').style.display = 'none';
+      getElement('button-join').style.display = 'inline';
+      getElement('button-leave').style.display = 'none';
+      getElement('button-send').style.display = 'none';
+
     });
-  };
-}
+  }
 
-// Preview LocalParticipant's Tracks.
-document.getElementById('button-preview').onclick = function() {
-  var localTracksPromise = previewTracks
-    ? Promise.resolve(previewTracks)
-    : Video.createLocalTracks();
+  // Activity log.
+  function log(message) {
+    var logDiv = getElement('log');
+    logDiv.innerHTML += '<p>&gt;&nbsp;' + message + '</p>';
+    logDiv.scrollTop = logDiv.scrollHeight;
+  }
 
-  localTracksPromise.then(function(tracks) {
-    window.previewTracks = previewTracks = tracks;
-    var previewContainer = document.getElementById('local-media');
-    if (!previewContainer.querySelector('video')) {
-      attachTracks(tracks, previewContainer);
+  // Leave Room.
+  function leaveRoomIfJoined() {
+    if (activeRoom[roomid]) {
+      activeRoom[roomid].disconnect();
     }
-  }, function(error) {
-    console.error('Unable to access local media', error);
-    log('Unable to access Camera and Microphone');
-  });
-};
-
-// Activity log.
-function log(message) {
-  var logDiv = document.getElementById('log');
-  logDiv.innerHTML += '<p>&gt;&nbsp;' + message + '</p>';
-  logDiv.scrollTop = logDiv.scrollHeight;
-}
-
-// Leave Room.
-function leaveRoomIfJoined() {
-  if (activeRoom.A) {
-    activeRoom.A.disconnect();
-  }
-  if (activeRoom.B) {
-    activeRoom.B.disconnect();
   }
 }
+
+start('A');
+start('B');
