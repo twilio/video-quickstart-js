@@ -23,15 +23,31 @@ function getDevicesOfKind(deviceInfos, kind) {
  * @returns {void}
  */
 function switchLocalTracks(room, track) {
-  if (room) {
-      room.localParticipant.tracks.forEach(function(trackPublication) {
-      if (trackPublication.kind === track.kind) {
-        trackPublication.track.stop();
-        room.localParticipant.unpublishTrack(trackPublication.track);
-      }
-    });
-    room.localParticipant.publishTrack(track);
+  room.localParticipant.tracks.forEach(function(trackPublication) {
+    if (trackPublication.kind === track.kind) {
+      trackPublication.track.stop();
+      room.localParticipant.unpublishTrack(trackPublication.track);
+    }
+  });
+  room.localParticipant.publishTrack(track);
+}
+
+/**
+ * Apply the selected audio output device.
+ * @param {string} deviceId
+ * @param {HTMLAudioElement} audio
+ * @returns {Promise<void>}
+ */
+function applyAudioOutputDeviceSelection(deviceId, audio) {
+  // return typeof audio.setSinkId === 'function'
+  //   ? audio.setSinkId(deviceId)
+  //   : Promise.reject('This browser does not support setting an audio output device');
+
+  if (typeof audio.setSinkId === 'function') {
+    return audio.setSinkId(deviceId);
   }
+  return Promise.reject('This browser does not support setting an audio output device');
+
 }
 
 /**
@@ -48,7 +64,9 @@ function applyAudioInputDeviceSelection(deviceId, audio, room) {
     }
   }).then(function(localTrack) {
     localTrack.attach(audio);
-    switchLocalTracks(room, localTrack);
+    if (room) {
+      switchLocalTracks(room, localTrack);
+    }
   }).catch(function(error) {
     console.log('applyAudioInputDeviceSelection failed:', error);
   });
@@ -68,7 +86,9 @@ function applyVideoInputDeviceSelection(deviceId, video, room) {
     }
   }).then(function(localTrack) {
     localTrack.attach(video);
-    switchLocalTracks(room, localTrack);
+    if (room) {
+      switchLocalTracks(room, localTrack);
+    }
   }).catch(function(error) {
     console.log('applyVideoInputDeviceSelection failed:', error);
   });
@@ -107,6 +127,7 @@ function connectWithSelectedDevices(token, audioDeviceId, videoDeviceId) {
 }
 
 module.exports.applyAudioInputDeviceSelection = applyAudioInputDeviceSelection;
+module.exports.applyAudioOutputDeviceSelection = applyAudioOutputDeviceSelection;
 module.exports.applyVideoInputDeviceSelection = applyVideoInputDeviceSelection;
 module.exports.connectWithSelectedDevices = connectWithSelectedDevices;
 module.exports.getDeviceSelectionOptions = getDeviceSelectionOptions;

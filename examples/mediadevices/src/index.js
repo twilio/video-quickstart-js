@@ -5,6 +5,7 @@ var getSnippet = require('../../util/getsnippet');
 var helpers = require('./helpers');
 var waveform = require('../../util/waveform');
 var applyAudioInputDeviceSelection = helpers.applyAudioInputDeviceSelection;
+var applyAudioOutputDeviceSelection = helpers.applyAudioOutputDeviceSelection;
 var applyVideoInputDeviceSelection = helpers.applyVideoInputDeviceSelection;
 const connectWithSelectedDevices = helpers.connectWithSelectedDevices;
 const connectOrDisconnect = document.querySelector('input#connectordisconnect');
@@ -161,9 +162,10 @@ function applyAudioOutputDeviceChange(event) {
   var audio = document.querySelector('audio#audioinputpreview');
 
   // Note: not supported on safari
-  if (deviceSelections.audiooutput.value && audio.setSinkId) {
-    audio.setSinkId(deviceSelections.audiooutput.value);
+  if (deviceSelections.audiooutput.value) {
+    applyAudioOutputDeviceSelection(deviceSelections.audiooutput.value, audio);
   }
+
   event.preventDefault();
   event.stopPropagation();
 }
