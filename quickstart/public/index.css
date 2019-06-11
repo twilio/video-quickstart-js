@@ -109,3 +109,20 @@ div.controls div.log p {
   text-indent: -1.25em;
   width: 90%;
 }
+
+.remote-media {
+  height: 43%;
+  width: 100%;
+  background-color: #fff;
+  text-align: center;
+  margin: auto;
+}
+
+div.remote-media video {
+  border: 1px solid #272726;
+  margin: 3em 2em;
+  max-height: 80% !important;
+  max-width: 80% !important;
+  background-color: #272726;
+  background-repeat: no-repeat;
+}
