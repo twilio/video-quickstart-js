@@ -2,6 +2,27 @@
 
 var Video = require('twilio-video');
 
+
+window.Twilio  = {
+  Video,
+  createDataTrack: function() {
+
+  },
+  publishDataTrack: function() {
+    if (!this.room) {
+      console.log('Makarand: room or track not created');
+      return;
+    }
+
+    this.dt = new Video.LocalDataTrack({ ordred: true });
+    this.ptPromise = this.room.localParticipant.publishTrack(this.dt).then(pt => {
+      this.pt = pt;
+      console.log('PUBLISHED!');
+    });
+  }
+};
+
+
 var activeRoom;
 var previewTracks;
 var identity;
@@ -80,13 +101,15 @@ $.getJSON('/token', function(data) {
 
     log("Joining room '" + roomName + "'...");
     var connectOptions = {
+      environment: 'stage',
+      dominantSpeaker: true,
       name: roomName,
       logLevel: 'debug'
     };
 
-    if (previewTracks) {
-      connectOptions.tracks = previewTracks;
-    }
+    // if (previewTracks) {
+    //   connectOptions.tracks = previewTracks;
+    // }
 
     // Join the Room with the token from the server and the
     // LocalParticipant's Tracks.
@@ -113,6 +136,7 @@ function getTracks(participant) {
 
 // Successfully connected!
 function roomJoined(room) {
+  window.Twilio.room = room;
   window.room = activeRoom = room;
 
   log("Joined as '" + identity + "'");
