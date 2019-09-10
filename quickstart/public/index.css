@@ -2,8 +2,20 @@
 
 body,
 p {
-  padding: 0;
-  margin: 0;
+  color: #ffffff;
+}
+body, h1 {
+  color: #ffffff;
+
+}
+body,
+a {
+  color:  #ffffff;
+}
+
+body,
+a:hover {
+  color: red;
 }
 
 body {
