@@ -27,6 +27,7 @@ var app = express();
   'bandwidthconstraints',
   'codecpreferences',
   'dominantspeaker',
+  'experiment',
   'localvideofilter',
   'localvideosnapshot',
   'mediadevices',
