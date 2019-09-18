@@ -4,16 +4,11 @@ const Prism = require('prismjs');
 const Video = require('twilio-video');
 const getRoomCredentials = require('../../util/getroomcredentials');
 const getSnippet = require('../../util/getsnippet');
-const helpers = require('./helpers');
-const connectToRoomWithDominantSpeaker = helpers.connectToRoomWithDominantSpeaker;
-const setupDominantSpeakerUpdates = helpers.setupDominantSpeakerUpdates;
-
 const joinRoomBlock = document.querySelector('#joinRoom');
 const roomNameText = document.querySelector('#roomName');
 const mediaContainer = document.getElementById('remote-media');
 const userControls = document.getElementById('user-controls');
 let roomName = null;
-const SAMPLE_USER_COUNT = 4;
 
 // <div id="audioinputwaveform"></div>
 // <audio id="audioinputpreview" autoplay></audio>
@@ -104,7 +99,7 @@ async function createUserControls(userIdentity) {
 async function connectToRoom(creds) {
   const room = await Video.connect( creds.token, {
     name: roomName,
-    tracks: [generateAudioTrack()]
+    // tracks: [generateAudioTrack()]
   });
 
   return room;
@@ -151,7 +146,8 @@ function renderParticipant(participant) {
 
   participant.on('trackSubscribed', function(track) {
     const trackDiv = document.createElement('div');
-    const trackTitle = document.createElement('h6');
+    trackDiv.classList.add("trackDiv");
+    const trackTitle = document.createElement('h2');
     trackTitle.appendChild(document.createTextNode(`track: ${track.sid} kind: ${track.kind}`));
     trackDiv.appendChild(trackTitle);
 
@@ -160,14 +156,15 @@ function renderParticipant(participant) {
     mediaDiv.appendChild(trackDiv);
 
     const attachOrDetachBtn = createButton('.detach', trackDiv);
+    attachOrDetachBtn.classList.add("detach");
     attachOrDetachBtn.onclick = function() {
       const detach = attachOrDetachBtn.innerHTML == '.detach';
       if (detach) {
         const mediaElements = track.detach();
         mediaElements.forEach(mediaElement => mediaElement.remove());
       } else {
-        const mediaElements = audioTrack.attach();
-        trackDiv.appendChild(audioElement);
+        const mediaElements = track.attach();
+        trackDiv.appendChild(mediaElements);
       }
 
       attachOrDetachBtn.innerHTML = detach ? '.attach' : '.detach';
@@ -179,21 +176,14 @@ function renderParticipant(participant) {
 }
 
 (async function() {
-  // Load the code snippet.
-  const snippet = await getSnippet('./helpers.js');
-  const pre = document.querySelector('pre.language-javascript');
-
-  pre.innerHTML = Prism.highlight(snippet, Prism.languages.javascript);
 
   // Get the credentials to connect to the Room.
   const creds = await getRoomCredentials();
 
   // Connect to a random Room with no media. This Participant will
   // display the media of the other Participants that will enter
-  // the Room and watch for dominant speaker updates.
-  const someRoom = await connectToRoomWithDominantSpeaker(creds.token);
-
-  setupDominantSpeakerUpdates(someRoom, updateDominantSpeaker);
+  // the Room
+  const someRoom = await Video.connect(creds.token, {dominantSpeaker: true, tracks:[] });
 
   // Set the name of the Room to which the Participant that shares
   // media should join.
@@ -218,6 +208,5 @@ function renderParticipant(participant) {
   // Disconnect from the Room on page unload.
   window.onbeforeunload = function() {
     someRoom.disconnect();
-    someRoom = null;
   };
 }());

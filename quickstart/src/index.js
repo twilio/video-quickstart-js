@@ -65,6 +65,22 @@ function detachParticipantTracks(participant) {
 // from the room, if joined.
 window.addEventListener('beforeunload', leaveRoomIfJoined);
 
+function generateAudioTrack(frequency = 1) {
+  console.log('generating audio track');
+  const audioContext = typeof AudioContext !== 'undefined'
+    ? new AudioContext()
+    : new webkitAudioContext();
+
+  const oscillatorNode = audioContext.createOscillator()
+  oscillatorNode.type = 'square';
+  oscillatorNode.frequency.setValueAtTime(frequency, audioContext.currentTime); // value in hertz
+  const mediaStreamDestinationNode = audioContext.createMediaStreamDestination()
+  oscillatorNode.connect(mediaStreamDestinationNode)
+  oscillatorNode.start()
+  const track = mediaStreamDestinationNode.stream.getAudioTracks()[0]
+  return track;
+}
+
 // Obtain a token from the server in order to connect to the Room.
 $.getJSON('/token', function(data) {
   identity = data.identity;
@@ -81,12 +97,13 @@ $.getJSON('/token', function(data) {
     log("Joining room '" + roomName + "'...");
     var connectOptions = {
       name: roomName,
-      logLevel: 'debug'
+      logLevel: 'debug',
+      tracks: [generateAudioTrack()]
     };
 
-    if (previewTracks) {
-      connectOptions.tracks = previewTracks;
-    }
+    // if (previewTracks) {
+    //   connectOptions.tracks = previewTracks;
+    // }
 
     // Join the Room with the token from the server and the
     // LocalParticipant's Tracks.

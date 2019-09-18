@@ -42,7 +42,7 @@ div#remote-media {
 
 div.mediadiv {
   margin: 10px;
-  width: 200px;
+  width: 600px;
 }
 
 div#remote-media h6 {
@@ -65,6 +65,13 @@ div#remote-media h6 {
 }
 
 div#remote-media video {
+  max-width: 100% !important;
+  max-height: 80% !important;
+  background-color: #272726;
+  background-repeat: no-repeat;
+}
+
+div#remote-media audio {
   max-width: 100% !important;
   max-height: 80% !important;
   background-color: #272726;

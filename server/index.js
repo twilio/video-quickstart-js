@@ -27,12 +27,12 @@ var app = express();
   'bandwidthconstraints',
   'codecpreferences',
   'dominantspeaker',
-  'experiment',
   'localvideofilter',
   'localvideosnapshot',
   'mediadevices',
   'networkquality',
   'reconnection',
+  'remotetracks',
   'screenshare'
 ].forEach(function(example) {
   var examplePath = path.join(__dirname, `../examples/${example}/public`);
