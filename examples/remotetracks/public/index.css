@@ -42,7 +42,20 @@ div#remote-media {
 
 div.mediadiv {
   margin: 10px;
-  width: 600px;
+  width: 800px;
+}
+
+div.attached {
+  background-color: pink
+}
+
+div.detached {
+  background-color: gray
+}
+
+div.trackDiv {
+  border: 2px solid black;
+  margin: 5px;
 }
 
 div#remote-media h6 {

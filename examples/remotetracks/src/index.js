@@ -1,25 +1,23 @@
+/* eslint-disable new-cap */
+/* eslint-disable no-console */
 'use strict';
 
-const Prism = require('prismjs');
 const Video = require('twilio-video');
 const getRoomCredentials = require('../../util/getroomcredentials');
-const getSnippet = require('../../util/getsnippet');
 const joinRoomBlock = document.querySelector('#joinRoom');
 const roomNameText = document.querySelector('#roomName');
 const mediaContainer = document.getElementById('remote-media');
 const userControls = document.getElementById('user-controls');
 let roomName = null;
 
-// <div id="audioinputwaveform"></div>
-// <audio id="audioinputpreview" autoplay></audio>
-
 /**
  * creates a button and adds to given container.
  */
-function createButton(text, container) {
+function createButton(text, container, btnclasses = 'btn-sm') {
   const btn = document.createElement('button');
   btn.innerHTML = text;
-  btn.classList.add('btn', 'btn-outline-primary', 'btn-sm');
+  btn.classList.add('btn', 'btn-outline-primary');
+  btn.classList.add(btnclasses);
   container.appendChild(btn);
   return btn;
 }
@@ -28,15 +26,16 @@ function generateAudioTrack(frequency = 1) {
   console.log('generating audio track');
   const audioContext = typeof AudioContext !== 'undefined'
     ? new AudioContext()
+    // eslint-disable-next-line no-undef
     : new webkitAudioContext();
 
-  const oscillatorNode = audioContext.createOscillator()
+  const oscillatorNode = audioContext.createOscillator();
   oscillatorNode.type = 'square';
   oscillatorNode.frequency.setValueAtTime(frequency, audioContext.currentTime); // value in hertz
-  const mediaStreamDestinationNode = audioContext.createMediaStreamDestination()
-  oscillatorNode.connect(mediaStreamDestinationNode)
-  oscillatorNode.start()
-  const track = mediaStreamDestinationNode.stream.getAudioTracks()[0]
+  const mediaStreamDestinationNode = audioContext.createMediaStreamDestination();
+  oscillatorNode.connect(mediaStreamDestinationNode);
+  oscillatorNode.start();
+  const track = mediaStreamDestinationNode.stream.getAudioTracks()[0];
   return track;
 }
 
@@ -58,7 +57,8 @@ async function createUserControls(userIdentity) {
 
   // connect button
   const connectDisconnect = createButton('Connect', currentUserControls);
-  connectDisconnect.onclick = async function(event) {
+  const muteBtn = createButton('Mute', currentUserControls);
+  connectDisconnect.onclick = async function() {
     connectDisconnect.disabled = true;
     const connected = room !== null;
     if (connected) {
@@ -66,17 +66,16 @@ async function createUserControls(userIdentity) {
       room = null;
       muteBtn.innerHTML = 'Mute';
     } else {
+      // eslint-disable-next-line require-atomic-updates
       room = await connectToRoom(creds);
     }
     connectDisconnect.innerHTML = connected ? 'Connect' : 'Disconnect';
     muteBtn.style.display = connected ? 'none' : 'inline';
     connectDisconnect.disabled = false;
-  }
+  };
 
-  // mute button.
-  const muteBtn = createButton('Mute', currentUserControls);
   muteBtn.onclick = function() {
-    const mute = muteBtn.innerHTML == 'Mute';
+    const mute = muteBtn.innerHTML === 'Mute';
     const localUser = room.localParticipant;
     getTracks(localUser).forEach(function(track) {
       if (track.kind === 'audio') {
@@ -88,7 +87,7 @@ async function createUserControls(userIdentity) {
       }
     });
     muteBtn.innerHTML = mute ? 'Unmute' : 'Mute';
-  }
+  };
   muteBtn.style.display = 'none';
   userControls.appendChild(currentUserControls);
 }
@@ -97,9 +96,10 @@ async function createUserControls(userIdentity) {
  * Connect the Participant with media to the Room.
  */
 async function connectToRoom(creds) {
-  const room = await Video.connect( creds.token, {
+  const videoTrack = await Video.createLocalVideoTrack();
+  const room = await Video.connect(creds.token, {
     name: roomName,
-    // tracks: [generateAudioTrack()]
+    tracks: [generateAudioTrack(), videoTrack]
   });
 
   return room;
@@ -116,61 +116,55 @@ function getTracks(participant) {
   });
 }
 
-/**
- * add/removes css attribute per dominant speaker change.
- * @param {?Participant} speaker - Participant
- * @returns {void}
- */
-function updateDominantSpeaker(speaker) {
-  const dominantSpeakerDiv = document.querySelector('div.dominant_speaker');
-  if (dominantSpeakerDiv) {
-    dominantSpeakerDiv.classList.remove('dominant_speaker');
-  }
-  if (speaker) {
-    const newDominantSpeakerDiv = document.getElementById(speaker.sid);
-    if (newDominantSpeakerDiv) {
-      newDominantSpeakerDiv.classList.add('dominant_speaker');
+
+function renderTrack(track, mediaDiv) {
+  // force track to go into enabled = false state.
+  // NOTE: verified that it works - that is strack still gets started event.
+  // track.attach();
+  // track.detach();
+
+  track.on('started', () => console.log('track started!', track.sid));
+
+  const trackDiv = document.createElement('div');
+  trackDiv.classList.add('trackDiv');
+  const trackTitle = document.createElement('h2');
+  trackTitle.appendChild(document.createTextNode(`track: ${track.sid} kind: ${track.kind}`));
+  trackDiv.appendChild(trackTitle);
+  mediaDiv.appendChild(trackDiv);
+
+  // let track be detached initially.
+  trackDiv.classList.add('detached');
+  const attachOrDetachBtn = createButton('.attach', trackDiv, 'btn-lg');
+  attachOrDetachBtn.classList.add('detach');
+  attachOrDetachBtn.onclick = function() {
+    const detach = attachOrDetachBtn.innerHTML === '.detach';
+    if (detach) {
+      const mediaElements = track.detach();
+      mediaElements.forEach(mediaElement => mediaElement.remove());
+      trackDiv.classList.remove('attached');
+      trackDiv.classList.add('detached');
+    } else {
+      const mediaElements = track.attach();
+      trackDiv.appendChild(mediaElements);
+      trackDiv.classList.add('attached');
+      trackDiv.classList.remove('detached');
     }
-  }
+
+    attachOrDetachBtn.innerHTML = detach ? '.attach' : '.detach';
+  };
 }
 
 function renderParticipant(participant) {
   const participantdiv = document.createElement('div');
   participantdiv.id = participant.sid;
   const mediaDiv = document.createElement('div');
-  mediaDiv.classList.add("mediadiv");
+  mediaDiv.classList.add('mediadiv');
 
   const title = document.createElement('h6');
   title.appendChild(document.createTextNode(participant.identity));
   mediaDiv.appendChild(title);
 
-  participant.on('trackSubscribed', function(track) {
-    const trackDiv = document.createElement('div');
-    trackDiv.classList.add("trackDiv");
-    const trackTitle = document.createElement('h2');
-    trackTitle.appendChild(document.createTextNode(`track: ${track.sid} kind: ${track.kind}`));
-    trackDiv.appendChild(trackTitle);
-
-    const trackEl = track.attach();
-    trackDiv.appendChild(trackEl);
-    mediaDiv.appendChild(trackDiv);
-
-    const attachOrDetachBtn = createButton('.detach', trackDiv);
-    attachOrDetachBtn.classList.add("detach");
-    attachOrDetachBtn.onclick = function() {
-      const detach = attachOrDetachBtn.innerHTML == '.detach';
-      if (detach) {
-        const mediaElements = track.detach();
-        mediaElements.forEach(mediaElement => mediaElement.remove());
-      } else {
-        const mediaElements = track.attach();
-        trackDiv.appendChild(mediaElements);
-      }
-
-      attachOrDetachBtn.innerHTML = detach ? '.attach' : '.detach';
-    }
-  });
-
+  participant.on('trackSubscribed', track => renderTrack(track, mediaDiv));
   participantdiv.appendChild(mediaDiv);
   mediaContainer.appendChild(participantdiv);
 }
@@ -183,7 +177,7 @@ function renderParticipant(participant) {
   // Connect to a random Room with no media. This Participant will
   // display the media of the other Participants that will enter
   // the Room
-  const someRoom = await Video.connect(creds.token, {dominantSpeaker: true, tracks:[] });
+  const someRoom = await Video.connect(creds.token, { dominantSpeaker: true, tracks: [] });
 
   // Set the name of the Room to which the Participant that shares
   // media should join.
