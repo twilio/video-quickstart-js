@@ -162,8 +162,7 @@ function roomJoined(room) {
   });
 }
 
-// Preview LocalParticipant's Tracks.
-document.getElementById('button-preview').onclick = function() {
+function getLocalTracks() {
   var localTracksPromise = previewTracks
     ? Promise.resolve(previewTracks)
     : Video.createLocalTracks();
@@ -179,6 +178,11 @@ document.getElementById('button-preview').onclick = function() {
     log('Unable to access Camera and Microphone');
   });
 };
+
+// Preview LocalParticipant's Tracks.
+document.getElementById('button-preview').onclick = getLocalTracks;
+
+getLocalTracks();
 
 // Activity log.
 function log(message) {
