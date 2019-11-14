@@ -1,5 +1,3 @@
-**IMPORTANT:** Please upgrade to the latest version of twilio-video.js to avoid upcoming breaking changes in Firefox 68.
-See [this advisory](https://support.twilio.com/hc/en-us/articles/360024434554-Twilio-Video-JavaScript-SDK-Breaking-Changes-in-Firefox-68-July-9-2019-) for details.
 
 # Twilio Video Quickstart for JavaScript
 
