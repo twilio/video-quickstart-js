@@ -21,6 +21,14 @@ body {
   background: #272726;
 }
 
+p {
+  color: white;
+  padding-left: 3em;
+}
+p a {
+  color: white
+}
+
 div#remote-media {
   height: 43%;
   width: 100%;
