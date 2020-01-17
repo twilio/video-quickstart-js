@@ -11,13 +11,17 @@
 start with the QuickStart that uses the latest 2.x version of twilio-video.js. This is available
 on the <a href="https://github.com/twilio/video-quickstart-js/tree/master" target="_blank">master</a>
 branch.</p>
-  
+
 <div id="remote-media"></div>
 <div id="controls">
   <div id="preview">
     <p class="instructions">Hello Beautiful</p>
     <div id="local-media"></div>
     <button id="button-preview">Preview My Camera</button>
+    <button id="checkStateBtn">Check Track</button>
+    <input id="readyState-state" type="text" placeholder="not created yet" />
+    <input id="audioBytesSent" type="text" placeholder="0" />
+    <input id="audioBytesReceived" type="text" placeholder="0" />
   </div>
   <div id="room-controls">
     <p class="instructions">Room Name:</p>

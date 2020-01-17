@@ -6,7 +6,63 @@ var activeRoom;
 var previewTracks;
 var identity;
 var roomName;
+const urlParams = new URLSearchParams(window.location.search);
+const queryRoomName = urlParams.get('room');
+const noAudioTrack = urlParams.get('noaudio');
 
+let lastAudioBytesSent = 0;
+let lastAudioBytesReceived = 0;
+function updateAudioStats() {
+  if (activeRoom) {
+    activeRoom.getStats().then(function(stats) {
+      if (stats.length) {
+        const newBytesReceived = stats[0].remoteAudioTrackStats && stats[0].remoteAudioTrackStats.length ? stats[0].remoteAudioTrackStats[0].bytesReceived : 0;
+        const newBytesSent = stats[0].localAudioTrackStats && stats[0].localAudioTrackStats.length ? stats[0].localAudioTrackStats[0].bytesSent : 0;
+        const audioBytesSentDisplay = document.getElementById('audioBytesSent');
+        const audioBytesReceivedDisplay = document.getElementById('audioBytesReceived');
+        audioBytesSentDisplay.value = newBytesReceived - lastAudioBytesReceived;
+        audioBytesReceivedDisplay.value = newBytesSent - lastAudioBytesSent;
+        lastAudioBytesReceived = newBytesReceived;
+        lastAudioBytesSent = newBytesSent;
+      }
+    });
+  }
+}
+
+document.getElementById('checkStateBtn').onclick = updateTrackState;
+
+function getAudioTrack() {
+  let audioTrack = null;
+  let localTracks = activeRoom ? activeRoom.localParticipant.tracks : previewTracks;
+  if (localTracks) {
+    localTracks.forEach(function(track) {
+      if (track.kind === 'audio') {
+        audioTrack = track;
+      }
+    });
+  }
+  return audioTrack ? audioTrack.mediaStreamTrack : null;
+}
+
+
+function updateTrackState() {
+  const readyState = document.getElementById('readyState-state');
+  let audioState;
+  const audioTrack = getAudioTrack();
+  if (audioTrack) {
+      audioState = audioTrack.enabled ? 'enabled' : 'disabled';
+      audioState += ', ' + audioTrack.readyState;
+      readyState.value = audioState;
+      readyState.style.backgroundColor = audioTrack.readyState === 'ended' ? 'red' : audioTrack.enabled ? 'green' : 'yellow';
+  } else {
+      readyState.value = 'no audio track';
+      readyState.style.backgroundColor = 'pink';
+  }
+  updateAudioStats();
+}
+
+
+setInterval(updateTrackState, 100);
 // Attach the Tracks to the DOM.
 function attachTracks(tracks, container) {
   tracks.forEach(function(track) {
@@ -38,6 +94,7 @@ function detachParticipantTracks(participant) {
 // When we are about to transition away from this page, disconnect
 // from the room, if joined.
 window.addEventListener('beforeunload', leaveRoomIfJoined);
+document.getElementById('room-name').value = queryRoomName;
 
 // Obtain a token from the server in order to connect to the Room.
 $.getJSON('/token', function(data) {
@@ -52,7 +109,7 @@ $.getJSON('/token', function(data) {
       return;
     }
 
-    log("Joining room '" + roomName + "'...");
+    log('Joining room \'' + roomName + '\'...');
     var connectOptions = {
       name: roomName,
       logLevel: 'debug'
@@ -80,7 +137,7 @@ $.getJSON('/token', function(data) {
 function roomJoined(room) {
   window.room = activeRoom = room;
 
-  log("Joined as '" + identity + "'");
+  log('Joined as \'' + identity + '\'');
   document.getElementById('button-join').style.display = 'none';
   document.getElementById('button-leave').style.display = 'inline';
 
@@ -92,32 +149,32 @@ function roomJoined(room) {
 
   // Attach the Tracks of the Room's Participants.
   room.participants.forEach(function(participant) {
-    log("Already in Room: '" + participant.identity + "'");
+    log('Already in Room: \'' + participant.identity + '\'');
     var previewContainer = document.getElementById('remote-media');
     attachParticipantTracks(participant, previewContainer);
   });
 
   // When a Participant joins the Room, log the event.
   room.on('participantConnected', function(participant) {
-    log("Joining: '" + participant.identity + "'");
+    log('Joining: \'' + participant.identity + '\'');
   });
 
   // When a Participant adds a Track, attach it to the DOM.
   room.on('trackAdded', function(track, participant) {
-    log(participant.identity + " added track: " + track.kind);
+    log(participant.identity + ' added track: ' + track.kind);
     var previewContainer = document.getElementById('remote-media');
     attachTracks([track], previewContainer);
   });
 
   // When a Participant removes a Track, detach it from the DOM.
   room.on('trackRemoved', function(track, participant) {
-    log(participant.identity + " removed track: " + track.kind);
+    log(participant.identity + ' removed track: ' + track.kind);
     detachTracks([track]);
   });
 
   // When a Participant leaves the Room, detach its Tracks.
   room.on('participantDisconnected', function(participant) {
-    log("Participant '" + participant.identity + "' left the room");
+    log('Participant \'' + participant.identity + '\' left the room');
     detachParticipantTracks(participant);
   });
 
@@ -141,11 +198,13 @@ function roomJoined(room) {
 
 // Preview LocalParticipant's Tracks.
 document.getElementById('button-preview').onclick = function() {
+
   var localTracksPromise = previewTracks
     ? Promise.resolve(previewTracks)
-    : Video.createLocalTracks();
+    : noAudioTrack ? Video.createLocalVideoTrack() : Video.createLocalTracks();
 
   localTracksPromise.then(function(tracks) {
+    tracks = Array.isArray(tracks) ? tracks : [tracks];
     window.previewTracks = previewTracks = tracks;
     var previewContainer = document.getElementById('local-media');
     if (!previewContainer.querySelector('video')) {
