@@ -1,38 +1,24 @@
 'use strict';
 
-var Video = require('twilio-video');
+const Video = require('twilio-video');
 
-/**
- * Display local video and audio in the given HTMLVideoElement.
- * @param {string} token - Token for joining the Room
- * @param {string} roomName - Room name to join
- * @returns {CancelablePromise<Room>}
- */
-
-function connectToRoom(token, roomName) {
-  return Video.connect(token, {
-    name: roomName
-  });
-}
+const audioBtn = document.getElementById('audiopreview');;
+const videoBtn = document.getElementById('videopreview');
 
 /**
  * Enable and disable audio tracks
  */
 
- function enableAudio() {}
-
- function disableAudio() {}
+ function muteAudio() {
+ }
 
 /**
  * Enable and disable video tracks
  */
 
- function enableVideo() {}
+ function muteVideo() {
+ }
 
- function disableVideo(){}
 
- exports.connectToRoom = connectToRoom;
- exports.enableAudio = enableAudio;
- exports.disableAudio = disableAudio;
- exports.enableVideo = enableVideo;
- exports.disableVideo = disableVideo;
+ exports.muteAudio = muteAudio;
+ exports.muteVideo = muteVideo;
