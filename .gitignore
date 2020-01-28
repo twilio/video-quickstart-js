@@ -57,6 +57,7 @@ examples/mediadevices/public/index.js
 examples/networkquality/public/index.js
 examples/reconnection/public/index.js
 examples/screenshare/public/index.js
+examples/enablingdisablingtracks/public/index.js
 
 # The generated helpers.js
 examples/bandwidthconstraints/public/helpers.js
@@ -68,3 +69,4 @@ examples/mediadevices/public/helpers.js
 examples/networkquality/public/helpers.js
 examples/reconnection/public/helpers.js
 examples/screenshare/public/helpers.js
+examples/enablingdisablingtracks/public/helpers.js
