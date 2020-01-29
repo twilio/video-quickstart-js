@@ -6,9 +6,12 @@ const Video = require('twilio-video');
 const getSnippet = require('../../util/getsnippet');
 const getRoomCredentials = require('../../util/getroomcredentials');
 const helpers = require('./helpers');
+const muteAudio = helpers.muteAudio;
 
-var video = document.querySelector('video#videoinputpreview');
-let roomName = 'exampleRoom';
+let roomName = null;
+const audioPreview = document.getElementById('audiopreview');
+const videoPreview = document.getElementById('videopreview');
+const P1Controls = document.getElementById('userControls')
 
 // Connect participant 1, displaying audio/video
 async function connectToRoom(creds) {
@@ -27,6 +30,15 @@ function getTracks(participant) {
   }).map(function(publication) {
     return publication.track;
   });
+}
+
+// Creates a button
+function createButton(text, container) {
+  const btn = document.createElement('button');
+  btn.innerHTML = text;
+  btn.classList.add('btn', 'btn-outline-primary', 'btn-sm');
+  container.appendChild(btn);
+  return btn;
 }
 
 // Connect participant 2, listening to audio/video
@@ -54,7 +66,49 @@ function getTracks(participant) {
     name:roomName,
     tracks: [],
   });
+  
+  // Creating mute buttons
+  const muteAudioBtn = createButton('Mute Audio', P1Controls)
+  const muteVideoBtn = createButton('Mute Video', P1Controls)
 
-  // Append roomP1 published tracks to the DOM.
+  // Muting audio track and video tracks
+  muteAudioBtn.onclick = function() {
+    const mute = muteAudioBtn.innerHTML === 'Mute Audio';
+    const localUser = roomP1.localParticipant;
+    getTracks(localUser).forEach(function(track) {
+      if (track.kind === 'audio') {
+        if (mute) {
+          track.disable();
+        } else {
+          track.enable();
+        }
+        console.log('yeet!', track)
+      }
+    });
+    muteAudioBtn.innerHTML = mute ? 'Unmute Audio' : 'Mute Audio';
+  }
 
+  muteVideoBtn.onclick = function() {
+    const mute = muteVideoBtn.innerHTML === 'Mute Video';
+    const localUser = roomP1.localParticipant;
+    getTracks(localUser).forEach(function(track) {
+      if (track.kind === 'video') {
+        if (mute) {
+          track.disable();
+          videoPreview.removeChild(track.detach());
+        } else {
+          track.enable();
+          videoPreview.appendChild(track.attach());
+        }
+        console.log('yeet!', track)
+      }
+    });
+    muteVideoBtn.innerHTML = mute ? 'Unmute Video' : 'Mute Video';
+  }
+
+  // 
+  roomP2.on('trackSubscribed', function(track) {
+    videoPreview.appendChild(track.attach())
+  })
+  
 }());
