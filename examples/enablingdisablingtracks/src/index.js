@@ -21,9 +21,8 @@ async function connectToRoom(creds) {
   return room;
 }
 
-/**
- * Get the Tracks of the given Participant.
- */
+// Get the Tracks of the given Participant.
+
 function getTracks(participant) {
   return Array.from(participant.tracks.values()).filter(function(publication) {
     return publication.track;
@@ -59,7 +58,7 @@ function createButton(text, container) {
   const roomP1 = await Video.connect(credsP1.token);
 
   // Set room name for participant 2 to join.
-  roomName = roomP1.name
+  roomName = roomP1.name;
 
   // Connecting remote participants.
   const roomP2 = await Video.connect(credsP2.token, {
@@ -68,47 +67,45 @@ function createButton(text, container) {
   });
   
   // Creating mute buttons
-  const muteAudioBtn = createButton('Mute Audio', P1Controls)
-  const muteVideoBtn = createButton('Mute Video', P1Controls)
+  const muteAudioBtn = createButton('Mute Audio', P1Controls);
+  const muteVideoBtn = createButton('Mute Video', P1Controls);
 
   // Muting audio track and video tracks
   muteAudioBtn.onclick = function() {
     const mute = muteAudioBtn.innerHTML === 'Mute Audio';
     const localUser = roomP1.localParticipant;
-    getTracks(localUser).forEach(function(track) {
-      if (track.kind === 'audio') {
-        if (mute) {
-          track.disable();
-        } else {
-          track.enable();
-        }
-        console.log('yeet!', track)
-      }
-    });
+    const track = getTracks(localUser);
+    const audioTrack = track[1];
+
+    if (mute) {
+      audioTrack.disable();
+    } else {
+      audioTrack.enable();
+    }
+
     muteAudioBtn.innerHTML = mute ? 'Unmute Audio' : 'Mute Audio';
   }
 
   muteVideoBtn.onclick = function() {
     const mute = muteVideoBtn.innerHTML === 'Mute Video';
     const localUser = roomP1.localParticipant;
-    getTracks(localUser).forEach(function(track) {
-      if (track.kind === 'video') {
-        if (mute) {
-          track.disable();
-          videoPreview.removeChild(track.detach());
-        } else {
-          track.enable();
-          videoPreview.appendChild(track.attach());
-        }
-        console.log('yeet!', track)
-      }
-    });
+    const track = getTracks(localUser);
+    const videoTrack = track[0];
+
+    if (mute) {
+      console.log('muted')
+      videoTrack.disable();
+    } else {
+      console.log('unmuted')
+      videoTrack.enable();
+    }
+
     muteVideoBtn.innerHTML = mute ? 'Unmute Video' : 'Mute Video';
   }
 
-  // 
+  // Starts video upon P2 joining room
   roomP2.on('trackSubscribed', function(track) {
-    videoPreview.appendChild(track.attach())
+    videoPreview.appendChild(track.attach());
   })
   
 }());
