@@ -71,11 +71,14 @@ function createButton(text, container) {
   const muteVideoBtn = createButton('Mute Video', P1Controls);
 
   // Muting audio track and video tracks
+  let audioTrack = null;
+  let videoTrack = null;
+
   muteAudioBtn.onclick = function() {
     const mute = muteAudioBtn.innerHTML === 'Mute Audio';
     const localUser = roomP1.localParticipant;
     const track = getTracks(localUser);
-    const audioTrack = track[1];
+    audioTrack = track[1];
 
     if (mute) {
       audioTrack.disable();
@@ -90,13 +93,11 @@ function createButton(text, container) {
     const mute = muteVideoBtn.innerHTML === 'Mute Video';
     const localUser = roomP1.localParticipant;
     const track = getTracks(localUser);
-    const videoTrack = track[0];
+    videoTrack = track[0];
 
     if (mute) {
-      console.log('muted')
       videoTrack.disable();
     } else {
-      console.log('unmuted')
       videoTrack.enable();
     }
 
@@ -105,7 +106,37 @@ function createButton(text, container) {
 
   // Starts video upon P2 joining room
   roomP2.on('trackSubscribed', function(track) {
+    let muteImage = document.createElement('img');
+    muteImage.src = 'https://cdn3.iconfinder.com/data/icons/multimedia-and-media-player-solid/48/Artboard_4-512.png';
+
+    let unmuteImage = document.createElement('img');
+    unmuteImage.src = 'https://cdn0.iconfinder.com/data/icons/website-fat-outlines-part-1-black/96/web-01-512.png';
+
     videoPreview.appendChild(track.attach());
-  })
-  
+    audioPreview.appendChild(unmuteImage)
+
+    track.on('enabled', () => {
+      if (track.kind === 'audio') {
+        console.log('unmute audio')
+        // audioPreview.replaceChild(unmuteImage, muteImage)
+      }
+      if (track.kind === 'video') {
+        console.log('unmute video')
+        // videoPreview.removeChild(muteImage);
+      }
+    });
+    track.on('disabled', () => {
+      if (track.kind === 'audio') {
+        console.log('mute audio')
+        audioPreview.replaceChild(muteImage, unmuteImage)
+        // audioPreview.removeChild(unmuteImage);
+        // audioPreview.appendChild(muteImage);
+      }
+      if (track.kind === 'video') {
+        console.log('mute video')
+        // videoPreview.appendChild(muteImage);
+      }
+    });
+  });
+
 }());
