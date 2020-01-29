@@ -71,20 +71,20 @@ function createButton(text, container) {
   const muteVideoBtn = createButton('Mute Video', P1Controls);
 
   // Muting audio track and video tracks
-  let audioTrack = null;
-  let videoTrack = null;
 
   muteAudioBtn.onclick = function() {
     const mute = muteAudioBtn.innerHTML === 'Mute Audio';
     const localUser = roomP1.localParticipant;
-    const track = getTracks(localUser);
-    audioTrack = track[1];
 
-    if (mute) {
-      audioTrack.disable();
-    } else {
-      audioTrack.enable();
-    }
+    getTracks(localUser).forEach(function(track) {
+      if (track.kind === 'audio') {
+        if (mute) {
+          track.disable();
+        } else {
+          track.enable();
+        }
+      }
+    });
 
     muteAudioBtn.innerHTML = mute ? 'Unmute Audio' : 'Mute Audio';
   }
@@ -92,14 +92,16 @@ function createButton(text, container) {
   muteVideoBtn.onclick = function() {
     const mute = muteVideoBtn.innerHTML === 'Mute Video';
     const localUser = roomP1.localParticipant;
-    const track = getTracks(localUser);
-    videoTrack = track[0];
 
-    if (mute) {
-      videoTrack.disable();
-    } else {
-      videoTrack.enable();
-    }
+    getTracks(localUser).forEach(function(track) {
+      if (track.kind === 'video') {
+        if (mute) {
+          track.disable();
+        } else {
+          track.enable();
+        }
+      }
+    });
 
     muteVideoBtn.innerHTML = mute ? 'Unmute Video' : 'Mute Video';
   }
@@ -113,7 +115,7 @@ function createButton(text, container) {
     unmuteImage.src = 'https://cdn0.iconfinder.com/data/icons/website-fat-outlines-part-1-black/96/web-01-512.png';
 
     videoPreview.appendChild(track.attach());
-    audioPreview.appendChild(unmuteImage)
+    // audioPreview.appendChild(unmuteImage)
 
     track.on('enabled', () => {
       if (track.kind === 'audio') {
@@ -122,19 +124,18 @@ function createButton(text, container) {
       }
       if (track.kind === 'video') {
         console.log('unmute video')
-        // videoPreview.removeChild(muteImage);
+        // videoPreview.replaceChild(track.attach(), muteImage);
       }
     });
+
     track.on('disabled', () => {
       if (track.kind === 'audio') {
         console.log('mute audio')
-        audioPreview.replaceChild(muteImage, unmuteImage)
-        // audioPreview.removeChild(unmuteImage);
-        // audioPreview.appendChild(muteImage);
+        // audioPreview.replaceChild(muteImage, unmuteImage)
       }
       if (track.kind === 'video') {
         console.log('mute video')
-        // videoPreview.appendChild(muteImage);
+        // videoPreview.replaceChild(muteImage, track.attach());
       }
     });
   });
