@@ -14,10 +14,12 @@ function getTracks(participant) {
 
 /**
   * Enable and disable tracks.
+  * @param {local participant} localUser - The local user that is enabling/disabling.
+  * @param {string} mute - The current state of the mute button.
+  * @returns {void}
 */
 
  function muteAudio(localUser, mute) {
-  console.log('muting audio')
   getTracks(localUser).forEach(function(track) {
     if (track.kind === 'audio') {
       if (mute) {
@@ -30,7 +32,6 @@ function getTracks(participant) {
  }
 
  function muteVideo(localUser, mute) {
-   console.log('mute video')
   getTracks(localUser).forEach(function(track) {
     if (track.kind === 'video') {
       if (mute) {
