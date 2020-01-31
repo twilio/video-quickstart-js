@@ -49,6 +49,14 @@ div#userControls {
 div#userControls > button {
   margin:5px;
   border-radius: 8px;
+  -webkit-transition-duration: 0.4s; /* Safari */
+  transition-duration: 0.4s;
+}
+
+
+div#userControls > button:hover {
+  background-color: #e7e7e7;
+  color: black
 }
 
 div#audiopreview {
