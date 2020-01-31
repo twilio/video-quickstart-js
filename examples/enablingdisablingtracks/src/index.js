@@ -59,7 +59,7 @@ const muteVideoBtn = createButton('Mute Video', P1Controls);
 
   // Muting audio track and video tracks
   muteAudioBtn.onclick = () => {
-    const mute = muteAudioBtn.innerHTML === '<span class="glyphicon glyphicon-volume-off"></span> Mute Audio';
+    const mute = muteAudioBtn.innerHTML === '<img src="./icons/volume-mute-fill.svg"> Mute Audio';
     const localUser = roomP1.localParticipant;
 
     getTracks(localUser).forEach(track => {
@@ -74,17 +74,15 @@ const muteVideoBtn = createButton('Mute Video', P1Controls);
 
     // muteAudioBtn.innerHTML = mute ? 'Unmute Audio' : 'Mute Audio';
 
-    // console.log('audiobtn',muteAudioBtn)
-
     if(mute) {
-      muteAudioBtn.innerHTML = '<span class="glyphicon glyphicon-volume-up"></span> Unmute Audio'
+      muteAudioBtn.innerHTML = '<img src="./icons/volume-up-fill.svg"> Unmute Audio'
     } else {
-      muteAudioBtn.innerHTML = '<span class="glyphicon glyphicon-volume-off"></span> Mute Audio'
+      muteAudioBtn.innerHTML = '<img src="./icons/volume-mute-fill.svg"> Mute Audio'
     }
   }
 
   muteVideoBtn.onclick = () => {
-    const mute = muteVideoBtn.innerHTML === 'Mute Video';
+    const mute = muteVideoBtn.innerHTML === '<img src="./icons/pause-fill.svg"> Mute Video';
     const localUser = roomP1.localParticipant;
 
     getTracks(localUser).forEach(track => {
@@ -97,7 +95,13 @@ const muteVideoBtn = createButton('Mute Video', P1Controls);
       }
     });
 
-    muteVideoBtn.innerHTML = mute ? 'Unmute Video' : 'Mute Video';
+    // muteVideoBtn.innerHTML = mute ? 'Unmute Video' : 'Mute Video';
+
+    if(mute) {
+      muteVideoBtn.innerHTML = '<img src="./icons/play-fill.svg"> Unmute Video'
+    } else {
+      muteVideoBtn.innerHTML = '<img src="./icons/pause-fill.svg"> Mute Video';
+    }
   }
 
   // Starts video upon P2 joining room
