@@ -9,6 +9,8 @@ const helpers = require('./helpers');
 const audioPreview = document.getElementById('audiopreview');
 const videoPreview = document.getElementById('videopreview');
 const P1Controls = document.getElementById('userControls')
+const muteAudioBtn = document.getElementById('muteAudioBtn');
+const muteVideoBtn = document.getElementById('muteVideoBtn')
 let roomName = null;
 
 // Get the Tracks of the given Participant.
@@ -20,18 +22,6 @@ function getTracks(participant) {
   });
 }
 
-// Creates a button
-function createButton(text, container) {
-  const btn = document.createElement('button');
-  btn.innerHTML = text;
-  btn.classList.add('btn', 'btn-outline-primary', 'btn-sm');
-  container.appendChild(btn);
-  return btn;
-}
-
-// Creating mute buttons
-const muteAudioBtn = createButton('Mute Audio', P1Controls);
-const muteVideoBtn = createButton('Mute Video', P1Controls);
 
 (async function(){
   // Load the code snippet.
@@ -59,6 +49,7 @@ const muteVideoBtn = createButton('Mute Video', P1Controls);
 
   // Muting audio track and video tracks
   muteAudioBtn.onclick = () => {
+    console.log('mute btn clicked')
     const mute = muteAudioBtn.innerHTML === '<img src="./icons/volume-mute-fill.svg"> Mute Audio';
     const localUser = roomP1.localParticipant;
 
@@ -71,8 +62,6 @@ const muteVideoBtn = createButton('Mute Video', P1Controls);
         }
       }
     });
-
-    // muteAudioBtn.innerHTML = mute ? 'Unmute Audio' : 'Mute Audio';
 
     if(mute) {
       muteAudioBtn.innerHTML = '<img src="./icons/volume-up-fill.svg"> Unmute Audio'
@@ -94,9 +83,7 @@ const muteVideoBtn = createButton('Mute Video', P1Controls);
         }
       }
     });
-
-    // muteVideoBtn.innerHTML = mute ? 'Unmute Video' : 'Mute Video';
-
+    
     if(mute) {
       muteVideoBtn.innerHTML = '<img src="./icons/play-fill.svg"> Unmute Video'
     } else {
