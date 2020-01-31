@@ -14,16 +14,6 @@ const muteAudioBtn = document.getElementById('muteAudioBtn');
 const muteVideoBtn = document.getElementById('muteVideoBtn')
 let roomName = null;
 
-// Get the Tracks of the given Participant.
-function getTracks(participant) {
-  return Array.from(participant.tracks.values()).filter(publication => {
-    return publication.track;
-  }).map(publication => {
-    return publication.track;
-  });
-}
-
-
 (async function(){
   // Load the code snippet.
   const snippet = await getSnippet('./helpers.js');
