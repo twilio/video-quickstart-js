@@ -97,5 +97,4 @@ let roomName = null;
     roomP2.disconnect();
     roomName = null;
   }
-
 }());
