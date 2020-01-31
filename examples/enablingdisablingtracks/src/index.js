@@ -1,32 +1,21 @@
 'use strict';
 
-
 const Prism = require('prismjs');
 const Video = require('twilio-video');
 const getSnippet = require('../../util/getsnippet');
 const getRoomCredentials = require('../../util/getroomcredentials');
 const helpers = require('./helpers');
-const muteAudio = helpers.muteAudio;
 
-let roomName = null;
 const audioPreview = document.getElementById('audiopreview');
 const videoPreview = document.getElementById('videopreview');
 const P1Controls = document.getElementById('userControls')
-
-// Connect participant 1, displaying audio/video
-async function connectToRoom(creds) {
-  const room = await Video.connect(creds.token, {
-    name: roomName
-  });
-  return room;
-}
+let roomName = null;
 
 // Get the Tracks of the given Participant.
-
 function getTracks(participant) {
-  return Array.from(participant.tracks.values()).filter(function(publication) {
+  return Array.from(participant.tracks.values()).filter(publication => {
     return publication.track;
-  }).map(function(publication) {
+  }).map(publication => {
     return publication.track;
   });
 }
@@ -40,7 +29,9 @@ function createButton(text, container) {
   return btn;
 }
 
-// Connect participant 2, listening to audio/video
+// Creating mute buttons
+const muteAudioBtn = createButton('Mute Audio', P1Controls);
+const muteVideoBtn = createButton('Mute Video', P1Controls);
 
 (async function(){
   // Load the code snippet.
@@ -65,18 +56,13 @@ function createButton(text, container) {
     name:roomName,
     tracks: [],
   });
-  
-  // Creating mute buttons
-  const muteAudioBtn = createButton('Mute Audio', P1Controls);
-  const muteVideoBtn = createButton('Mute Video', P1Controls);
 
   // Muting audio track and video tracks
-
-  muteAudioBtn.onclick = function() {
-    const mute = muteAudioBtn.innerHTML === 'Mute Audio';
+  muteAudioBtn.onclick = () => {
+    const mute = muteAudioBtn.innerHTML === '<span class="glyphicon glyphicon-volume-off"></span> Mute Audio';
     const localUser = roomP1.localParticipant;
 
-    getTracks(localUser).forEach(function(track) {
+    getTracks(localUser).forEach(track => {
       if (track.kind === 'audio') {
         if (mute) {
           track.disable();
@@ -86,14 +72,22 @@ function createButton(text, container) {
       }
     });
 
-    muteAudioBtn.innerHTML = mute ? 'Unmute Audio' : 'Mute Audio';
+    // muteAudioBtn.innerHTML = mute ? 'Unmute Audio' : 'Mute Audio';
+
+    // console.log('audiobtn',muteAudioBtn)
+
+    if(mute) {
+      muteAudioBtn.innerHTML = '<span class="glyphicon glyphicon-volume-up"></span> Unmute Audio'
+    } else {
+      muteAudioBtn.innerHTML = '<span class="glyphicon glyphicon-volume-off"></span> Mute Audio'
+    }
   }
 
-  muteVideoBtn.onclick = function() {
+  muteVideoBtn.onclick = () => {
     const mute = muteVideoBtn.innerHTML === 'Mute Video';
     const localUser = roomP1.localParticipant;
 
-    getTracks(localUser).forEach(function(track) {
+    getTracks(localUser).forEach(track => {
       if (track.kind === 'video') {
         if (mute) {
           track.disable();
@@ -107,37 +101,36 @@ function createButton(text, container) {
   }
 
   // Starts video upon P2 joining room
-  roomP2.on('trackSubscribed', function(track) {
-    let muteImage = document.createElement('img');
-    muteImage.src = 'https://cdn3.iconfinder.com/data/icons/multimedia-and-media-player-solid/48/Artboard_4-512.png';
-
-    let unmuteImage = document.createElement('img');
-    unmuteImage.src = 'https://cdn0.iconfinder.com/data/icons/website-fat-outlines-part-1-black/96/web-01-512.png';
-
-    videoPreview.appendChild(track.attach());
-    // audioPreview.appendChild(unmuteImage)
+  roomP2.on('trackSubscribed', (track => {
+    if(track.isEnabled) {
+      if(track.kind === 'audio') {
+        audioPreview.appendChild(track.attach());
+      }else{
+        videoPreview.appendChild(track.attach());
+      }
+    }
 
     track.on('enabled', () => {
       if (track.kind === 'audio') {
-        console.log('unmute audio')
-        // audioPreview.replaceChild(unmuteImage, muteImage)
+        audioPreview.appendChild(track.attach())
       }
       if (track.kind === 'video') {
-        console.log('unmute video')
-        // videoPreview.replaceChild(track.attach(), muteImage);
+        videoPreview.appendChild(track.attach())
       }
     });
 
     track.on('disabled', () => {
-      if (track.kind === 'audio') {
-        console.log('mute audio')
-        // audioPreview.replaceChild(muteImage, unmuteImage)
-      }
-      if (track.kind === 'video') {
-        console.log('mute video')
-        // videoPreview.replaceChild(muteImage, track.attach());
-      }
+      track.detach().forEach(element => {
+        element.remove();
+      });
     });
-  });
+  }));
+
+  // Disconnect from the Room 
+  window.onbeforeunload = () => {
+    roomP1.disconnect();
+    roomP2.disconnect();
+    roomName = null;
+  }
 
 }());

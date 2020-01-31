@@ -39,6 +39,29 @@ pre.language-javascript a:hover {
   text-decoration: none;
 }
 
+div#audiopreview {
+  display: flex;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  height: auto;
+  width: 100%;
+  background-color: #fff;
+  text-align: center;
+  margin: auto;
+}
+
+div#videopreview {
+  display: flex;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  height: auto;
+  width: 100%;
+  background-color: #fff;
+  margin: auto;
+  overflow: overlay;
+}
+
+
 @media (max-width: 900px) {
   div.col-sm-8, div.col-sm-4 {
     max-width: 100%;
