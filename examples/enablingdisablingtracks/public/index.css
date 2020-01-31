@@ -47,7 +47,8 @@ div#userControls {
 }
 
 div#userControls > button {
-  margin:5px
+  margin:5px;
+  border-radius: 8px;
 }
 
 div#audiopreview {

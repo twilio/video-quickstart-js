@@ -5,6 +5,8 @@ const Video = require('twilio-video');
 const getSnippet = require('../../util/getsnippet');
 const getRoomCredentials = require('../../util/getroomcredentials');
 const helpers = require('./helpers');
+const muteAudio = helpers.muteAudio;
+const muteVideo = helpers.muteVideo;
 
 const audioPreview = document.getElementById('audiopreview');
 const videoPreview = document.getElementById('videopreview');
@@ -51,15 +53,7 @@ function getTracks(participant) {
     const mute = muteAudioBtn.innerHTML === '<img src="./icons/volume-mute-fill.svg"> Mute Audio';
     const localUser = roomP1.localParticipant;
 
-    getTracks(localUser).forEach(track => {
-      if (track.kind === 'audio') {
-        if (mute) {
-          track.disable();
-        } else {
-          track.enable();
-        }
-      }
-    });
+    muteAudio(localUser, mute);
 
     if(mute) {
       muteAudioBtn.innerHTML = '<img src="./icons/volume-up-fill.svg"> Unmute Audio'
@@ -72,15 +66,7 @@ function getTracks(participant) {
     const mute = muteVideoBtn.innerHTML === '<img src="./icons/pause-fill.svg"> Mute Video';
     const localUser = roomP1.localParticipant;
 
-    getTracks(localUser).forEach(track => {
-      if (track.kind === 'video') {
-        if (mute) {
-          track.disable();
-        } else {
-          track.enable();
-        }
-      }
-    });
+    muteVideo(localUser, mute);
 
     if(mute) {
       muteVideoBtn.innerHTML = '<img src="./icons/play-fill.svg"> Unmute Video'
