@@ -39,9 +39,20 @@ pre.language-javascript a:hover {
   text-decoration: none;
 }
 
+div#userControls {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  padding: 5px;
+}
+
+div#userControls > button {
+  margin:5px
+}
+
 div#audiopreview {
   display: flex;
-  justify-content: flex-start;
+  justify-content: center;
   flex-wrap: wrap;
   height: auto;
   width: 100%;
@@ -52,10 +63,10 @@ div#audiopreview {
 
 div#videopreview {
   display: flex;
-  justify-content: flex-start;
+  justify-content: center;
   flex-wrap: wrap;
   height: auto;
-  width: 100%;
+  width: auto;
   background-color: #fff;
   margin: auto;
   overflow: overlay;

@@ -8,7 +8,6 @@ const helpers = require('./helpers');
 
 const audioPreview = document.getElementById('audiopreview');
 const videoPreview = document.getElementById('videopreview');
-const P1Controls = document.getElementById('userControls')
 const muteAudioBtn = document.getElementById('muteAudioBtn');
 const muteVideoBtn = document.getElementById('muteVideoBtn')
 let roomName = null;
@@ -49,7 +48,6 @@ function getTracks(participant) {
 
   // Muting audio track and video tracks
   muteAudioBtn.onclick = () => {
-    console.log('mute btn clicked')
     const mute = muteAudioBtn.innerHTML === '<img src="./icons/volume-mute-fill.svg"> Mute Audio';
     const localUser = roomP1.localParticipant;
 
@@ -83,7 +81,7 @@ function getTracks(participant) {
         }
       }
     });
-    
+
     if(mute) {
       muteVideoBtn.innerHTML = '<img src="./icons/play-fill.svg"> Unmute Video'
     } else {
