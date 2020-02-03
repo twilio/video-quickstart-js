@@ -1,47 +1,81 @@
 'use strict';
 
-/** 
-  * Get the Tracks of the given Participant.
-  * @param {string} participant - A participant to get tracks
-*/
-function getTracks(participant) {
-  return Array.from(participant.tracks.values()).filter(function(publication) {
-    return publication.track;
-  }).map(function(publication){
-    return publication.track;
+/**
+ * Mute/unmute your media in a Room.
+ * @param {Room} room - The Room you have joined
+ * @param {'audio'|'video'} kind - The type of media you want to mute/unmute
+ * @param {'mute'|'unmute'} action - Whether you want to mute/unmute
+ */
+function muteOrUnmuteYourMedia(room, kind, action) {
+  const publications = kind === 'audio'
+    ? room.localParticipant.audioTracks
+    : room.localParticipant.videoTracks;
+
+  publications.forEach(function(publication) {
+    if (action === 'mute') {
+      publication.track.disable();
+    } else {
+      publication.track.enable();
+    }
   });
 }
 
 /**
-  * Enable and disable tracks.
-  * @param {local participant} localUser - The local user that is enabling/disabling.
-  * @param {string} mute - The current state of the mute button.
-  * @returns {void}
-*/
+ * Mute your audio in a Room.
+ * @param {Room} room - The Room you have joined
+ * @returns {void}
+ */
+function muteYourAudio(room) {
+  muteOrUnmuteYourMedia(room, 'audio', 'mute');
+}
 
- function muteAudio(localUser, mute) {
-  getTracks(localUser).forEach(function(track) {
-    if (track.kind === 'audio') {
-      if (mute) {
-        track.disable();
-      } else {
-        track.enable();
-      }
-    }
+/**
+ * Mute your video in a Room.
+ * @param {Room} room - The Room you have joined
+ * @returns {void}
+ */
+function muteYourVideo(room) {
+  muteOrUnmuteYourMedia(room, 'video', 'mute');
+}
+
+/**
+ * Unmute your audio in a Room.
+ * @param {Room} room - The Room you have joined
+ * @returns {void}
+ */
+function unmuteYourAudio(room) {
+  muteOrUnmuteYourMedia(room, 'audio', 'unmute');
+}
+
+/**
+ * Unmute your video in a Room.
+ * @param {Room} room - The Room you have joined
+ * @returns {void}
+ */
+function unmuteYourVideo(room) {
+  muteOrUnmuteYourMedia(room, 'video', 'unmute');
+}
+
+/**
+ * A RemoteParticipant muted or unmuted its media.
+ * @param {Room} room - The Room you have joined
+ * @param {function} onMutedMedia - Called when a RemoteParticipant muted its media
+ * @param {function} onUnmutedMedia - Called when a RemoteParticipant unmuted its media
+ * @returns {void}
+ */
+function participantMutedOrUnmutedMedia(room, onMutedMedia, onUnmutedMedia) {
+  room.on('trackSubscribed', function(track, publication, participant) {
+    track.on('disabled', function() {
+      onMutedMedia(track, participant);
+    });
+    track.on('enabled', function() {
+      onUnmutedMedia(track, participant);
+    });
   });
- }
+}
 
- function muteVideo(localUser, mute) {
-  getTracks(localUser).forEach(function(track) {
-    if (track.kind === 'video') {
-      if (mute) {
-        track.disable();
-      } else {
-        track.enable();
-      }
-    }
-  });
- }
-
-exports.muteAudio = muteAudio;
-exports.muteVideo = muteVideo;
+exports.muteYourAudio = muteYourAudio;
+exports.muteYourVideo = muteYourVideo;
+exports.unmuteYourAudio = unmuteYourAudio;
+exports.unmuteYourVideo = unmuteYourVideo;
+exports.participantMutedOrUnmutedMedia = participantMutedOrUnmutedMedia;

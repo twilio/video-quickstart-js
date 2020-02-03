@@ -5,8 +5,12 @@ const Video = require('twilio-video');
 const getSnippet = require('../../util/getsnippet');
 const getRoomCredentials = require('../../util/getroomcredentials');
 const helpers = require('./helpers');
-const muteAudio = helpers.muteAudio;
-const muteVideo = helpers.muteVideo;
+const muteYourAudio = helpers.muteYourAudio;
+const muteYourVideo = helpers.muteYourVideo;
+const unmuteYourAudio = helpers.unmuteYourAudio;
+const unmuteYourVideo = helpers.unmuteYourVideo;
+const participantMutedOrUnmutedMedia = helpers.participantMutedOrUnmutedMedia;
+
 
 const audioPreview = document.getElementById('audiopreview');
 const videoPreview = document.getElementById('videopreview');
@@ -41,62 +45,58 @@ let roomName = null;
 
   // Muting audio track and video tracks click handlers
   muteAudioBtn.onclick = () => {
-    const mute = muteAudioBtn.style.display === 'flex'
-    const localUser = roomP1.localParticipant;
+    const mute = muteAudioBtn.style.display === 'flex';
 
-    muteAudio(localUser, mute);
+    muteYourAudio(roomP1);
 
     if (mute) {
-      muteAudioBtn.style.display = 'none'
-      unmuteAudioBtn.style.display = 'flex'
+      muteAudioBtn.style.display = 'none';
+      unmuteAudioBtn.style.display = 'flex';
     } else {
-      muteAudioBtn.style.display = 'flex'
-      unmuteAudioBtn.style.display = 'none'
+      muteAudioBtn.style.display = 'flex';
+      unmuteAudioBtn.style.display = 'none';
     }
   }
 
   unmuteAudioBtn.onclick = () => {
-    const mute = !unmuteAudioBtn.style.display === 'flex'
-    const localUser = roomP1.localParticipant;
+    const mute = !unmuteAudioBtn.style.display === 'flex';
 
-    muteAudio(localUser, mute);
+    unmuteYourAudio(roomP1);
 
     if (!mute) {
-      unmuteAudioBtn.style.display = 'none'
-      muteAudioBtn.style.display = 'flex'
+      unmuteAudioBtn.style.display = 'none';
+      muteAudioBtn.style.display = 'flex';
     } else {
-      unmuteAudioBtn.style.display = 'flex'
-      muteAudioBtn.style.display = 'none'
+      unmuteAudioBtn.style.display = 'flex';
+      muteAudioBtn.style.display = 'none';
     }
   }
   
   muteVideoBtn.onclick = () => {
-    const mute = muteVideoBtn.style.display === 'flex'
-    const localUser = roomP1.localParticipant;
+    const mute = muteVideoBtn.style.display === 'flex';
 
-    muteVideo(localUser, mute);
+    muteYourVideo(roomP1);
 
     if (mute) {
-      muteVideoBtn.style.display = 'none'
-      unmuteVideoBtn.style.display = 'flex'
+      muteVideoBtn.style.display = 'none';
+      unmuteVideoBtn.style.display = 'flex';
     } else {
-      muteVideoBtn.style.display = 'flex'
-      unmuteVideoBtn.style.display = 'none'
+      muteVideoBtn.style.display = 'flex';
+      unmuteVideoBtn.style.display = 'none';
     }
   }
 
   unmuteVideoBtn.onclick = () => {
-    const mute = !unmuteVideoBtn.style.display === 'flex'
-    const localUser = roomP1.localParticipant;
+    const mute = !unmuteVideoBtn.style.display === 'flex';
 
-    muteVideo(localUser, mute);
+    unmuteYourVideo(roomP1);
 
     if (!mute) {
-      unmuteVideoBtn.style.display = 'none'
-      muteVideoBtn.style.display = 'flex'
+      unmuteVideoBtn.style.display = 'none';
+      muteVideoBtn.style.display = 'flex';
     } else {
-      unmuteVideoBtn.style.display = 'flex'
-      muteVideoBtn.style.display = 'none'
+      unmuteVideoBtn.style.display = 'flex';
+      muteVideoBtn.style.display = 'none';
     }
   }
 
@@ -110,16 +110,13 @@ let roomName = null;
       }
     }
 
-    track.on('enabled', () => {
+    participantMutedOrUnmutedMedia(roomP1, track => {
       if (track.kind === 'audio') {
         audioPreview.appendChild(track.attach())
-      }
-      if (track.kind === 'video') {
+      } else if (track.kind === 'video') {
         videoPreview.appendChild(track.attach())
       }
-    });
-
-    track.on('disabled', () => {
+    }, track => {
       track.detach().forEach(element => {
         element.remove();
       });
