@@ -52,16 +52,29 @@ let roomName = null;
     }
   }
 
+  // muteVideoBtn.onclick = () => {
+  //   const mute = muteVideoBtn.innerHTML === '<img src="./icons/pause-fill.svg"> Mute Video';
+  //   const localUser = roomP1.localParticipant;
+
+  //   muteVideo(localUser, mute);
+
+  //   if(mute) {
+  //     muteVideoBtn.innerHTML = '<img src="./icons/play-fill.svg"> Unmute Video'
+  //   } else {
+  //     muteVideoBtn.innerHTML = '<img src="./icons/pause-fill.svg"> Mute Video';
+  //   }
+  // }
+  
   muteVideoBtn.onclick = () => {
-    const mute = muteVideoBtn.innerHTML === '<img src="./icons/pause-fill.svg"> Mute Video';
+    const mute = !muteVideoBtn.classList.has('muted');
     const localUser = roomP1.localParticipant;
 
     muteVideo(localUser, mute);
 
-    if(mute) {
-      muteVideoBtn.innerHTML = '<img src="./icons/play-fill.svg"> Unmute Video'
+    if (mute) {
+      muteVideoBtn.classList.add('muted')
     } else {
-      muteVideoBtn.innerHTML = '<img src="./icons/pause-fill.svg"> Mute Video';
+      muteVideoBtn.classList.remove('muted')
     }
   }
 
