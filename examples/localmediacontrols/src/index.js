@@ -11,7 +11,9 @@ const muteVideo = helpers.muteVideo;
 const audioPreview = document.getElementById('audiopreview');
 const videoPreview = document.getElementById('videopreview');
 const muteAudioBtn = document.getElementById('muteAudioBtn');
-const muteVideoBtn = document.getElementById('muteVideoBtn')
+const muteVideoBtn = document.getElementById('muteVideoBtn');
+const unmuteAudioBtn = document.getElementById('unmuteAudioBtn');
+const unmuteVideoBtn = document.getElementById('unmuteVideoBtn');
 let roomName = null;
 
 (async function(){
@@ -23,7 +25,6 @@ let roomName = null;
 
   // Get the credentials to connect to the Room.
   const credsP1 = await getRoomCredentials();
-
   const credsP2 = await getRoomCredentials();
 
   // Create room instance and name for participants to join.
@@ -34,47 +35,68 @@ let roomName = null;
 
   // Connecting remote participants.
   const roomP2 = await Video.connect(credsP2.token, {
-    name:roomName,
-    tracks: [],
+    name: roomName,
+    tracks: []
   });
 
-  // Muting audio track and video tracks
+  // Muting audio track and video tracks click handlers
   muteAudioBtn.onclick = () => {
-    const mute = muteAudioBtn.innerHTML === '<img src="./icons/volume-mute-fill.svg"> Mute Audio';
+    const mute = muteAudioBtn.style.display === 'flex'
     const localUser = roomP1.localParticipant;
 
     muteAudio(localUser, mute);
 
-    if(mute) {
-      muteAudioBtn.innerHTML = '<img src="./icons/volume-up-fill.svg"> Unmute Audio'
+    if (mute) {
+      muteAudioBtn.style.display = 'none'
+      unmuteAudioBtn.style.display = 'flex'
     } else {
-      muteAudioBtn.innerHTML = '<img src="./icons/volume-mute-fill.svg"> Mute Audio'
+      muteAudioBtn.style.display = 'flex'
+      unmuteAudioBtn.style.display = 'none'
     }
   }
 
-  // muteVideoBtn.onclick = () => {
-  //   const mute = muteVideoBtn.innerHTML === '<img src="./icons/pause-fill.svg"> Mute Video';
-  //   const localUser = roomP1.localParticipant;
+  unmuteAudioBtn.onclick = () => {
+    const mute = !unmuteAudioBtn.style.display === 'flex'
+    const localUser = roomP1.localParticipant;
 
-  //   muteVideo(localUser, mute);
+    muteAudio(localUser, mute);
 
-  //   if(mute) {
-  //     muteVideoBtn.innerHTML = '<img src="./icons/play-fill.svg"> Unmute Video'
-  //   } else {
-  //     muteVideoBtn.innerHTML = '<img src="./icons/pause-fill.svg"> Mute Video';
-  //   }
-  // }
+    if (!mute) {
+      unmuteAudioBtn.style.display = 'none'
+      muteAudioBtn.style.display = 'flex'
+    } else {
+      unmuteAudioBtn.style.display = 'flex'
+      muteAudioBtn.style.display = 'none'
+    }
+  }
   
   muteVideoBtn.onclick = () => {
-    const mute = !muteVideoBtn.classList.has('muted');
+    const mute = muteVideoBtn.style.display === 'flex'
     const localUser = roomP1.localParticipant;
 
     muteVideo(localUser, mute);
 
     if (mute) {
-      muteVideoBtn.classList.add('muted')
+      muteVideoBtn.style.display = 'none'
+      unmuteVideoBtn.style.display = 'flex'
     } else {
-      muteVideoBtn.classList.remove('muted')
+      muteVideoBtn.style.display = 'flex'
+      unmuteVideoBtn.style.display = 'none'
+    }
+  }
+
+  unmuteVideoBtn.onclick = () => {
+    const mute = !unmuteVideoBtn.style.display === 'flex'
+    const localUser = roomP1.localParticipant;
+
+    muteVideo(localUser, mute);
+
+    if (!mute) {
+      unmuteVideoBtn.style.display = 'none'
+      muteVideoBtn.style.display = 'flex'
+    } else {
+      unmuteVideoBtn.style.display = 'flex'
+      muteVideoBtn.style.display = 'none'
     }
   }
 

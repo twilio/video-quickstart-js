@@ -47,6 +47,7 @@ div#userControls {
 }
 
 div#userControls > button {
+  align-items: center;
   margin:5px;
   border-radius: 8px;
   transition-duration: 0.4s; 
