@@ -100,6 +100,21 @@ let roomName = null;
     }
   }
 
+  // Callbacks for attaching and detaching tracks
+  const detach = track => {
+    track.detach().forEach(element => {
+      element.remove();
+    })};
+  
+  const attach = track => {
+    if (track.kind === 'audio') {
+      audioPreview.appendChild(track.attach())
+    }
+    if (track.kind === 'video') {
+      videoPreview.appendChild(track.attach())
+    }
+  };
+
   // Starts video upon P2 joining room
   roomP2.on('trackSubscribed', (track => {
     if(track.isEnabled) {
@@ -110,18 +125,8 @@ let roomName = null;
       }
     }
 
-    participantMutedOrUnmutedMedia(roomP1, track => {
-      if (track.kind === 'audio') {
-        audioPreview.appendChild(track.attach())
-      } else if (track.kind === 'video') {
-        videoPreview.appendChild(track.attach())
-      }
-    }, track => {
-      track.detach().forEach(element => {
-        element.remove();
-      });
-    });
-  }));
+    participantMutedOrUnmutedMedia(roomP2, detach, attach);
+}));
 
   // Disconnect from the Room 
   window.onbeforeunload = () => {

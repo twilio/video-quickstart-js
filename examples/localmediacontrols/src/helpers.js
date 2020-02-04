@@ -66,10 +66,10 @@ function unmuteYourVideo(room) {
 function participantMutedOrUnmutedMedia(room, onMutedMedia, onUnmutedMedia) {
   room.on('trackSubscribed', function(track, publication, participant) {
     track.on('disabled', function() {
-      onMutedMedia(track, participant);
+      return onMutedMedia(track, participant);
     });
     track.on('enabled', function() {
-      onUnmutedMedia(track, participant);
+      return onUnmutedMedia(track, participant);
     });
   });
 }
