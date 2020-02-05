@@ -63,11 +63,6 @@ div#userControls > button {
   transition-duration: 0.4s; 
 }
 
-div#userControls > button:hover {
-  background-color: #e7e7e7;
-  color: black
-}
-
 div#audiopreview {
   display: flex;
   justify-content: center;
