@@ -45,75 +45,28 @@ let roomName = null;
 
   // Muting audio track and video tracks click handlers
   muteAudioBtn.onclick = () => {
-    const mute = muteAudioBtn.style.display === 'flex';
-
     muteYourAudio(roomP1);
-
-    if (mute) {
-      muteAudioBtn.style.display = 'none';
-      unmuteAudioBtn.style.display = 'flex';
-    } else {
-      muteAudioBtn.style.display = 'flex';
-      unmuteAudioBtn.style.display = 'none';
-    }
+    muteAudioBtn.style.display = 'none';
+    unmuteAudioBtn.style.display = 'flex';
   }
 
   unmuteAudioBtn.onclick = () => {
-    const mute = !unmuteAudioBtn.style.display === 'flex';
-
     unmuteYourAudio(roomP1);
-
-    if (!mute) {
-      unmuteAudioBtn.style.display = 'none';
-      muteAudioBtn.style.display = 'flex';
-    } else {
-      unmuteAudioBtn.style.display = 'flex';
-      muteAudioBtn.style.display = 'none';
-    }
+    unmuteAudioBtn.style.display = 'none';
+    muteAudioBtn.style.display = 'flex';
   }
   
   muteVideoBtn.onclick = () => {
-    const mute = muteVideoBtn.style.display === 'flex';
-
     muteYourVideo(roomP1);
-
-    if (mute) {
-      muteVideoBtn.style.display = 'none';
-      unmuteVideoBtn.style.display = 'flex';
-    } else {
-      muteVideoBtn.style.display = 'flex';
-      unmuteVideoBtn.style.display = 'none';
-    }
+    muteVideoBtn.style.display = 'none';
+    unmuteVideoBtn.style.display = 'flex';
   }
 
   unmuteVideoBtn.onclick = () => {
-    const mute = !unmuteVideoBtn.style.display === 'flex';
-
     unmuteYourVideo(roomP1);
-
-    if (!mute) {
-      unmuteVideoBtn.style.display = 'none';
-      muteVideoBtn.style.display = 'flex';
-    } else {
-      unmuteVideoBtn.style.display = 'flex';
-      muteVideoBtn.style.display = 'none';
-    }
+    unmuteVideoBtn.style.display = 'none';
+    muteVideoBtn.style.display = 'flex';
   }
-
-  // Callbacks for attaching and detaching tracks
-  const detach = track => {
-    track.detach().forEach(element => {
-      element.remove();
-    })};
-  
-  const attach = track => {
-    if (track.kind === 'audio') {
-      audioPreview.appendChild(track.attach())
-    }
-    if (track.kind === 'video') {
-      videoPreview.appendChild(track.attach())
-    }
-  };
 
   // Starts video upon P2 joining room
   roomP2.on('trackSubscribed', (track => {
@@ -125,8 +78,18 @@ let roomName = null;
       }
     }
 
-    participantMutedOrUnmutedMedia(roomP2, detach, attach);
-}));
+    participantMutedOrUnmutedMedia(roomP2, track => {
+      track.detach().forEach(element => {
+        element.remove();
+      })}, track => {
+        if (track.kind === 'audio') {
+          audioPreview.appendChild(track.attach())
+        }
+        if (track.kind === 'video') {
+          videoPreview.appendChild(track.attach())
+        }
+      });
+  }));
 
   // Disconnect from the Room 
   window.onbeforeunload = () => {
