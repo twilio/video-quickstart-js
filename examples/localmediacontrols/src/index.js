@@ -11,7 +11,6 @@ const unmuteYourAudio = helpers.unmuteYourAudio;
 const unmuteYourVideo = helpers.unmuteYourVideo;
 const participantMutedOrUnmutedMedia = helpers.participantMutedOrUnmutedMedia;
 
-
 const audioPreview = document.getElementById('audiopreview');
 const videoPreview = document.getElementById('videopreview');
 const muteAudioBtn = document.getElementById('muteAudioBtn');
@@ -83,10 +82,10 @@ let roomName = null;
         element.remove();
       })}, track => {
         if (track.kind === 'audio') {
-          audioPreview.appendChild(track.attach())
+          audioPreview.appendChild(track.attach());
         }
         if (track.kind === 'video') {
-          videoPreview.appendChild(track.attach())
+          videoPreview.appendChild(track.attach());
         }
       });
   }));
