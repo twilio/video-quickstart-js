@@ -7,10 +7,7 @@
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
   <link rel="stylesheet" href="prism.css">
   <link rel="stylesheet" href="index.css">
-  <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
-
+  <script src="https://kit.fontawesome.com/015382c4ee.js" crossorigin="anonymous"></script>
 </head>
 <body>
   <div class="container-fluid">
@@ -28,20 +25,26 @@
       <div class="col-sm-4">
         <div class="card">
           <div class="card-block">
-            <h4 class="card-title">P1 Controls</h4>
+            <h4 class="card-title">Local Media Controls</h4>
             <div id="userControls">
-              <button id="muteAudioBtn" class="muted" style="display: flex"><img src="./icons/volume-mute-fill.svg"> Mute Audio</button>
-              <button id="unmuteAudioBtn" class="muted" style="display: none"><img src="./icons/volume-up-fill.svg"> Unmute Audio</button>
-              <button id="muteVideoBtn" class="muted" style="display: flex"><img src="./icons/pause-fill.svg"> Mute Video</button>
-              <button id="unmuteVideoBtn" class="muted" style="display: none"><img src="./icons/play-fill.svg"> Unmute Video</button>
+              <button id="muteAudioBtn">Mute Audio</button>
+              <button id="muteVideoBtn">Stop Video</button>
             </div>
           </div>
         </div>
             <div class="card">
               <div class="card-block">
-                <h4 class="card-title">P2 View</h4>
-                <div id="audiopreview"></div>
-                <div id="videopreview"></div>
+                <h4 class="card-title">RemoteParticipant View</h4>
+                <div id="audiopreview">
+                  <span>
+                    <i id="activeIcon" class="fas fa-volume-up"></i>
+                  </span>
+                  <span>
+                    <i id="inactiveIcon" class="fas fa-volume-mute"></i>
+                  </span>
+                </div>
+                <div id="videopreview">
+                </div>
               </div>
             </div>
         </div>

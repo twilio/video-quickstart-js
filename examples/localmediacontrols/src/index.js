@@ -13,10 +13,6 @@ const participantMutedOrUnmutedMedia = helpers.participantMutedOrUnmutedMedia;
 
 const audioPreview = document.getElementById('audiopreview');
 const videoPreview = document.getElementById('videopreview');
-const muteAudioBtn = document.getElementById('muteAudioBtn');
-const muteVideoBtn = document.getElementById('muteVideoBtn');
-const unmuteAudioBtn = document.getElementById('unmuteAudioBtn');
-const unmuteVideoBtn = document.getElementById('unmuteVideoBtn');
 let roomName = null;
 
 (async function(){
@@ -44,27 +40,38 @@ let roomName = null;
 
   // Muting audio track and video tracks click handlers
   muteAudioBtn.onclick = () => {
-    muteYourAudio(roomP1);
-    muteAudioBtn.style.display = 'none';
-    unmuteAudioBtn.style.display = 'flex';
-  }
+    const mute = !muteAudioBtn.classList.contains('muted');
+    const activeIcon = document.getElementById('activeIcon');
+    const inactiveIcon = document.getElementById('inactiveIcon')
 
-  unmuteAudioBtn.onclick = () => {
-    unmuteYourAudio(roomP1);
-    unmuteAudioBtn.style.display = 'none';
-    muteAudioBtn.style.display = 'flex';
+    if(mute) {
+      muteYourAudio(roomP1);
+      muteAudioBtn.classList.add('muted')
+      muteAudioBtn.innerText = 'Unmute Audio'
+      activeIcon.id = 'inactiveIcon'
+      inactiveIcon.id = 'activeIcon'
+
+    } else {
+      unmuteYourAudio(roomP1);
+      muteAudioBtn.classList.remove('muted')
+      muteAudioBtn.innerText = 'Mute Audio'
+      activeIcon.id = 'inactiveIcon'
+      inactiveIcon.id = 'activeIcon'
+    }
   }
   
   muteVideoBtn.onclick = () => {
-    muteYourVideo(roomP1);
-    muteVideoBtn.style.display = 'none';
-    unmuteVideoBtn.style.display = 'flex';
-  }
-
-  unmuteVideoBtn.onclick = () => {
-    unmuteYourVideo(roomP1);
-    unmuteVideoBtn.style.display = 'none';
-    muteVideoBtn.style.display = 'flex';
+    const mute = !muteVideoBtn.classList.contains('muted')
+    
+    if(mute) {
+      muteYourVideo(roomP1);
+      muteVideoBtn.classList.add('muted')
+      muteVideoBtn.innerText = 'Start Video'
+    } else {
+      unmuteYourVideo(roomP1);
+      muteVideoBtn.classList.remove('muted')
+      muteVideoBtn.innerText = 'Stop Video'
+    }
   }
 
   // Starts video upon P2 joining room

@@ -63,7 +63,6 @@ div#userControls > button {
   transition-duration: 0.4s; 
 }
 
-
 div#userControls > button:hover {
   background-color: #e7e7e7;
   color: black
@@ -78,6 +77,15 @@ div#audiopreview {
   background-color: #fff;
   text-align: center;
   margin: auto;
+}
+
+div#audiopreview > span > i#activeIcon {
+ display: flex;
+ font-size: 50px;
+}
+
+div#audiopreview > span > i#inactiveIcon {
+  display:none;
 }
 
 div#videopreview {
