@@ -32,7 +32,9 @@ var app = express();
   'mediadevices',
   'networkquality',
   'reconnection',
-  'screenshare'
+  'screenshare',
+  'localmediacontrols'
+  
 ].forEach(function(example) {
   var examplePath = path.join(__dirname, `../examples/${example}/public`);
   app.use(`/${example}`, express.static(examplePath));

@@ -16,6 +16,7 @@
     "build:examples:reconnection": "copyfiles -f examples/reconnection/src/helpers.js examples/reconnection/public && browserify examples/reconnection/src/index.js > examples/reconnection/public/index.js",
     "build:examples:screenshare": "copyfiles -f examples/screenshare/src/helpers.js examples/screenshare/public && browserify examples/screenshare/src/index.js > examples/screenshare/public/index.js",
     "build:quickstart": "browserify quickstart/src/index.js > quickstart/public/index.js",
+    "build:examples:localmediacontrols": "copyfiles -f examples/localmediacontrols/src/helpers.js examples/localmediacontrols/public && browserify examples/localmediacontrols/src/index.js > examples/localmediacontrols/public/index.js",
     "clean": "npm-run-all clean:*",
     "clean:examples": "npm-run-all clean:examples:*",
     "clean:examples:bandwidthconstraints": "rimraf examples/bandwidthconstraints/public/index.js examples/bandwidthconstraints/public/helpers.js",
@@ -27,6 +28,7 @@
     "clean:examples:networkquality": "rimraf examples/networkquality/public/index.js examples/networkquality/public/helpers.js",
     "clean:examples:reconnection": "rimraf examples/reconnection/public/index.js examples/reconnection/public/helpers.js",
     "clean:examples:screenshare": "rimraf examples/screenshare/public/index.js examples/screenshare/public/helpers.js",
+    "clean:examples:localmediacontrols": "rimraf examples/localmediacontrols/public/index.js examples/localmediacontrols/public/helpers.js",
     "clean:quickstart": "rimraf quickstart/public/index.js",
     "start": "npm run clean && npm run build && node server"
   },

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Enabling and Disabling Tracks</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+  <link rel="stylesheet" href="prism.css">
+  <link rel="stylesheet" href="index.css">
+  <script src="https://kit.fontawesome.com/015382c4ee.js" crossorigin="anonymous"></script>
+</head>
+<body>
+  <div class="container-fluid">
+    <div class="row thin-gutters">
+      <div class="col-sm-6">
+        <div class="card">
+          <div class="card-block">
+            <h4 class="card-title">
+              Enabling and Disabling Tracks
+            </h4>
+            <pre class="language-javascript"></pre>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-4">
+        <div class="card">
+          <div class="card-block">
+            <h4 class="card-title">Local Media Controls</h4>
+            <div id="userControls">
+              <button id="muteAudioBtn" class="btn btn-primary btn-block" >Mute Audio</button>
+              <button id="muteVideoBtn" class="btn btn-primary btn-block" >Stop Video</button>
+            </div>
+          </div>
+        </div>
+            <div class="card">
+              <div class="card-block">
+                <h4 class="card-title">RemoteParticipant View</h4>
+                <div id="audiopreview">
+                  <span>
+                    <i id="activeIcon" class="fas fa-volume-up"></i>
+                  </span>
+                  <span>
+                    <i id="inactiveIcon" class="fas fa-volume-mute"></i>
+                  </span>
+                </div>
+                <div id="videopreview">
+                </div>
+              </div>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="index.js"></script>
+</body>
+</html>
