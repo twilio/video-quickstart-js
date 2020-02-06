@@ -24,10 +24,21 @@ div#remote-media video {
 }
 
 div#controls div#room-controls,
-div#controls div#preview div#log{
+div#controls div#preview div#log {
   width: 16em;
   margin: 0 1.5em;
   text-align: center;
+}
+
+div#controls div#preview button#button-preview {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+div#controls div#preview button#button-preview img#button-preview-image {
+  padding-right: 1em;
+  color: white;
 }
 
 div#controls p.instructions {
@@ -44,7 +55,7 @@ div#controls div#preview div#local-media {
   box-sizing: border-box;
   margin: 0 auto;
   background-color: lightgrey !important;
-  background-image: url('https://static0.twilio.com/marketing/bundles/archetype/img/logo-wordmark.svg');
+  background-image: url("https://static0.twilio.com/marketing/bundles/archetype/img/logo-wordmark.svg");
   background-position: 50%;
   background-repeat: no-repeat;
 }
@@ -70,7 +81,7 @@ div#controls div#room-controls {
 div#controls div#room-controls input {
   width: 100%;
   height: 2.5em;
-  padding: .5em;
+  padding: 0.5em;
   text-align: center;
 }
 
@@ -97,7 +108,7 @@ div#log {
 
 div#log p {
   color: #686865;
-  font-family: 'Share Tech Mono', 'Courier New', Courier, fixed-width;
+  font-family: "Share Tech Mono", "Courier New", Courier, fixed-width;
   font-size: 1.25em;
   line-height: 1.25em;
   margin-left: 1em;
