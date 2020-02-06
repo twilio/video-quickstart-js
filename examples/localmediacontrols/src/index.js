@@ -42,44 +42,44 @@ let roomName = null;
   muteAudioBtn.onclick = () => {
     const mute = !muteAudioBtn.classList.contains('muted');
     const activeIcon = document.getElementById('activeIcon');
-    const inactiveIcon = document.getElementById('inactiveIcon')
+    const inactiveIcon = document.getElementById('inactiveIcon');
 
     if(mute) {
       muteYourAudio(roomP1);
-      muteAudioBtn.classList.add('muted')
-      muteAudioBtn.innerText = 'Unmute Audio'
-      activeIcon.id = 'inactiveIcon'
-      inactiveIcon.id = 'activeIcon'
+      muteAudioBtn.classList.add('muted');
+      muteAudioBtn.innerText = 'Unmute Audio';
+      activeIcon.id = 'inactiveIcon';
+      inactiveIcon.id = 'activeIcon';
 
     } else {
       unmuteYourAudio(roomP1);
-      muteAudioBtn.classList.remove('muted')
-      muteAudioBtn.innerText = 'Mute Audio'
-      activeIcon.id = 'inactiveIcon'
-      inactiveIcon.id = 'activeIcon'
+      muteAudioBtn.classList.remove('muted');
+      muteAudioBtn.innerText = 'Mute Audio';
+      activeIcon.id = 'inactiveIcon';
+      inactiveIcon.id = 'activeIcon';
     }
   }
   
   muteVideoBtn.onclick = () => {
-    const mute = !muteVideoBtn.classList.contains('muted')
+    const mute = !muteVideoBtn.classList.contains('muted');
     
     if(mute) {
       muteYourVideo(roomP1);
-      muteVideoBtn.classList.add('muted')
-      muteVideoBtn.innerText = 'Start Video'
+      muteVideoBtn.classList.add('muted');
+      muteVideoBtn.innerText = 'Start Video';
     } else {
       unmuteYourVideo(roomP1);
-      muteVideoBtn.classList.remove('muted')
-      muteVideoBtn.innerText = 'Stop Video'
+      muteVideoBtn.classList.remove('muted');
+      muteVideoBtn.innerText = 'Stop Video';
     }
   }
 
   // Starts video upon P2 joining room
   roomP2.on('trackSubscribed', (track => {
-    if(track.isEnabled) {
-      if(track.kind === 'audio') {
+    if (track.isEnabled) {
+      if (track.kind === 'audio') {
         audioPreview.appendChild(track.attach());
-      }else{
+      } else{
         videoPreview.appendChild(track.attach());
       }
     }
@@ -87,7 +87,8 @@ let roomName = null;
     participantMutedOrUnmutedMedia(roomP2, track => {
       track.detach().forEach(element => {
         element.remove();
-      })}, track => {
+      });
+    }, track => {
         if (track.kind === 'audio') {
           audioPreview.appendChild(track.attach());
         }
