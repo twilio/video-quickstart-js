@@ -3,25 +3,32 @@
 <head>
   <title>Twilio Video - Video Quickstart</title>
   <link rel="stylesheet" href="index.css">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
 </head>
 <body>
-  <h1>Welcome to Twilio Video quickstart</h1>
-  <p>For more examples click <a href='/examples'>here</a></p>
-<div id="remote-media"></div>
-<div id="controls">
-  <div id="preview">
-    <p class="instructions">Hello Beautiful</p>
-    <div id="local-media"></div>
-    <button id="button-preview">Preview My Camera</button>
+  <div class="jumbotron">
+    <div class="container-fluid">
+      <h1 class="display-3">Welcome to Twilio Video quickstart</h1>
+      <p class="lead">For more examples click <a href='/examples'>here</a></p>
+    </div>
   </div>
-  <div id="room-controls">
-    <p class="instructions">Room Name:</p>
-    <input id="room-name" type="text" placeholder="Enter a room name" />
-    <button id="button-join">Join Room</button>
-    <button id="button-leave">Leave Room</button>
-  </div>
-  <div id="log"></div>
-</div>
+    <div id="remote-media"></div>
+    <div id="controls" class="container">
+      <div id="preview">
+        <p class="instructions">Hello Beautiful</p>
+        <div>
+          <div id="local-media"></div>
+          <button id="button-preview" class="btn btn-primary btn-block">Preview My Camera</button>
+        </div>
+      </div>
+      <div id="room-controls">
+        <p class="instructions">Room Name</p>
+        <input id="room-name" type="text" placeholder="Enter a room name" />
+        <button id="button-join" type="submit" class="btn btn-primary btn-block">Join Room</button>
+        <button id="button-leave" type="submit" class="btn btn-primary btn-block">Leave Room</button>
+      </div>
+        <div id="log"></div>
+    </div>
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 <script src="index.js"></script>
