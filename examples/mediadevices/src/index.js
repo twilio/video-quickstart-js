@@ -27,7 +27,7 @@ var deviceSelections = {
  * Build the list of available media devices.
  */
 function updateDeviceSelectionOptions() {
-  return getDeviceSelectionOptions({ audio: true, video: true })
+  return getDeviceSelectionOptions()
     .then(function(deviceSelectionOptions) {
       ['audioinput', 'audiooutput', 'videoinput'].forEach(function(kind) {
           var kindDeviceInfos = deviceSelectionOptions[kind];
