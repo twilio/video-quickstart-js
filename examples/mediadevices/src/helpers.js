@@ -97,12 +97,16 @@ function applyVideoInputDeviceSelection(deviceId, video, room) {
  * @property {Array<MediaDeviceInfo>} videoinput
  */
 function getDeviceSelectionOptions() {
-  return navigator.mediaDevices.enumerateDevices().then(function(deviceInfos) {
-    var kinds = ['audioinput', 'audiooutput', 'videoinput'];
-    return kinds.reduce(function(deviceSelectionOptions, kind) {
-      deviceSelectionOptions[kind] = getDevicesOfKind(deviceInfos, kind);
-      return deviceSelectionOptions;
-    }, {});
+  // before calling enumerateDevices, get media permissions (.getUserMedia)
+  // w/o media permissions, browsers do not return device Ids.
+  return navigator.mediaDevices.getUserMedia({ audio: true, video: true }).then(() => {
+    return navigator.mediaDevices.enumerateDevices().then(function(deviceInfos) {
+      var kinds = ['audioinput', 'audiooutput', 'videoinput'];
+      return kinds.reduce(function(deviceSelectionOptions, kind) {
+        deviceSelectionOptions[kind] = getDevicesOfKind(deviceInfos, kind);
+        return deviceSelectionOptions;
+      }, {});
+    });
   });
 }
 
