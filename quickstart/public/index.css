@@ -7,6 +7,9 @@ div#controls {
 }
 
 div#remote-media {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
   height: 43%;
   width: 100%;
   background-color: #fff;
@@ -16,9 +19,9 @@ div#remote-media {
 
 div#remote-media video {
   border: 1px solid #272726;
-  margin: 3em 2em;
-  height: 70%;
-  max-width: 27% !important;
+  /* margin: 3em 2em; */
+  /* height: 70%; */
+  max-width: 80% !important;
   background-color: #272726;
   background-repeat: no-repeat;
 }

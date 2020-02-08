@@ -28,8 +28,23 @@ function detachTrack(track) {
 
 // Appends remoteParticipant name to the DOM
 function appendName(identity, container) {
-  const name = document.createTextNode(identity);
+  const name = document.createElement("p");
+  name.id = `participantName-${identity}`;
+  name.className = "instructions";
+  name.textContent = identity;
   container.appendChild(name);
+}
+
+// Removes remoteParticipant name from the DOM
+function removeName(participant) {
+  if (participant) {
+    let { identity } = participant;
+    const container = document.getElementById(
+      `participantContainer-${identity}`
+    );
+    const name = document.getElementById(`participantName-${identity}`);
+    container.removeChild(name);
+  }
 }
 
 // A new RemoteTrack was published to the Room.
@@ -51,12 +66,17 @@ function trackUnpublished(publication) {
 
 // A new RemoteParticipant joined the Room
 function participantConnected(participant, container) {
-  appendName(participant.identity, container);
+  let selfContainer = document.createElement("div");
+  selfContainer.id = `participantContainer-${participant.identity}`;
+
+  container.appendChild(selfContainer);
+  appendName(participant.identity, selfContainer);
+
   participant.tracks.forEach(function(publication) {
-    trackPublished(publication, container);
+    trackPublished(publication, selfContainer);
   });
   participant.on("trackPublished", function(publication) {
-    trackPublished(publication, container);
+    trackPublished(publication, selfContainer);
   });
   participant.on("trackUnpublished", trackUnpublished);
 }
@@ -150,6 +170,7 @@ function roomJoined(room) {
   room.on("participantDisconnected", function(participant) {
     log("RemoteParticipant '" + participant.identity + "' left the room");
     detachParticipantTracks(participant);
+    removeName(participant);
   });
 
   // Once the LocalParticipant leaves the room, detach the Tracks
@@ -164,6 +185,7 @@ function roomJoined(room) {
     }
     detachParticipantTracks(room.localParticipant);
     room.participants.forEach(detachParticipantTracks);
+    room.participants.forEach(removeName);
     activeRoom = null;
     document.getElementById("button-join").style.display = "block";
     document.getElementById("button-leave").style.display = "none";
