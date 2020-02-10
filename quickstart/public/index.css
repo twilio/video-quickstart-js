@@ -19,11 +19,11 @@ div#remote-media {
 
 div#remote-media video {
   border: 1px solid #272726;
-  /* margin: 3em 2em; */
-  /* height: 70%; */
   max-width: 80% !important;
-  background-color: #272726;
   background-repeat: no-repeat;
+  background-color: lightgrey !important;
+  background-image: url("https://static0.twilio.com/marketing/bundles/archetype/img/logo-wordmark.svg");
+  background-position: 50%;
 }
 
 div#controls div#room-controls,
