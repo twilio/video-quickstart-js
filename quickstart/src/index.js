@@ -129,11 +129,9 @@ $.getJSON('/token', function(data) {
 
 // Get the Participant's Tracks.
 function getTracks(participant) {
-  return Array.from(participant.tracks.values())
-    .filter(function(publication) {
+  return Array.from(participant.tracks.values()).filter(function(publication) {
       return publication.track;
-    })
-    .map(function(publication) {
+    }).map(function(publication) {
       return publication.track;
     });
 }
@@ -197,15 +195,13 @@ document.getElementById('button-preview').onclick = function() {
     ? Promise.resolve(previewTracks)
     : Video.createLocalTracks();
 
-  localTracksPromise.then(
-    function(tracks) {
+  localTracksPromise.then(function(tracks) {
       window.previewTracks = previewTracks = tracks;
       var previewContainer = document.getElementById('local-media');
       if (!previewContainer.querySelector('video')) {
         attachTracks(tracks, previewContainer);
       }
-    },
-    function(error) {
+    },function(error) {
       console.error('Unable to access local media', error);
       log('Unable to access Camera and Microphone');
     }
