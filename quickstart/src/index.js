@@ -7,7 +7,6 @@ var previewTracks;
 var identity;
 var roomName;
 
-
 // Attach the Track to the DOM.
 function attachTrack(track, container) {
   container.appendChild(track.attach());
@@ -20,11 +19,31 @@ function attachTracks(tracks, container) {
   });
 }
 
-// Detach given track from the DOM
+// Detach given track from the DOM.
 function detachTrack(track) {
   track.detach().forEach(function(element) {
     element.remove();
   });
+}
+
+// Appends remoteParticipant name to the DOM.
+function appendName(identity, container) {
+  const name = document.createElement('p');
+  name.id = `participantName-${identity}`;
+  name.className = 'instructions';
+  name.textContent = identity;
+  container.appendChild(name);
+}
+
+// Removes remoteParticipant container from the DOM.
+function removeName(participant) {
+  if (participant) {
+    let { identity } = participant;
+    const container = document.getElementById(
+      `participantContainer-${identity}`
+    );
+    container.parentNode.removeChild(container);
+  }
 }
 
 // A new RemoteTrack was published to the Room.
@@ -46,11 +65,17 @@ function trackUnpublished(publication) {
 
 // A new RemoteParticipant joined the Room
 function participantConnected(participant, container) {
+  let selfContainer = document.createElement('div');
+  selfContainer.id = `participantContainer-${participant.identity}`;
+
+  container.appendChild(selfContainer);
+  appendName(participant.identity, selfContainer);
+
   participant.tracks.forEach(function(publication) {
-    trackPublished(publication, container);
+    trackPublished(publication, selfContainer);
   });
   participant.on('trackPublished', function(publication) {
-    trackPublished(publication, container);
+    trackPublished(publication, selfContainer);
   });
   participant.on('trackUnpublished', trackUnpublished);
 }
@@ -105,10 +130,10 @@ $.getJSON('/token', function(data) {
 // Get the Participant's Tracks.
 function getTracks(participant) {
   return Array.from(participant.tracks.values()).filter(function(publication) {
-    return publication.track;
-  }).map(function(publication) {
-    return publication.track;
-  });
+      return publication.track;
+    }).map(function(publication) {
+      return publication.track;
+    });
 }
 
 // Successfully connected!
@@ -117,7 +142,7 @@ function roomJoined(room) {
 
   log("Joined as '" + identity + "'");
   document.getElementById('button-join').style.display = 'none';
-  document.getElementById('button-leave').style.display = 'inline';
+  document.getElementById('button-leave').style.display = 'block';
 
   // Attach LocalParticipant's Tracks, if not already attached.
   var previewContainer = document.getElementById('local-media');
@@ -142,6 +167,7 @@ function roomJoined(room) {
   room.on('participantDisconnected', function(participant) {
     log("RemoteParticipant '" + participant.identity + "' left the room");
     detachParticipantTracks(participant);
+    removeName(participant);
   });
 
   // Once the LocalParticipant leaves the room, detach the Tracks
@@ -156,8 +182,9 @@ function roomJoined(room) {
     }
     detachParticipantTracks(room.localParticipant);
     room.participants.forEach(detachParticipantTracks);
+    room.participants.forEach(removeName);
     activeRoom = null;
-    document.getElementById('button-join').style.display = 'inline';
+    document.getElementById('button-join').style.display = 'block';
     document.getElementById('button-leave').style.display = 'none';
   });
 }
@@ -169,15 +196,16 @@ document.getElementById('button-preview').onclick = function() {
     : Video.createLocalTracks();
 
   localTracksPromise.then(function(tracks) {
-    window.previewTracks = previewTracks = tracks;
-    var previewContainer = document.getElementById('local-media');
-    if (!previewContainer.querySelector('video')) {
-      attachTracks(tracks, previewContainer);
+      window.previewTracks = previewTracks = tracks;
+      var previewContainer = document.getElementById('local-media');
+      if (!previewContainer.querySelector('video')) {
+        attachTracks(tracks, previewContainer);
+      }
+    },function(error) {
+      console.error('Unable to access local media', error);
+      log('Unable to access Camera and Microphone');
     }
-  }, function(error) {
-    console.error('Unable to access local media', error);
-    log('Unable to access Camera and Microphone');
-  });
+  );
 };
 
 // Activity log.

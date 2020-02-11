@@ -4,7 +4,7 @@
  * Load Twilio configuration from .env config file - the following environment
  * variables should be set:
  * process.env.TWILIO_ACCOUNT_SID
- * process.env.TWILIO_API_KEY
+ * process.env.TWILIO_API_SID
  * process.env.TWILIO_API_SECRET
  */
 require('dotenv').load();
@@ -67,7 +67,7 @@ app.get('/token', function(request, response) {
   // containing the grant we just created.
   var token = new AccessToken(
     process.env.TWILIO_ACCOUNT_SID,
-    process.env.TWILIO_API_KEY,
+    process.env.TWILIO_API_SID,
     process.env.TWILIO_API_SECRET,
     { ttl: MAX_ALLOWED_SESSION_DURATION }
   );
