@@ -5,9 +5,12 @@ const Video = require('twilio-video');
 const getSnippet = require('../../util/getsnippet');
 const getRoomCredentials = require('../../util/getroomcredentials');
 const helpers = require('./helpers');
+const remoteReconnectionStates = helpers.remoteReconnectionUpdates;
 
 const localMedia = document.getElementById('local-media');
 const remoteMedia = document.getElementById('remote-media');
+const P1simulateReconnection = document.getElementById('p1-simulate-reconnection');
+const P2simulateReconnection = document.getElementById('p2-simulate-reconnection');
 
 (async function() {
   // Load the code snippet.
@@ -34,27 +37,33 @@ const remoteMedia = document.getElementById('remote-media');
   // Appends video/audio tracks when each participant is subscribed.
   roomP1.on('trackSubscribed', track => {
     if (track.isEnabled) {
-      remoteMedia.appendChild(track.attach())
+      remoteMedia.appendChild(track.attach());
     } 
-  })
+  });
   
-  // roomP2.on('trackSubscribed', track => {
-  //   if (track.isEnabled) {
-  //     localMedia.appendChild(track.attach())
-  //   } 
-  // })
+  roomP2.on('trackSubscribed', track => {
+    if (track.isEnabled) {
+      localMedia.appendChild(track.attach());
+    } 
+  });
 
-  // Reconnecting state simulator button
-    // Interrupts network when button is clicked
-  
+  // Simulate reconnection button functionalities
+  P1simulateReconnection.onclick = () => {
+    // On click this button should interrupt network activities for P1.
+    // Participant 2 will listen to P1 going into reconnect state.
+    // Change UI according to state
+    roomP1._signaling._transport._twilioConnection._close({ code: 4999, reason: 'simulate-reconnect' });
+    console.log('reconnection simulate')
+  }
+
+  // P2simulateReconnection.onclick = () => {
+  //   roomP2._signaling._transport._twilioConnection._close({ code: 5000, reason: 'simulate-reconnect' });
+  // }
+
   // Update UI of remote and local participant when remote participants are in a reconnecting state
-    roomP1.on('participantConnected', remoteParticipant => {
-      // UPDATE UI OF P2/ REMOTE PARTICIPANT TO CONNECTED : GREEN COLOR
-    })
-    roomP1.on('participantReconnecting', remoteParticipant => {
-      // UPDATE UI OF P2/ REMOTE PARTICIPANT TO RECONNECTING : ORANGE COLOR
-    })
-  
+  remoteReconnectionStates(roomP2, () => {
+    
+  })
 
   // Disconnect from the Room 
   window.onbeforeunload = () => {
@@ -62,4 +71,4 @@ const remoteMedia = document.getElementById('remote-media');
     roomP2.disconnect();
     roomName = null;
   }
-}())
+}());

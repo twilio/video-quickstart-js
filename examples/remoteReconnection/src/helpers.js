@@ -3,7 +3,7 @@
 /**
  * Listen to Room reconnection events and update the UI accordingly.
  * @param {Room} room - The Room you have joined
- * @param {function} updateRoomState - Updates the app UI with the new Room state
+ * @param {function} updateRoomState - Updates the app UI with the new state
  * @returns {void}
  */
 
@@ -12,7 +12,6 @@
     if (remoteParticipant.state === 'reconnecting') {
       console.log('Remote Participant is Reconnecting')
     }
-    // Make UI reconnecting bar orange here
     updateRemoteState(remoteParticipant.state)
   })
 
@@ -20,7 +19,6 @@
     if (remoteParticipant.state === 'connected') {
       console.log('Remote Participant is reconnected')
     }
-    // Make UI connected bar green here
     updateRemoteState(remoteParticipant.state)
   })
  }
