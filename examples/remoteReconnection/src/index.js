@@ -7,13 +7,13 @@ const getRoomCredentials = require('../../util/getroomcredentials');
 const helpers = require('./helpers');
 const remoteReconnectionUpdates = helpers.remoteReconnectionUpdates;
 
-const localMedia = document.getElementById('local-media');
-const remoteMedia = document.getElementById('remote-media');
+const p1Media = document.getElementById('p1-media');
+const p2Media = document.getElementById('p2-media');
 const P1simulateReconnection = document.getElementById('p1-simulate-reconnection');
 const P2simulateReconnection = document.getElementById('p2-simulate-reconnection');
 
 // Update UI to indicate remote side room state changes
-const onRoomStateChange = (newState) => {
+const onRoomStateChange = (participant, newState) => {
   const oldRoomState = document.querySelector('div.current')
   if (oldRoomState) {
     oldRoomState.classList.remove('current');
@@ -48,20 +48,19 @@ const onRoomStateChange = (newState) => {
   // Appends video/audio tracks when each participant is subscribed.
   roomP1.on('trackSubscribed', track => {
     if (track.isEnabled) {
-      remoteMedia.appendChild(track.attach());
+      p2Media.appendChild(track.attach());
     } 
   });
   
   roomP2.on('trackSubscribed', track => {
     if (track.isEnabled) {
-      localMedia.appendChild(track.attach());
+      p1Media.appendChild(track.attach());
     }
   });
 
   roomP2.on('participantReconnecting', remoteParticipant => {
-    console.log('remoteParticipant state',remoteParticipant.state)
     remoteReconnectionUpdates(roomP2, () => {
-      console.log('UI CHANGE HERE', remoteParticipant.state)
+      onRoomStateChange(remoteParticipant, remoteParticipant.state)
     })
   })
 
