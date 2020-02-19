@@ -21,6 +21,13 @@
     }
     updateRemoteState(remoteParticipant.state)
   })
+
+  room.on('participantDisconnected', remoteParticipant => {
+    if (remoteParticipant.state === 'disconnected') {
+      console.log('Remote Participant is disconnected')
+    }
+    updateRemoteState(remoteParticipant.state)
+  })
  }
 
 exports.remoteReconnectionUpdates = remoteReconnectionUpdates;
