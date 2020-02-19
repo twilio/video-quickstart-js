@@ -89,6 +89,26 @@ function applyVideoInputDeviceSelection(deviceId, video, room) {
 }
 
 /**
+ * Ensure that media permissions are obtained.
+ * @returns {Promise<void>}
+ */
+function ensureMediaPermissions() {
+  return navigator.mediaDevices.enumerateDevices().then(function(devices) {
+    return devices.every(function(device) {
+      return !(device.id && device.label);
+    });
+  }).then(function(shouldAskForMediaPermissions) {
+    if (shouldAskForMediaPermissions) {
+      return navigator.mediaDevices.getUserMedia({ audio: true, video: true }).then(function(mediaStream) {
+        mediaStream.getTracks().forEach(function(track) {
+          track.stop();
+        });
+      });
+    }
+  });
+}
+
+/**
  * Get the list of available media devices.
  * @returns {Promise<DeviceSelectionOptions>}
  * @typedef {object} DeviceSelectionOptions
@@ -98,8 +118,8 @@ function applyVideoInputDeviceSelection(deviceId, video, room) {
  */
 function getDeviceSelectionOptions() {
   // before calling enumerateDevices, get media permissions (.getUserMedia)
-  // w/o media permissions, browsers do not return device Ids.
-  return navigator.mediaDevices.getUserMedia({ audio: true, video: true }).then(() => {
+  // w/o media permissions, browsers do not return device Ids and/or labels.
+  return ensureMediaPermissions().then(function() {
     return navigator.mediaDevices.enumerateDevices().then(function(deviceInfos) {
       var kinds = ['audioinput', 'audiooutput', 'videoinput'];
       return kinds.reduce(function(deviceSelectionOptions, kind) {
