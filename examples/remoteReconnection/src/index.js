@@ -48,36 +48,29 @@ const onRoomStateChange = (participant, newState) => {
   // Appends video/audio tracks when each participant is subscribed.
   roomP1.on('trackSubscribed', track => {
     if (track.isEnabled) {
-      p2Media.appendChild(track.attach());
+      p1Media.appendChild(track.attach());
     } 
   });
-  
-  roomP2.on('trackSubscribed', track => {
-    if (track.isEnabled) {
-      p1Media.appendChild(track.attach());
-    }
-  });
 
-  // Both rooms listening in on remote participant connection states.
+
+  // Remote room listening on remote participant's (P1) reconnection state
   roomP2.on('participantReconnecting', remoteParticipant => {
     remoteReconnectionUpdates(roomP2, () => {
       onRoomStateChange('p1', remoteParticipant.state)
     });
   });
 
-  roomP1.on('participantReconnecting', remoteParticipant => {
+  // Local room listening on it's own reconnection state
+  roomP1.on('reconnecting', () => {
     remoteReconnectionUpdates(roomP1, () => {
-      onRoomStateChange('p2', remoteParticipant.state)
+      onRoomStateChange('p2', roomP1.state)
     });
+    console.log('local Participant state', roomP1.state)
   });
 
   // Simulate reconnection button functionalities
   P1simulateReconnection.onclick = () => {
-    roomP1._signaling._transport._twilioConnection._close({ code: 4999, reason: 'simulate-reconnect' });
-  }
-
-  P2simulateReconnection.onclick = () => {
-    roomP2._signaling._transport._twilioConnection._close({ code: 4999, reason: 'simulate-reconnect' });
+    roomP1._signaling._transport._twilioConnection._close({ code: 4999, reason: 'simulate-reconnect', region: 'au1' });
   }
 
   // Disconnect from the Room 
