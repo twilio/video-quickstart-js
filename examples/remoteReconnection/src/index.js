@@ -14,12 +14,12 @@ const P2simulateReconnection = document.getElementById('p2-simulate-reconnection
 
 // Update UI to indicate remote side room state changes
 const onRoomStateChange = (participant, newState) => {
-  const oldRoomState = document.querySelector('div.current')
+  const oldRoomState = document.querySelector(`#${participant} div.current`)
   if (oldRoomState) {
     oldRoomState.classList.remove('current');
   }
 
-  const newRoomState = document.querySelector(`div.${newState}`)
+  const newRoomState = document.querySelector(`#${participant} div.${newState}`)
   newRoomState.classList.add('current');
 }
 
@@ -58,21 +58,27 @@ const onRoomStateChange = (participant, newState) => {
     }
   });
 
+  // Both rooms listening in on remote participant connection states.
   roomP2.on('participantReconnecting', remoteParticipant => {
     remoteReconnectionUpdates(roomP2, () => {
-      onRoomStateChange(remoteParticipant, remoteParticipant.state)
-    })
-  })
+      onRoomStateChange('p1', remoteParticipant.state)
+    });
+  });
+
+  roomP1.on('participantReconnecting', remoteParticipant => {
+    remoteReconnectionUpdates(roomP1, () => {
+      onRoomStateChange('p2', remoteParticipant.state)
+    });
+  });
 
   // Simulate reconnection button functionalities
   P1simulateReconnection.onclick = () => {
-    // On click this button should interrupt network activities for P1.
     roomP1._signaling._transport._twilioConnection._close({ code: 4999, reason: 'simulate-reconnect' });
   }
 
-  // P2simulateReconnection.onclick = () => {
-  //   roomP2._signaling._transport._twilioConnection._close({ code: 4999, reason: 'simulate-reconnect' });
-  // }
+  P2simulateReconnection.onclick = () => {
+    roomP2._signaling._transport._twilioConnection._close({ code: 4999, reason: 'simulate-reconnect' });
+  }
 
   // Disconnect from the Room 
   window.onbeforeunload = () => {
