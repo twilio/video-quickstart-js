@@ -8,7 +8,6 @@
  */
 
  function remoteReconnectionUpdates (room, updateRemoteState) {
-   console.log(`${room} state is`,room.state)
   room.on('participantReconnecting', remoteParticipant => {
     if (remoteParticipant.state === 'reconnecting') {
       console.log('Remote Participant is Reconnecting')

@@ -8,9 +8,8 @@ const helpers = require('./helpers');
 const remoteReconnectionUpdates = helpers.remoteReconnectionUpdates;
 
 const p1Media = document.getElementById('p1-media');
-const p2Media = document.getElementById('p2-media');
 const P1simulateReconnection = document.getElementById('p1-simulate-reconnection');
-const P2simulateReconnection = document.getElementById('p2-simulate-reconnection');
+
 
 // Update UI to indicate remote side room state changes
 const onRoomStateChange = (participant, newState) => {
@@ -56,16 +55,15 @@ const onRoomStateChange = (participant, newState) => {
   // Remote room listening on remote participant's (P1) reconnection state
   roomP2.on('participantReconnecting', remoteParticipant => {
     remoteReconnectionUpdates(roomP2, () => {
-      onRoomStateChange('p1', remoteParticipant.state)
+      onRoomStateChange('p2', remoteParticipant.state);
     });
   });
 
   // Local room listening on it's own reconnection state
   roomP1.on('reconnecting', () => {
     remoteReconnectionUpdates(roomP1, () => {
-      onRoomStateChange('p2', roomP1.state)
+      onRoomStateChange('p1', roomP1.state);
     });
-    console.log('local Participant state', roomP1.state)
   });
 
   // Simulate reconnection button functionalities
