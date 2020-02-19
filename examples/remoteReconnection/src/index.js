@@ -5,12 +5,23 @@ const Video = require('twilio-video');
 const getSnippet = require('../../util/getsnippet');
 const getRoomCredentials = require('../../util/getroomcredentials');
 const helpers = require('./helpers');
-const remoteReconnectionStates = helpers.remoteReconnectionUpdates;
+const remoteReconnectionUpdates = helpers.remoteReconnectionUpdates;
 
 const localMedia = document.getElementById('local-media');
 const remoteMedia = document.getElementById('remote-media');
 const P1simulateReconnection = document.getElementById('p1-simulate-reconnection');
 const P2simulateReconnection = document.getElementById('p2-simulate-reconnection');
+
+// Update UI to indicate remote side room state changes
+const onRoomStateChange = (newState) => {
+  const oldRoomState = document.querySelector('div.current')
+  if (oldRoomState) {
+    oldRoomState.classList.remove('current');
+  }
+
+  const newRoomState = document.querySelector(`div.${newState}`)
+  newRoomState.classList.add('current');
+}
 
 (async function() {
   // Load the code snippet.
@@ -44,26 +55,25 @@ const P2simulateReconnection = document.getElementById('p2-simulate-reconnection
   roomP2.on('trackSubscribed', track => {
     if (track.isEnabled) {
       localMedia.appendChild(track.attach());
-    } 
+    }
   });
+
+  roomP2.on('participantReconnecting', remoteParticipant => {
+    console.log('remoteParticipant state',remoteParticipant.state)
+    remoteReconnectionUpdates(roomP2, () => {
+      console.log('UI CHANGE HERE', remoteParticipant.state)
+    })
+  })
 
   // Simulate reconnection button functionalities
   P1simulateReconnection.onclick = () => {
     // On click this button should interrupt network activities for P1.
-    // Participant 2 will listen to P1 going into reconnect state.
-    // Change UI according to state
     roomP1._signaling._transport._twilioConnection._close({ code: 4999, reason: 'simulate-reconnect' });
-    console.log('reconnection simulate')
   }
 
   // P2simulateReconnection.onclick = () => {
-  //   roomP2._signaling._transport._twilioConnection._close({ code: 5000, reason: 'simulate-reconnect' });
+  //   roomP2._signaling._transport._twilioConnection._close({ code: 4999, reason: 'simulate-reconnect' });
   // }
-
-  // Update UI of remote and local participant when remote participants are in a reconnecting state
-  remoteReconnectionStates(roomP2, () => {
-    
-  })
 
   // Disconnect from the Room 
   window.onbeforeunload = () => {

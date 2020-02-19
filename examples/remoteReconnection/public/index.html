@@ -24,21 +24,21 @@
       <div class="col-sm-4">
         <div class="card">
           <div class="card-block">
-            <h4 class="card-title">Local Media</h4>
+            <h4 class="card-title">Participant 1 : Local</h4>
             <div id="local-media"></div>
-            <button id="simulate-reconnection" class="btn btn-primary btn-block">Simulate Reconnection</button>
+            <button id="p1-simulate-reconnection" class="btn btn-primary btn-block">Simulate Reconnection</button>
             <h5> Participant 1 state is:</h5>
-            <div class="roomstate connected">Connected</div>
-            <div class="roomstate reconnecting">Reconnecting</div>
+            <div id="connected" class="roomstate connected">Connected</div>
+            <div id="reconnecting" class="roomstate reconnecting">Reconnecting</div>
           </div>
         </div>
             <div class="card">
               <div class="card-block">
-                <h4 class="card-title">Remote Media</h4>
+                <h4 class="card-title">Participant 2 : Remote</h4>
                 <div id="remote-media"></div>
-                <button id="simulate-reconnection" class="btn btn-primary btn-block">Simulate Reconnection</button>
+                <button id="p2-simulate-reconnection" class="btn btn-primary btn-block">Simulate Reconnection</button>
                 <h5> Participant 2 state is:</h5>
-                <div class="roomstate connected">Connected</div>
+                <div class="roomstate connected current">Connected</div>
                 <div class="roomstate reconnecting">Reconnecting</div>
               </div>
             </div>
