@@ -70,12 +70,10 @@ const onRoomStateChange = (participant, newState) => {
 
   // Local room listening on it's own reconnection state
   roomP1.on('reconnecting', () => {
-    console.log('p1 room state RECONNECTING: ', roomP1.state)
     onRoomStateChange('p1', roomP1.state);
   });
 
   roomP1.on('reconnected', () => {
-    console.log('p1 room state RECONNECTED: ', roomP1.state)
     onRoomStateChange('p1', roomP1.state);
   });
 
