@@ -7,27 +7,27 @@
  * @returns {void}
  */
 
- function remoteReconnectionUpdates (room, updateRemoteState) {
-  room.on('participantReconnecting', remoteParticipant => {
-    if (remoteParticipant.state === 'reconnecting') {
-      console.log('Remote Participant is Reconnecting')
-    }
-    updateRemoteState(remoteParticipant.state)
-  })
+ function handleRemoteParticipantReconnectionUpdates(room, updateParticipantState) {
+  room.on('participantReconnecting', participant => {
+    updateParticipantState(participant.state);
+  });
 
-  room.on('participantReconnected', remoteParticipant => {
-    if (remoteParticipant.state === 'connected') {
-      console.log('Remote Participant is reconnected')
-    }
-    updateRemoteState(remoteParticipant.state)
-  })
+  room.on('participantReconnected', participant => {
+    updateParticipantState(participant.state);
+  });
+}
 
-  room.on('participantDisconnected', remoteParticipant => {
-    if (remoteParticipant.state === 'disconnected') {
-      console.log('Remote Participant is disconnected')
-    }
-    updateRemoteState(remoteParticipant.state)
-  })
- }
+function handleLocalParticipantReconnectionUpdates(room, updateParticipantState) {
+  const localParticipant = room.localParticipant;
 
-exports.remoteReconnectionUpdates = remoteReconnectionUpdates;
+  localParticipant.on('reconnecting', () => {
+    updateParticipantState(localParticipant.state);
+  });
+
+  localParticipant.on('reconnected', () => {
+    updateParticipantState(localParticipant.state);
+  });
+} 
+
+exports.handleLocalParticipantReconnectionUpdates = handleLocalParticipantReconnectionUpdates;
+exports.handleRemoteParticipantReconnectionUpdates = handleRemoteParticipantReconnectionUpdates;
