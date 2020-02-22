@@ -5,7 +5,6 @@ const Video = require('twilio-video');
 const getSnippet = require('../../util/getsnippet');
 const getRoomCredentials = require('../../util/getroomcredentials');
 const helpers = require('./helpers');
-const remoteReconnectionUpdates = helpers.remoteReconnectionUpdates;
 const handleLocalParticipantReconnectionUpdates = helpers.handleLocalParticipantReconnectionUpdates;
 const handleRemoteParticipantReconnectionUpdates = helpers.handleRemoteParticipantReconnectionUpdates;
 
@@ -65,8 +64,7 @@ function getTracks(participant) {
       p1Media.appendChild(track.attach());
     })
   });
-  
-  // if(track.isEnabled) p1Media.appendChild(track.attach());
+
   // Simulate reconnection button functionalities, adding in region in order to extend reconnection time
   P1simulateReconnection.onclick = () => {
     roomP1._signaling._transport._twilioConnection._close({ code: 4999, reason: 'simulate-reconnect'});
@@ -77,25 +75,12 @@ function getTracks(participant) {
   }
 
   // Remote room listening on remote participant's (P1) reconnection state
-  roomP2.on('participantReconnecting', remoteParticipant => {
-    handleRemoteParticipantReconnectionUpdates(roomP2, () => {
-      onRoomStateChange('p2', remoteParticipant.state);
-    });
+  handleRemoteParticipantReconnectionUpdates(roomP1, state => {
+    onRoomStateChange('p2', state);
   });
-
-  roomP2.on('participantReconnected', remoteParticipant => {
-    handleRemoteParticipantReconnectionUpdates(roomP2, () => {
-      onRoomStateChange('p2', remoteParticipant.state);
-    });
-  });
-
-  // Local room listening on it's own reconnection state
-  roomP1.on('reconnecting', () => {
-    onRoomStateChange('p1', roomP1.state);
-  });
-
-  roomP1.on('reconnected', () => {
-    onRoomStateChange('p1', roomP1.state);
+  
+  handleLocalParticipantReconnectionUpdates(roomP1, state => {
+    onRoomStateChange('p1', state);
   });
 
   // Disconnect from the Room 
