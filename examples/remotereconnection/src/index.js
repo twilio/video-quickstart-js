@@ -57,15 +57,15 @@ function getTracks(participant) {
     p1Media.appendChild(track.attach());
   })
   
+  // Appends video/audio tracks when LocalParticipant is subscribed.
+  roomP1.on('trackSubscribed', track => {
+    p2Media.appendChild(track.attach());
+  });
+
   // Connecting remote participants.
   const roomP2 = await Video.connect(credsP2.token, {
     name: roomName,
     region: 'au1'
-  });
-  
-  // Appends video/audio tracks when LocalParticipant is subscribed.
-  roomP1.on('trackSubscribed', track => {
-    p2Media.appendChild(track.attach());
   });
 
   // Simulate reconnection button functionalities, adding in region in order to extend reconnection time
