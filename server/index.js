@@ -33,7 +33,8 @@ var app = express();
   'networkquality',
   'reconnection',
   'screenshare',
-  'localmediacontrols'
+  'localmediacontrols',
+  'remotereconnection'
   
 ].forEach(function(example) {
   var examplePath = path.join(__dirname, `../examples/${example}/public`);
