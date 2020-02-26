@@ -9,6 +9,7 @@ const handleLocalParticipantReconnectionUpdates = helpers.handleLocalParticipant
 const handleRemoteParticipantReconnectionUpdates = helpers.handleRemoteParticipantReconnectionUpdates;
 
 const p1Media = document.getElementById('p1-media');
+const p2Media = document.getElementById('p2-media');
 const P1simulateReconnection = document.getElementById('p1-simulate-reconnection');
 const P2simulateReconnection = document.getElementById('p2-simulate-reconnection');
 
@@ -51,18 +52,20 @@ function getTracks(participant) {
   // Set room name for participant 2 to join.
   const roomName = roomP1.name;
   
+  // Appends video/audio tracks when LocalParticipant is connected.
+  getTracks(roomP1.localParticipant).forEach(track => {
+    p1Media.appendChild(track.attach());
+  })
+  
   // Connecting remote participants.
   const roomP2 = await Video.connect(credsP2.token, {
     name: roomName,
     region: 'au1'
   });
   
-  // Appends video/audio tracks when each participant is subscribed.
-  roomP1.on('participantConnected', () => {
-    const localUser = roomP1.localParticipant;
-    getTracks(localUser).forEach(track => {
-      p1Media.appendChild(track.attach());
-    })
+  // Appends video/audio tracks when LocalParticipant is subscribed.
+  roomP1.on('trackSubscribed', track => {
+    p2Media.appendChild(track.attach());
   });
 
   // Simulate reconnection button functionalities, adding in region in order to extend reconnection time
