@@ -27,11 +27,7 @@ var deviceSelections = {
  * Build the list of available media devices.
  */
 function updateDeviceSelectionOptions() {
-  // before enumerating devices, get media permssions
-  // NOTE: w/o media permissions, safari/ff does not return the labels
-  // (like front camera, back camera) for the devices.
-  return navigator.mediaDevices.getUserMedia({ audio: true, video: true })
-    .then(getDeviceSelectionOptions)
+  return getDeviceSelectionOptions()
     .then(function(deviceSelectionOptions) {
       ['audioinput', 'audiooutput', 'videoinput'].forEach(function(kind) {
           var kindDeviceInfos = deviceSelectionOptions[kind];
