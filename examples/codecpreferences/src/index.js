@@ -5,7 +5,7 @@ const Video = require('twilio-video');
 const getRoomCredentials = require('../../util/getroomcredentials');
 const getSnippet = require('../../util/getsnippet');
 const helpers = require('./helpers');
-const waveform = require('../../util/waveform');
+const waveform = new require('../../util/waveform')();
 const connectWithPreferredCodecs = helpers.connectWithPreferredCodecs;
 
 const connectOrDisconnect = document.querySelector('input#connectordisconnect');

@@ -163,4 +163,4 @@ function renderFrame(waveform) {
   canvasCtx.stroke();
 }
 
-module.exports = new Waveform();
+module.exports = Waveform;
