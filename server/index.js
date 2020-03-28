@@ -4,12 +4,11 @@
  * Load Twilio configuration from .env config file - the following environment
  * variables should be set:
  * process.env.TWILIO_ACCOUNT_SID
- * process.env.TWILIO_API_KEY
+ * process.env.TWILIO_API_SID
  * process.env.TWILIO_API_SECRET
  */
 require('dotenv').load();
 
-var fs = require('fs');
 var http = require('http');
 var path = require('path');
 var AccessToken = require('twilio').jwt.AccessToken;
@@ -17,13 +16,26 @@ var VideoGrant = AccessToken.VideoGrant;
 var express = require('express');
 var randomName = require('./randomname');
 
+// Max. period that a Participant is allowed to be in a Room (currently 14400 seconds or 4 hours)
+const MAX_ALLOWED_SESSION_DURATION = 14400;
+
 // Create Express webapp.
 var app = express();
 
 // Set up the paths for the examples.
 [
+  'bandwidthconstraints',
+  'codecpreferences',
+  'dominantspeaker',
+  'localvideofilter',
+  'localvideosnapshot',
   'mediadevices',
-  'localvideosnapshot'
+  'networkquality',
+  'reconnection',
+  'screenshare',
+  'localmediacontrols',
+  'remotereconnection'
+  
 ].forEach(function(example) {
   var examplePath = path.join(__dirname, `../examples/${example}/public`);
   app.use(`/${example}`, express.static(examplePath));
@@ -32,6 +44,10 @@ var app = express();
 // Set up the path for the quickstart.
 var quickstartPath = path.join(__dirname, '../quickstart/public');
 app.use('/quickstart', express.static(quickstartPath));
+
+// Set up the path for the examples page.
+var examplesPath = path.join(__dirname, '../examples');
+app.use('/examples', express.static(examplesPath));
 
 /**
  * Default to the Quick Start application.
@@ -46,14 +62,15 @@ app.get('/', function(request, response) {
  * parameter.
  */
 app.get('/token', function(request, response) {
-  var identity = randomName();
+  var identity = request.query.identity || randomName();
 
   // Create an access token which we will sign and return to the client,
   // containing the grant we just created.
   var token = new AccessToken(
     process.env.TWILIO_ACCOUNT_SID,
     process.env.TWILIO_API_KEY,
-    process.env.TWILIO_API_SECRET
+    process.env.TWILIO_API_SECRET,
+    { ttl: MAX_ALLOWED_SESSION_DURATION }
   );
 
   // Assign the generated identity to the token.

@@ -5,10 +5,9 @@
  * @param {string} relativePath
  * @returns {Promise<string>}
  */
-function getSnippet(relativePath) {
-  return fetch(relativePath).then(function(response) {
-    return response.text();
-  });
+async function getSnippet(relativePath) {
+  const response = await fetch(relativePath);
+  return response.text();
 }
 
 module.exports = getSnippet;

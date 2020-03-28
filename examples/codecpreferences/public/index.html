@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Codec Preferences</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+  <link rel="stylesheet" href="prism.css">
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+  <div class="container-fluid">
+    <div class="row thin-gutters">
+      <div class="col-sm-8">
+        <div class="card">
+          <div class="card-block">
+            <h4 class="card-title">
+              Codec Preferences
+            </h4>
+            <pre class="language-javascript"></pre>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-4">
+        <div class="card">
+          <div class="card-block">
+            <h4 class="card-title">Participant's Media</h4>
+            <div id="audiowaveform"></div>
+            <audio id="audiopreview" autoplay></audio>
+            <video id="videopreview" autoplay align="center"></video>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-block">
+            <h4 class="card-title">Select Codec Preferences</h4>
+            <form>
+              <div class="form-group">
+                <label class="form-text text-muted">Preferred Audio Codec</label>
+                <select id="preferredaudiocodec" name="preferredaudiocodec" class="form-control">
+                  <option value="">No preference</option>
+                  <option value="isac">ISAC</option>
+                  <option value="opus">Opus</option>
+                  <option value="PCMA">PCMA</option>
+                  <option value="PCMU">PCMU</option>
+                </select>
+                <div class="selectedcodec hidden">
+                  <span>Selected Audio Codec:</span>
+                  <span id="selectedaudiocodec"></span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-text text-muted">Preferred Video Codec</label>
+                <select id="preferredvideocodec" name="preferredvideocodec" class="form-control">
+                  <option value="">No preference</option>
+                  <option value="H264">H264</option>
+                  <option value="VP8">VP8</option>
+                  <option value="VP9">VP9</option>
+                </select>
+                <div class="selectedcodec hidden">
+                  <span>Selected Video Codec:</span>
+                  <span id="selectedvideocodec"></span>
+                </div>
+              </div>
+              <input id="connectordisconnect" type="submit" class="btn btn-primary btn-block" value="Connect to Room">
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="index.js"></script>
+</body>
+</html>

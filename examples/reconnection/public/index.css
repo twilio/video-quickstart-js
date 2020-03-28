@@ -1,0 +1,126 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto+Mono:300');
+
+html {
+  height: 100%;
+}
+
+body {
+  height: 100%;
+}
+
+div.container-fluid {
+  height: 100%;
+}
+
+div.row {
+  height: 100%;
+}
+
+div.row.thin-gutters {
+  margin: 0 2px 0 2px;
+}
+
+div.row.thin-gutters > .col,
+div.row.thin-gutters > [class*="col-"] {
+  padding: 0 2px;
+}
+
+div.col-sm-6, div.col-sm-6 {
+  height: 100%;
+}
+
+div#remote-media {
+  height: 50%;
+  width: 100%;
+  background-color: #fff;
+  text-align: center;
+  margin: auto;
+}
+
+div#remote-media video {
+  margin: 1em;
+  max-width: 80% !important;
+  max-height: 80% !important;
+  background-color: #272726;
+  background-repeat: no-repeat;
+}
+
+div.roomstate {
+  background: white;
+  margin: 2px;
+  color: black;
+  border: solid 1px black;
+  padding: 20px;
+  margin: 10px;
+}
+
+div.roomstate.unknown.current {
+  background:gray;
+}
+
+div.roomstate.connected.current {
+  background: green;
+}
+
+div.roomstate.disconnected.current {
+  background:red;
+}
+
+div.roomstate.reconnecting.current {
+  background: yellow;
+}
+
+pre.language-javascript {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 13px;
+}
+
+pre.language-javascript a {
+  color: aquamarine;
+  text-decoration: underline;
+}
+
+pre.language-javascript a:hover {
+  text-decoration: none;
+}
+
+div.card {
+  border: none;
+  overflow-y: auto;
+}
+
+div.input-group > select {
+  width: 100%;
+}
+
+div.col-sm-8 > .card {
+  height: 100%;
+}
+
+div.col-sm-4 > .card:first-child {
+  height: 30%;
+}
+
+div.col-sm-4 > .card:last-child {
+  height: 70%;
+}
+
+
+@media (max-width: 900px) {
+  div.col-sm-8, div.col-sm-4 {
+    max-width: 100%;
+    flex: 100%;
+  }
+
+  div.col-sm-8 {
+    height: 40%;
+  }
+
+  div.col-sm-4 {
+    height: 60%;
+  }
+
+  pre.language-javascript {
+    font-size: 12px;
+  }
+}

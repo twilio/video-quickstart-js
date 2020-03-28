@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Reconnection States and Events</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+  <link rel="stylesheet" href="prism.css">
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+  <div class="container-fluid">
+    <div class="row thin-gutters">
+      <div class="col-sm-6">
+        <div class="card">
+          <div class="card-block">
+            <h4 class="card-title">
+              Reconnection States and Events
+            </h4>
+            <pre class="language-javascript"></pre>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-6">
+        <div class="card-block">
+            <h5> Room state is: </h5>
+            <div class="roomstate connected">Connected</div>
+            <div class="roomstate disconnected current">Disconnected</div>
+            <div class="roomstate reconnecting">Reconnecting</div>
+            <input id="createRoom" type="submit" class="btn btn-primary btn-block" value="Create Room">
+            <p>
+              After you have created the Room, please either turn off your internet network for a little while
+              and then turn it back on, or switch between networks. The Twilio Video SDK will try to re-establish
+              connection to the Room, which will transition to the "connecting" state. Once reconnection is complete,
+              the Room will transition back to the "connected" state.
+
+              You can join other user to the room using button below.
+            </p>
+            <input id="connectordisconnect" type="submit" class="btn btn-primary btn-block" value="Join Room">
+        </div>
+        <div id="remote-media"></div>
+      </div>
+    </div>
+  </div>
+  <script src="index.js"></script>
+</body>
+</html>
