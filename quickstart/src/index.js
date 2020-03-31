@@ -96,14 +96,13 @@ function createTrackStats(track, container) {
   const started = createLabeledStat(statsContainer, 'started', { id: 'started_' + id, className: 'started' });
   const ended = createLabeledStat(statsContainer, 'ended', { id: 'ended_' + id, className: 'ended' });
   const bytes = createLabeledStat(statsContainer, 'bytes', { id: 'bytes_' + id, className: 'bytes' });
-
-  bytes.textContent = '0';
+  bytes.setText('0');
 
   function updateTrackState(event, byteUpdate) {
-    log(`${track.sid || track.id} got: ${event}`);
     if (event === 'bytes') {
       bytes.setText(byteUpdate);
     } else {
+      log(`${track.sid || track.id} got: ${event}`);
       readyState.setText(track.mediaStreamTrack.readyState);
       enabled.setText((track.isEnabled === track.mediaStreamTrack.enabled) ?  track.isEnabled : `${track.isEnabled} != ${track.mediaStreamTrack.enabled}`);
       started.setText(track.isStarted);
@@ -141,12 +140,9 @@ function updateTrackStats({ trackId, trackSid, bytesSent, bytesReceived, trackTy
 
 // Attach the Track to the DOM.
 function attachTrack(track, container, isLocal) {
-  let trackContainer = container;
-  if (!isLocal) {
-    const audioContainer = getChildDiv(container, 'audioContainer');
-    const videoContainer = getChildDiv(container, 'videoContainer');
-    trackContainer = track.kind === 'audio' ? audioContainer : videoContainer;
-  }
+  const audioContainer = getChildDiv(container, 'audioContainer');
+  const videoContainer = getChildDiv(container, 'videoContainer');
+  const trackContainer = track.kind === 'audio' ? audioContainer : videoContainer;
   trackStatUpdater.set(track, createTrackStats(track, trackContainer));
 
   if (isLocal) {
@@ -163,11 +159,13 @@ function attachTrack(track, container, isLocal) {
 }
 
 // Detach given track from the DOM.
-function detachTrack(track) {
+function detachTrack(track, container) {
+  const trackContainer = getChildDiv(container, track.kind === 'audio' ? 'audioContainer' : 'videoContainer');
   track.detach().forEach(function(element) {
     element.remove();
   });
   trackStatUpdater.delete(track);
+  container.removeChild(trackContainer);
 }
 
 // Attach array of Tracks to the DOM.
@@ -194,7 +192,7 @@ function trackPublished(publication, container) {
     log('Subscribed to ' + publication.kind + ' track');
     attachTrack(track, container);
   });
-  publication.on('unsubscribed', detachTrack);
+  publication.on('unsubscribed', track => detachTrack(track, container));
 }
 
 // A RemoteTrack was unpublished from the Room.
@@ -206,6 +204,8 @@ function trackUnpublished(publication) {
 function participantConnected(participant, container, isLocal = false) {
   let selfContainer = document.createElement('div');
   selfContainer.id = `participantContainer-${participant.identity}`;
+  getChildDiv(selfContainer, 'audioContainer');
+  getChildDiv(selfContainer, 'videoContainer');
 
   container.appendChild(selfContainer);
   appendName(participant.identity, selfContainer);
@@ -220,9 +220,9 @@ function participantConnected(participant, container, isLocal = false) {
 }
 
 function participantDisconnected(participant) {
-  var tracks = getTracks(participant);
-  tracks.forEach(detachTrack);
   const container = document.getElementById(`participantContainer-${participant.identity}`);
+  var tracks = getTracks(participant);
+  tracks.forEach(track => detachTrack(track, container));
   if (container && container.parentNode) {
     container.parentNode.removeChild(container);
   }
@@ -349,7 +349,7 @@ function roomJoined(room) {
 
 btnPreviewAudio.onclick = async () => {
   if (localAudioTrack) {
-    detachTrack(localAudioTrack);
+    detachTrack(localAudioTrack, localAudioTrackContainer);
     localAudioTrack = null;
   }
 
@@ -384,7 +384,7 @@ btnPublishVideo.onclick = () => {
 
 btnPreviewVideo.onclick = async () => {
   if (localVideoTrack) {
-    detachTrack(localVideoTrack);
+    detachTrack(localVideoTrack, localVideoTrackContainer);
     localVideoTrack = null;
   }
   // eslint-disable-next-line require-atomic-updates
