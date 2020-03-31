@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 'use strict';
 
 const CANVAS_HEIGHT = 150;
@@ -48,7 +49,7 @@ function Waveform(options) {
   // To manipulate the canvas, we use its context. The canvas refers to the DOM element itself,
   // while the canvas refers to the underlying implementation which can be drawn to.
   const canvasContext = canvas.getContext('2d');
-  canvasContext.lineWidth = 2;
+  canvasContext.lineWidth = 4;
   canvasContext.strokeStyle = 'rgb(0, 0, 0)';
 
   // We will get the frequency data by using an AnalyserNode, a feature of the AudioContext APIs.
@@ -147,6 +148,7 @@ function renderFrame(waveform) {
   var x = 0;
   for (var i = 0; i < bufferLength; i++) {
     var v = dataArray[i] / 128.0;
+    v *= v;
     var y = v * CANVAS_HEIGHT / 2;
 
     if (i === 0) {

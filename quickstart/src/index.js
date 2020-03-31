@@ -4,18 +4,36 @@
 
 var urlParams = new URLSearchParams(window.location.search);
 document.getElementById('room-name').value = urlParams.get('room');
-var shareAudio = !urlParams.has('noaudio');
-var shareVideo = !urlParams.has('novideo');
 const Waveform = require('../../examples/util/waveform');
-const getRoomCredentials = require('../../examples/util/getroomcredentials');;
-
-// var shareAudio = urlParams.get('audio') === null ? true : !!urlParams.get('audio');
-// var shareVideo = urlParams.get('video') === null ? true : !!urlParams.get('video');
-console.log(`shareAudio=${shareAudio}(${typeof shareAudio}), shareVideo=${shareVideo}(${typeof shareVideo})`);
+const getRoomCredentials = require('../../examples/util/getroomcredentials');
 var Video = require('twilio-video');
+
+const videoCheck = document.getElementById('videoCheck');
+const audioCheck = document.getElementById('audioCheck');
+videoCheck.checked = !urlParams.has('novideo');
+audioCheck.checked = !urlParams.has('noaudio');
+console.log("videoCheck.checked:", videoCheck.checked, "audioCheck.checked:", audioCheck.checked);
+
+const remoteMediaContainer = document.getElementById('remote-media');
+
+const btnUnpublishAudio = document.getElementById('button-unpublish-audio');
+const btnPublishAudio = document.getElementById('button-publish-audio');
+
+const btnUnpublishVideo = document.getElementById('button-unpublish-video');
+const btnPublishVideo = document.getElementById('button-publish-video');
+const btnJoin = document.getElementById('button-join');
+const btnLeave =  document.getElementById('button-leave');
+
+const localAudioTrackContainer = document.getElementById('audioTrack');
+const localVideoTrackContainer = document.getElementById('videoTrack');
+const btnPreviewAudio = document.getElementById('button-preview-audio');
+const btnPreviewVideo = document.getElementById('button-preview-video');
+
 var activeRoom;
-var previewTracks;
 var identity;
+
+let localAudioTrack = null;
+let localVideoTrack = null;
 
 /**
  * Attach the AudioTrack to the HTMLAudioElement and start the Waveform.
@@ -24,13 +42,10 @@ function attachAudioTrack(track, container) {
   var audioElement = container.appendChild(track.attach());
   const waveform = new Waveform();
   waveform.setStream(audioElement.srcObject);
-  const canvas = container.querySelector('canvas');
-  if (!canvas) {
-    const canvasContainer = document.createElement('div');
-    canvasContainer.classList.add('canvasContainer');
-    canvasContainer.appendChild(waveform.element);
-    container.appendChild(canvasContainer);
-  }
+  const canvasContainer = document.createElement('div');
+  canvasContainer.classList.add('canvasContainer');
+  canvasContainer.appendChild(waveform.element);
+  container.appendChild(canvasContainer);
 }
 
 function getChildDiv(container, divClass) {
@@ -44,31 +59,101 @@ function getChildDiv(container, divClass) {
   return el;
 }
 
+function createElement(container, { type, id, className }) {
+  const el = document.createElement(type);
+  el.id = id;
+  el.className = className;
+  container.appendChild(el);
+  return el;
+}
 
-function updateTrackStats(trackId, trackSid, sentOrReceived) {
-  const bytes = document.getElementById('bytes_' + trackId) || document.getElementById('bytes_' + trackSid);
-  if (bytes) {
-    bytes.textContent = sentOrReceived;
-  }
+function createButton(text, container) {
+  const btn = document.createElement('button');
+  btn.innerHTML = text;
+  btn.classList.add('btn', 'btn-outline-primary', 'btn-sm');
+  container.appendChild(btn);
+  return btn;
+}
+
+
+function createLabeledStat(container, label, { id, className }) {
+  const el = createElement(container, { type: 'p', id, className });
+  return {
+    setText: text => {
+      el.textContent = label + ': ' + text;
+    }
+  };
 }
 
 function createTrackStats(track, container) {
   var statsContainer = getChildDiv(container, 'trackStats');
   const id = track.sid || track.id;
   statsContainer.id = 'stats_' + track.id;
-  const bytes = document.createElement('p');
-  bytes.id = 'bytes_' + id;
-  bytes.className = 'bytes';
+
+  const readyState = createLabeledStat(statsContainer, 'readyState', { id: 'readyState_' + id, className: 'readyState' });
+  const enabled = createLabeledStat(statsContainer, 'enabled', { id: 'enabled_' + id, className: 'enabled' });
+  const muted = createLabeledStat(statsContainer, 'muted', { id: 'muted_' + id, className: 'muted' });
+  const started = createLabeledStat(statsContainer, 'started', { id: 'started_' + id, className: 'started' });
+  const ended = createLabeledStat(statsContainer, 'ended', { id: 'ended_' + id, className: 'ended' });
+  const bytes = createLabeledStat(statsContainer, 'bytes', { id: 'bytes_' + id, className: 'bytes' });
+
   bytes.textContent = '0';
-  statsContainer.appendChild(bytes);
+
+  function updateTrackState(event, byteUpdate) {
+    log(`${track.sid || track.id} got: ${event}`);
+    if (event === 'bytes') {
+      bytes.setText(byteUpdate);
+    } else {
+      readyState.setText(track.mediaStreamTrack.readyState);
+      enabled.setText((track.isEnabled === track.mediaStreamTrack.enabled) ?  track.isEnabled : `${track.isEnabled} != ${track.mediaStreamTrack.enabled}`);
+      started.setText(track.isStarted);
+      muted.setText(track.mediaStreamTrack.muted);
+      if (event === 'ended') {
+        ended.setText('true');
+      } else if (event === 'initial') {
+        ended.setText('unknown');
+      }
+    }
+  }
+
+  updateTrackState('initial');
+
+  track.on('disabled', () => updateTrackState('disabled'));
+  track.on('enabled', () => updateTrackState('enabled'));
+  track.on('stopped', () => updateTrackState('stopped'));
+  track.on('started', () => updateTrackState('started'));
+  track.mediaStreamTrack.addEventListener('ended', () => updateTrackState('ended'));
+  track.mediaStreamTrack.addEventListener('mute', () => updateTrackState('mute'));
+  track.mediaStreamTrack.addEventListener('unmute', () => updateTrackState('unmute'));
+
+  return updateTrackState.bind(null, 'bytes');
+}
+
+const trackStatUpdater = new Map();
+function updateTrackStats({ trackId, trackSid, bytesSent, bytesReceived, trackType }) {
+  const isRemote = trackType === 'remoteVideoTrackStats' || trackType ===  'remoteAudioTrackStats';
+  trackStatUpdater.forEach((updater, track) => {
+    if (track.sid === trackSid || track.id === trackId) {
+      updater(isRemote ? bytesReceived : bytesSent);
+    }
+  });
 }
 
 // Attach the Track to the DOM.
-function attachTrack(track, container) {
-  const audioContainer = getChildDiv(container, 'audioContainer');
-  const videoContainer = getChildDiv(container, 'videoContainer');
-  var trackContainer = track.kind === 'audio' ? audioContainer : videoContainer;
-  createTrackStats(track, trackContainer);
+function attachTrack(track, container, isLocal) {
+  let trackContainer = container;
+  if (!isLocal) {
+    const audioContainer = getChildDiv(container, 'audioContainer');
+    const videoContainer = getChildDiv(container, 'videoContainer');
+    trackContainer = track.kind === 'audio' ? audioContainer : videoContainer;
+  }
+  trackStatUpdater.set(track, createTrackStats(track, trackContainer));
+
+  if (isLocal) {
+    createButton('disable', trackContainer).onclick = () => track.disable();
+    createButton('enable', trackContainer).onclick = () => track.enable();
+    createButton('stop', trackContainer).onclick = () => track.stop();
+  }
 
   if (track.kind === 'audio') {
     attachAudioTrack(track, trackContainer);
@@ -82,15 +167,13 @@ function detachTrack(track) {
   track.detach().forEach(function(element) {
     element.remove();
   });
+  trackStatUpdater.delete(track);
 }
 
 // Attach array of Tracks to the DOM.
-function attachTracks(tracks, container) {
-  tracks.forEach(function(track) {
-    attachTrack(track, container);
-  });
+function attachTracks(tracks, container, isLocal) {
+  tracks.forEach(track => attachTrack(track, container, isLocal));
 }
-
 
 // Appends remoteParticipant name to the DOM.
 function appendName(identity, container) {
@@ -101,16 +184,6 @@ function appendName(identity, container) {
   container.appendChild(name);
 }
 
-// Removes remoteParticipant container from the DOM.
-function removeName(participant) {
-  if (participant) {
-    let { identity } = participant;
-    const container = document.getElementById(
-      `participantContainer-${identity}`
-    );
-    container.parentNode.removeChild(container);
-  }
-}
 
 // A new RemoteTrack was published to the Room.
 function trackPublished(publication, container) {
@@ -136,28 +209,25 @@ function participantConnected(participant, container, isLocal = false) {
 
   container.appendChild(selfContainer);
   appendName(participant.identity, selfContainer);
-  // getChildDiv(selfContainer, 'audioContainer');
-  // getChildDiv(selfContainer, 'videoContainer');
 
   if (isLocal) {
-    attachTracks(getTracks(room.localParticipant), selfContainer);
-
+    attachTracks(getTracks(participant), selfContainer, isLocal);
   } else {
-    participant.tracks.forEach(function(publication) {
-      trackPublished(publication, selfContainer);
-    });
-    participant.on('trackPublished', function(publication) {
-      trackPublished(publication, selfContainer);
-    });
+    participant.tracks.forEach(publication => trackPublished(publication, selfContainer));
+    participant.on('trackPublished', publication => trackPublished(publication, selfContainer));
     participant.on('trackUnpublished', trackUnpublished);
   }
 }
 
-// Detach the Participant's Tracks from the DOM.
-function detachParticipantTracks(participant) {
+function participantDisconnected(participant) {
   var tracks = getTracks(participant);
   tracks.forEach(detachTrack);
+  const container = document.getElementById(`participantContainer-${participant.identity}`);
+  if (container && container.parentNode) {
+    container.parentNode.removeChild(container);
+  }
 }
+
 
 // When we are about to transition away from this page, disconnect
 // from the room, if joined.
@@ -173,14 +243,20 @@ function joinRoom(token) {
 
   log("Joining room '" + roomName + "'...");
   var connectOptions = {
-    audio: shareAudio,
-    video: shareVideo,
+    audio: audioCheck.checked,
+    video: videoCheck.checked,
     name: roomName,
     logLevel: 'debug'
   };
 
-  if (previewTracks) {
-    connectOptions.tracks = previewTracks;
+  if (localAudioTrack || localVideoTrack) {
+    connectOptions.tracks = [];
+    if (localAudioTrack) {
+      connectOptions.tracks.push(localAudioTrack);
+    }
+    if (localVideoTrack) {
+      connectOptions.tracks.push(localVideoTrack);
+    }
   }
 
   // Join the Room with the token from the server and the
@@ -190,11 +266,24 @@ function joinRoom(token) {
   });
 }
 
-(async function main() {
+function updateControls(connected) {
   document.getElementById('room-controls').style.display = 'block';
+
+  [btnLeave, btnUnpublishAudio, btnPublishAudio, btnUnpublishVideo, btnPublishVideo].forEach(btn => {
+    btn.disabled = connected === false;
+  });
+
+  [btnJoin, btnPreviewAudio, btnPreviewVideo].forEach(btn => {
+    btn.disabled = connected === true;
+  });
+}
+
+(async function main() {
+  updateControls(false);
   const creds = await getRoomCredentials();
-  document.getElementById('button-join').onclick = () => joinRoom(creds.token);
-  document.getElementById('button-leave').onclick = function() {
+
+  btnJoin.onclick = () => joinRoom(creds.token);
+  btnLeave.onclick = function() {
     log('Leaving room...');
     activeRoom.disconnect();
   };
@@ -212,22 +301,13 @@ function getTracks(participant) {
 
 // Successfully connected!
 function roomJoined(room) {
+  updateControls(true);
   window.room = activeRoom = room;
 
   log("Joined as '" + identity + "'");
-  document.getElementById('button-join').style.display = 'none';
-  document.getElementById('button-leave').style.display = 'block';
-
-  // // Attach LocalParticipant's Tracks, if not already attached.
-  // var previewContainer = document.getElementById('local-media');
-
-  // if (!previewContainer.querySelector('video')) {
-  //   attachTracks(getTracks(room.localParticipant), previewContainer);
-  // }
 
   // Attach the Tracks of the Room's Participants.
-  var remoteMediaContainer = document.getElementById('remote-media');
-  participantConnected(room.localParticipant, remoteMediaContainer, true);
+  // participantConnected(room.localParticipant, localMediaContainer, true);
 
   room.participants.forEach(function(participant) {
     log("Already in Room: '" + participant.identity + "'");
@@ -243,18 +323,15 @@ function roomJoined(room) {
   // When a Participant leaves the Room, detach its Tracks.
   room.on('participantDisconnected', function(participant) {
     log("RemoteParticipant '" + participant.identity + "' left the room");
-    detachParticipantTracks(participant);
-    removeName(participant);
+    participantDisconnected(participant);
+
   });
 
   var statUpdater = setInterval(async () => {
     const statReports = await room.getStats();
     statReports.forEach(statReport => {
       ['remoteVideoTrackStats', 'remoteAudioTrackStats', 'localAudioTrackStats', 'localVideoTrackStats'].forEach(trackType => {
-        statReport[trackType].forEach(({ trackId, trackSid, bytesSent, bytesReceived }) => {
-          const isRemote = trackType === 'remoteVideoTrackStats' || trackType ===  'remoteAudioTrackStats';
-          updateTrackStats(trackId, trackSid, isRemote ? bytesReceived : bytesSent);
-        });
+        statReport[trackType].forEach(trackStats => updateTrackStats({ ...trackStats, trackType }));
       });
     });
   }, 100);
@@ -264,40 +341,55 @@ function roomJoined(room) {
   room.on('disconnected', function() {
     log('Left');
     clearInterval(statUpdater);
-    if (previewTracks) {
-      previewTracks.forEach(function(track) {
-        track.stop();
-      });
-      previewTracks = null;
-    }
-    detachParticipantTracks(room.localParticipant);
-    removeName(room.localParticipant);
-
-    room.participants.forEach(detachParticipantTracks);
-    room.participants.forEach(removeName);
+    room.participants.forEach(participantDisconnected);
     activeRoom = null;
-    document.getElementById('button-join').style.display = 'block';
-    document.getElementById('button-leave').style.display = 'none';
+    updateControls(false);
   });
 }
 
-// Preview LocalParticipant's Tracks.
-document.getElementById('button-preview').onclick = function() {
-  var localTracksPromise = previewTracks
-    ? Promise.resolve(previewTracks)
-    : Video.createLocalTracks();
-
-  localTracksPromise.then(function(tracks) {
-    window.previewTracks = previewTracks = tracks;
-    var previewContainer = document.getElementById('local-media');
-    if (!previewContainer.querySelector('video')) {
-      attachTracks(tracks, previewContainer);
-    }
-  },function(error) {
-    console.error('Unable to access local media', error);
-    log('Unable to access Camera and Microphone');
+btnPreviewAudio.onclick = async () => {
+  if (localAudioTrack) {
+    detachTrack(localAudioTrack);
+    localAudioTrack = null;
   }
-  );
+
+  // eslint-disable-next-line require-atomic-updates
+  localAudioTrack = await Video.createLocalAudioTrack();
+  attachTrack(localAudioTrack, localAudioTrackContainer, true);
+};
+
+btnPublishAudio.onclick = () => {
+  if (localAudioTrack) {
+    activeRoom.localParticipant.publishTrack(localAudioTrack);
+  }
+};
+
+btnUnpublishAudio.onclick = () => {
+  if (localAudioTrack) {
+    activeRoom.localParticipant.unpublishTrack(localAudioTrack);
+  }
+};
+
+btnUnpublishVideo.onclick = () => {
+  if (localVideoTrack) {
+    activeRoom.localParticipant.unpublishTrack(localVideoTrack);
+  }
+};
+
+btnPublishVideo.onclick = () => {
+  if (localVideoTrack) {
+    activeRoom.localParticipant.publishTrack(localVideoTrack);
+  }
+};
+
+btnPreviewVideo.onclick = async () => {
+  if (localVideoTrack) {
+    detachTrack(localVideoTrack);
+    localVideoTrack = null;
+  }
+  // eslint-disable-next-line require-atomic-updates
+  localVideoTrack = await Video.createLocalVideoTrack();
+  attachTrack(localVideoTrack, localVideoTrackContainer, true);
 };
 
 // Activity log.
