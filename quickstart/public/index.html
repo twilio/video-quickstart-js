@@ -14,41 +14,25 @@
     <div id="main">
       <div id="localControls">
         <div id="audioTrack">
-          <h2> Audio </h2>
-          <button id="button-unpublish-audio" type="submit" class="btn btn-primary btn-block" > UnPublish </button>
-          <button id="button-publish-audio" type="submit" class="btn btn-primary btn-block" > Publish </button>
-          <button id="button-preview-audio" class="btn btn-primary btn-block"> Preview </button>
+          <button id="button-preview-audio" class="btn btn-primary btn-block"> Audio </button>
         </div>
         <div id="videoTrack">
-          <h2> Video </h2>
-          <button id="button-unpublish-video" type="submit" class="btn btn-primary btn-block" > UnPublish </button>
-          <button id="button-publish-video" type="submit" class="btn btn-primary btn-block" > Publish </button>
-          <button id="button-preview-video" class="btn btn-primary btn-block"> Preview </button>
+          <button id="button-preview-video" class="btn btn-primary btn-block"> Video </button>
         </div>
         <div id="room-controls">
+          <h2 id='localIdentity'> Not Joined Room Yet</h2>
           <p class="instructions">Room Name</p>
           <input id="room-name" type="text" placeholder="Enter a room name" />
-          <div class="form-check">
-            <input class="form-check-input" type="checkbox" value="" id="audioCheck">
-            <label class="form-check-label" for="audioCheck"> Audio </label>
-          </div>
-          <div class="form-check">
-            <input class="form-check-input" type="checkbox" value="" id="videoCheck">
-            <label class="form-check-label" for="videoCheck"> Video </label>
-          </div>
           <button id="button-join" type="submit" class="btn btn-primary btn-block" > Join Room </button>
           <button id="button-leave" type="submit" class="btn btn-primary btn-block" > Leave Room </button>
+          <button id="get-both-tracks" type="submit" class="btn btn-primary btn-block" > Preview Tracks </button>
+        </div>
+      </div>
+      <div id="media">
+        <div id="remote-media"></div>
       </div>
     </div>
-    <div id="media">
-      <div id="local-media"></div>
-      <div id="remote-media"></div>
-    </div>
-    </div>
-    <div id="controls" class="container-fluid">
-      </div>
-      <div id="log"></div>
-    </div>
+    <div id="log"></div>
     <script src="index.js"></script>
   </body>
 </html>
