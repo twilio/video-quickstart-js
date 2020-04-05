@@ -1,6 +1,7 @@
 'use strict';
 
 const { connect } = require('twilio-video');
+const { isMobile, name } = require('./browser');
 
 /**
  * Attach a Track to the DOM.
@@ -99,18 +100,37 @@ function joinRoom(token, connectOptions, $room, $leave) {
       room.disconnect();
     });
 
-    if (window.onbeforeunload) {
-      // Leave the Room when the "beforeunload" event is fired.
-      window.addEventListener('beforeunload', () => room.disconnect());
-    }
-
-    if (window.onpagehide) {
-      // TODO(mmalavalli): investigate why "pagehide" is not working in iOS Safari.
-      // In iOS Safari, "beforeunload" is not fired, so use "pagehide" instead.
-      window.onpagehide = () => room.disconnect();
-    }
-
     return new Promise(resolve => {
+      if ('onbeforeunload' in window) {
+        // Leave the Room when the "beforeunload" event is fired.
+        window.addEventListener('beforeunload', () => room.disconnect());
+      }
+
+      if (isMobile) {
+        // TODO(mmalavalli): investigate why "pagehide" is not working in iOS Safari.
+        // In iOS Safari, "beforeunload" is not fired, so use "pagehide" instead.
+        if (name === 'safari' && 'onpagehide' in window) {
+          window.addEventListener('pagehide', () => room.disconnect());
+        }
+
+        // On mobile browsers, use "visibilitychange" event to determine when
+        // the app is backgrounded or foregrounded.
+        if ('onvisibilitychange' in document) {
+          document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'hidden') {
+              // If the app is backgrounded, leave the Room, but do not show
+              // the room selection modal.
+              room.removeAllListeners('disconnected');
+              detachTrack(localVideoTrack);
+              room.disconnect();
+            } else {
+              // If the app is foregrounded, rejoin the Room.
+              resolve(joinRoom(token, connectOptions, $room, $leave));
+            }
+          });
+        }
+      }
+
       room.once('disconnected', () => {
         // Stop the local video preview.
         detachTrack(localVideoTrack);
