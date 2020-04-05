@@ -3,11 +3,22 @@
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 const audioContext = AudioContext ? new AudioContext() : null;
 
+/**
+ * Calculate the root mean square (RMS) of the given array.
+ * @param samples
+ * @returns {number} the RMS value
+ */
 function rootMeanSquare(samples) {
   const sumSq = samples.reduce((sumSq, sample) => sumSq + sample * sample, 0);
   return Math.sqrt(sumSq / samples.length);
 }
 
+/**
+ * Poll the microphone's input level.
+ * @param stream - the MediaStream representing the microphone
+ * @param maxLevel - the calculated level should be in the range [0 - maxLevel]
+ * @param onLevel - called when the input level changes
+ */
 module.exports = audioContext ? function micLevel(stream, maxLevel, onLevel) {
   audioContext.resume().then(() => {
     const analyser = audioContext.createAnalyser();
