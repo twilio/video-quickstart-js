@@ -1,16 +1,13 @@
+/* eslint-disable require-atomic-updates */
 /* eslint-disable no-console */
 /* eslint-disable quotes */
 'use strict';
 
 var urlParams = new URLSearchParams(window.location.search);
 let token = urlParams.get('token');
-if (!token) {
-  console.error('url parameter token is required');
-}
-console.log('Using Token:', token);
 document.getElementById('room-name').value = urlParams.get('room');
 const Waveform = require('../../examples/util/waveform');
-// const getRoomCredentials = require('../../examples/util/getroomcredentials');
+const getRoomCredentials = require('../../examples/util/getroomcredentials');
 var Video = require('twilio-video');
 const remoteMediaContainer = document.getElementById('remote-media');
 const btnJoin = document.getElementById('button-join');
@@ -278,7 +275,13 @@ function updateControls(connected) {
 
 (async function main() {
   updateControls(false);
-  // const token = (await getRoomCredentials()).token;
+  if (!token) {
+    console.log('getting token');
+    token = (await getRoomCredentials()).token;
+  } else {
+    console.log('Using Token:', token);
+  }
+
   btnJoin.onclick = () => joinRoom(token);
   btnLeave.onclick = function() {
     log('Leaving room...');
