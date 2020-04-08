@@ -1,7 +1,6 @@
 'use strict';
 
 const { createLocalTracks } = require('twilio-video');
-const { getDeviceSelectionOptions } = require('../../examples/mediadevices/src/helpers');
 
 const localTracks = {
   audio: null,
@@ -9,12 +8,12 @@ const localTracks = {
 };
 
 /**
- * Start capturing media from the selected input device.
+ * Start capturing media from the given input device.
  * @param kind - 'audio' or 'video'
  * @param deviceId - the input device ID
  * @param render - the render callback
  */
-function applySelectedDevice(kind, deviceId, render) {
+function applyInputDevice(kind, deviceId, render) {
   // Create a new LocalTrack from the given Device ID.
   createLocalTracks({ [kind]: { deviceId } }).then(([track]) => {
     // Stop the previous LocalTrack, if present.
@@ -30,6 +29,17 @@ function applySelectedDevice(kind, deviceId, render) {
 }
 
 /**
+ * Get the list of input devices of a given kind.
+ * @param kind - 'audio' | 'video'
+ * @returns {Promise<MediaDeviceInfo[]>} the list of media devices
+ */
+function getInputDevices(kind) {
+  return navigator.mediaDevices.enumerateDevices().then(devices => {
+    return devices.filter(device => device.kind === `${kind}input`);
+  });
+}
+
+/**
  * Select the input for the given media kind.
  * @param kind - 'audio' or 'video'
  * @param $modal - the modal for selecting the media input
@@ -38,27 +48,26 @@ function applySelectedDevice(kind, deviceId, render) {
  */
 function selectMedia(kind, $modal, render) {
   // Get the list of available media input devices.
-  return getDeviceSelectionOptions().then(({ [`${kind}input`]: devices }) => {
+  return getInputDevices(kind).then(devices => {
     const $apply = $('button', $modal);
     const $inputDevices = $('select', $modal);
 
     // Populate the modal with the list of available media input devices.
-    $inputDevices.html(devices.map(({ deviceId, label }) => {
+    $inputDevices.html(devices.map(({ deviceId, label }, i) => {
+      const input = { audio: 'Microphone', video: 'Camera' }[kind];
+      label = label || (i === 0 ? `Default ${input}` : `${input} ${i + 1}`);
       return `<option value="${deviceId}">${label}</option>`;
     }));
 
     // Apply the selected media input device.
-    const setDevice = () => applySelectedDevice(
-      kind,
-      $inputDevices.val(),
-      render);
+    const setDevice = () => applyInputDevice(kind, $inputDevices.val(), render);
 
     return new Promise(resolve => {
       $modal.on('shown.bs.modal', function onShow() {
         $modal.off('shown.bs.modal', onShow);
 
         // Apply the default media input device.
-        setDevice();
+        applyInputDevice(kind, devices[0].deviceId, render);
 
         // When the user selects a different media input device,
         // apply it.

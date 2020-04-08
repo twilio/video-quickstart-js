@@ -12,13 +12,13 @@
         <img src="https://www.twilio.com/docs/static/img/wordmark.06c5f14fff7c.svg" width="30" height="30" class="d-inline-block align-top" alt="">
         <span style="margin: 0 10px">Video Quick Start</span>
       </a>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsable-content" aria-controls="collapsable-content" aria-expanded="false" aria-label="Toggle Navigation">
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsible-content" aria-controls="collapsible-content" aria-expanded="false" aria-label="Toggle Navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
-      <div class="collapse navbar-collapse" id="collapsable-content">
+      <div class="collapse navbar-collapse" id="collapsible-content">
         <ul class="navbar-nav mr-auto">
           <li class="nav-item">
-            <a class="nav-link" href="/examples" target="_blank">More Examples</a>
+            <a class="nav-link" href="/examples">More Examples</a>
           </li>
         </ul>
         <button class="btn btn-outline-primary" id="leave-room">Leave Room</button>
@@ -26,8 +26,8 @@
     </nav>
     <div class="container-fluid">
       <div class="row" id="room">
-        <div id="participants" class="col-2"></div>
-        <div id="active-participant" class="col-10"></div>
+        <div id="participants" class="col-sm-12 col-lg-2" style="text-align: center"></div>
+        <div id="active-participant" class="col-lg-10"></div>
       </div>
       <div id="modals">
         <div class="modal fade" id="select-mic" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="select-mic-label" aria-hidden="true">
@@ -64,7 +64,7 @@
               </div>
               <div class="modal-body" style="text-align: center">
                 <select style="width: 100%"></select>
-                <video autoplay muted playsInline style="margin: 10px 0; width: 100%"></video>
+                <video autoplay muted playsInline style="margin: 10px 0; width: 60%"></video>
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-primary">Apply</button>
@@ -89,6 +89,7 @@
                 </div>
               </div>
               <div class="modal-footer">
+                <button type="button" class="btn btn-dark">Change Microphone and Camera</button>
                 <button type="button" class="btn btn-primary">Join</button>
               </div>
             </div>

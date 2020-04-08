@@ -6,22 +6,31 @@ const { isMobile, name } = require('./browser');
 /**
  * Attach a Track to the DOM.
  * @param track - the Track to attach
+ * @param participant - the Participant which published the Track
  * @param $participants - the DOM container
  */
-function attachTrack(track, $participants) {
-  const mediaElement = track.attach();
-  mediaElement.style.width = '100%';
-  $participants.append(mediaElement);
+function attachTrack(track, participant, $participants) {
+  if (track.kind === 'audio') {
+    const audioElement = track.attach();
+    $participants.append(audioElement);
+  } else {
+    const $container = $(`<div class="participant" data-identity="${participant.identity}"></div>`);
+    $participants.append($container);
+    const videoElement = track.attach();
+    videoElement.style.width = '100%';
+    $container.append(videoElement);
+  }
 }
 
 /**
  * Detach a Track from the DOM.
  * @param track
+ * @param participant - the Participant which published the Track
+ * @param $participants - the DOM container
  */
-function detachTrack(track) {
-  track.detach().forEach(mediaElement => {
-    mediaElement.remove();
-  });
+function detachTrack(track, participant, $participants) {
+  track.detach().forEach(mediaElement => mediaElement.remove());
+  $(`[data-identity="${participant.identity}"]`, $participants).remove();
 }
 
 /**
@@ -33,37 +42,40 @@ function participantConnected(participant, $participants) {
   // Subscribe to the RemoteTrackPublications already published by the
   // RemoteParticipant.
   participant.tracks.forEach(publication => {
-    trackPublished(publication, $participants);
+    trackPublished(publication, participant, $participants);
   });
 
   // Subscribe to the RemoteTrackPublications that will be published by
   // the RemoteParticipant later.
   participant.on('trackPublished', publication => {
-    trackPublished(publication, $participants);
+    trackPublished(publication, participant, $participants);
   });
 }
 
 /**
  * Subscribe to the RemoteTrackPublication's media.
  * @param publication - the RemoteTrackPublication
+ * @param participant - the publishing RemoteParticipant
  * @param $participants - the DOM container
  */
-function trackPublished(publication, $participants) {
+function trackPublished(publication, participant, $participants) {
   // If the RemoteTrackPublication is already subscribed to, then
   // attach the RemoteTrack to the DOM.
   if (publication.track) {
-    attachTrack(publication.track, $participants);
+    attachTrack(publication.track, participant, $participants);
   }
 
   // Once the RemoteTrackPublication is subscribed to, attach the
   // RemoteTrack to the DOM.
   publication.on('subscribed', track => {
-    attachTrack(track, $participants);
+    attachTrack(track, participant, $participants);
   });
 
   // Once the RemoteTrackPublication is unsubscribed from, detach the
   // RemoteTrack from the DOM.
-  publication.on('unsubscribed', detachTrack);
+  publication.on('unsubscribed', track => {
+    detachTrack(track, participant, $participants);
+  });
 }
 
 /**
@@ -82,7 +94,7 @@ function joinRoom(token, connectOptions, $room, $leave) {
     const localVideoTrack = Array.from(room.localParticipant.videoTracks.values())[0].track;
 
     // Start the local video preview.
-    attachTrack(localVideoTrack, $participants);
+    attachTrack(localVideoTrack, room.localParticipant, $participants);
 
     // Subscribe to the media published by RemoteParticipants already in the Room.
     room.participants.forEach(participant => {
@@ -121,7 +133,7 @@ function joinRoom(token, connectOptions, $room, $leave) {
               // If the app is backgrounded, leave the Room, but do not show
               // the room selection modal.
               room.removeAllListeners('disconnected');
-              detachTrack(localVideoTrack);
+              detachTrack(localVideoTrack, room.localParticipant, $participants);
               room.disconnect();
             } else {
               // If the app is foregrounded, rejoin the Room.
@@ -133,7 +145,7 @@ function joinRoom(token, connectOptions, $room, $leave) {
 
       room.once('disconnected', () => {
         // Stop the local video preview.
-        detachTrack(localVideoTrack);
+        detachTrack(localVideoTrack, room.localParticipant, $participants);
         window.room = null;
         resolve();
       });

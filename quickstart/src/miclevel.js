@@ -29,19 +29,23 @@ module.exports = audioContext ? function micLevel(stream, maxLevel, onLevel) {
     source.connect(analyser);
     const samples = new Uint8Array(analyser.frequencyBinCount);
 
+    const track = stream.getTracks()[0];
     let level = null;
 
     requestAnimationFrame(function checkLevel() {
       analyser.getByteFrequencyData(samples);
       const rms = rootMeanSquare(samples);
       const log2Rms = rms && Math.log2(rms);
-      const newLevel = Math.round(maxLevel * log2Rms / 8);
+      const newLevel = Math.ceil(maxLevel * log2Rms / 8);
 
       if (level !== newLevel) {
         level = newLevel;
         onLevel(level);
       }
-      requestAnimationFrame(checkLevel);
+
+      requestAnimationFrame(track.readyState === 'ended'
+        ? () => onLevel(0)
+        : checkLevel);
     });
   });
 } : function notSupported() {

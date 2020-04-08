@@ -22,7 +22,16 @@ const deviceIds = {
  * Select your Room name, your screen name and join.
  */
 function selectAndJoinRoom() {
-  return selectRoom($joinRoomModal).then(({ identity, roomName }) => {
+  return selectRoom($joinRoomModal).then(identityAndRoomName => {
+    if (!identityAndRoomName) {
+      // User wants to change the camera and microphone.
+      // So, show them the microphone selection modal.
+      deviceIds.audio = null;
+      deviceIds.video = null;
+      return selectMicrophone();
+    }
+    const { identity, roomName } = identityAndRoomName;
+
     // Fetch an AccessToken to join the Room.
     return fetch(`/token?identity=${identity}`).then(response => {
       return response.text();
@@ -42,7 +51,7 @@ function selectAndJoinRoom() {
  * Select your camera.
  */
 function selectCamera() {
-  if (deviceIds.video) {
+  if (deviceIds.video !== null) {
     return selectAndJoinRoom();
   }
   return selectMedia('video', $selectCameraModal, stream => {
@@ -58,12 +67,12 @@ function selectCamera() {
  * Select your microphone.
  */
 function selectMicrophone() {
-  if (deviceIds.audio) {
+  if (deviceIds.audio !== null) {
     return selectCamera();
   }
   return selectMedia('audio', $selectMicModal, stream => {
     const $levelIndicator = $('svg rect', $selectMicModal);
-    const maxLevel = Number($levelIndicator.attr('y'));
+    const maxLevel = Number($levelIndicator.attr('height'));
     micLevel(stream, maxLevel, level => $levelIndicator.attr('y', maxLevel - level));
   }).then(deviceId => {
     deviceIds.audio = deviceId;
