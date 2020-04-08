@@ -13,13 +13,21 @@ function attachTrack(track, participant, $participants) {
   if (track.kind === 'audio') {
     const audioElement = track.attach();
     $participants.append(audioElement);
-  } else {
-    const $container = $(`<div class="participant" data-identity="${participant.identity}"></div>`);
-    $participants.append($container);
-    const videoElement = track.attach();
-    videoElement.style.width = '100%';
-    $container.append(videoElement);
+    return;
   }
+  const $container = $(`<div class="participant" data-identity="${participant.identity}"></div>`);
+  $participants.append($container);
+
+  const videoElement = track.attach();
+  videoElement.style.width = '100%';
+  $container.append(videoElement);
+
+  // When the RemoteParticipant disables the VideoTrack, hide the <video> element.
+  track.on('disabled', () => videoElement.style.opacity = '0');
+
+  // When the RemoteParticipant enables the VideoTrack, show the <video> element.
+  track.on('enabled', () => videoElement.style.opacity = '');
+
 }
 
 /**
@@ -130,14 +138,13 @@ function joinRoom(token, connectOptions, $room, $leave) {
         if ('onvisibilitychange' in document) {
           document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'hidden') {
-              // If the app is backgrounded, leave the Room, but do not show
-              // the room selection modal.
-              room.removeAllListeners('disconnected');
-              detachTrack(localVideoTrack, room.localParticipant, $participants);
-              room.disconnect();
+              // When the app is backgrounded, your app can no longer capture
+              // video frames. So, disable the LocalVideoTrack.
+              localVideoTrack.disable();
             } else {
-              // If the app is foregrounded, rejoin the Room.
-              resolve(joinRoom(token, connectOptions, $room, $leave));
+              // When the app is foregrounded, your app can now continue to
+              // capture video frames. So, enable the LocalVideoTrack.
+              localVideoTrack.enable();
             }
           });
         }
