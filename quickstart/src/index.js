@@ -5,13 +5,20 @@ const micLevel = require('./miclevel');
 const selectMedia = require('./selectmedia');
 const selectRoom = require('./selectroom');
 
-const $leave = $('#leave-room');
 const $modals = $('#modals');
-const $room = $('#room');
-
 const $selectMicModal = $('#select-mic', $modals);
 const $selectCameraModal = $('#select-camera', $modals);
 const $joinRoomModal = $('#join-room', $modals);
+
+const connectOptions = {
+  // Available in Small Group or Group Rooms only. Please set "Room Type"
+  // to "Group" or "Small Group" in your Twilio Console:
+  // https://www.twilio.com/console/video/configure
+  dominantSpeaker: true,
+
+  // Uncomment this line to enable verbose logging.
+  // logLevel: 'debug'
+};
 
 const deviceIds = {
   audio: null,
@@ -36,13 +43,17 @@ function selectAndJoinRoom() {
     return fetch(`/token?identity=${identity}`).then(response => {
       return response.text();
     }).then(token => {
-      const connectOptions = {
-        audio: { deviceId: { exact: deviceIds.audio } },
-        logLevel: 'debug',
-        name: roomName,
-        video: { deviceId: { exact: deviceIds.video } }
-      };
-      return joinRoom(token, connectOptions, $room, $leave);
+      // Add the specified audio device ID to ConnectOptions.
+      connectOptions.audio = { deviceId: { exact: deviceIds.audio } };
+
+      // Add the specified Room name to ConnectOptions.
+      connectOptions.name = roomName;
+
+      // Add the specified video device ID to ConnectOptions.
+      connectOptions.video = { deviceId: { exact: deviceIds.video } };
+
+      // Join the Room.
+      return joinRoom(token, connectOptions);
     });
   }).then(selectMicrophone);
 }

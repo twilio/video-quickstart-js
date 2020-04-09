@@ -3,13 +3,36 @@
 const { connect } = require('twilio-video');
 const { isMobile, name } = require('./browser');
 
+const $leave = $('#leave-room');
+const $room = $('#room');
+const $activeVideo = $('div#active-participant > video', $room);
+const $participants = $('div#participants', $room);
+
+// The current active Participant in the Room.
+let activeParticipant = null;
+
+/**
+ * Set the active Participant's video.
+ * @param participant - the active Participant
+ */
+function setActiveParticipant(participant) {
+  if (activeParticipant) {
+    const $activeParticipant = $(`[data-identity="${activeParticipant.identity}"]`, $participants);
+    $activeParticipant.removeClass('active');
+  }
+  activeParticipant = participant;
+  const $participant = $(`[data-identity="${participant.identity}"]`, $participants);
+  $participant.addClass('active');
+  const $video = $(`[data-identity="${participant.identity}"] > video`, $participants);
+  $activeVideo.get(0).srcObject = $video.get(0).srcObject;
+}
+
 /**
  * Attach a Track to the DOM.
  * @param track - the Track to attach
  * @param participant - the Participant which published the Track
- * @param $participants - the DOM container
  */
-function attachTrack(track, participant, $participants) {
+function attachTrack(track, participant) {
   if (track.kind === 'audio') {
     const audioElement = track.attach();
     $participants.append(audioElement);
@@ -34,9 +57,8 @@ function attachTrack(track, participant, $participants) {
  * Detach a Track from the DOM.
  * @param track
  * @param participant - the Participant which published the Track
- * @param $participants - the DOM container
  */
-function detachTrack(track, participant, $participants) {
+function detachTrack(track, participant) {
   track.detach().forEach(mediaElement => mediaElement.remove());
   $(`[data-identity="${participant.identity}"]`, $participants).remove();
 }
@@ -44,19 +66,18 @@ function detachTrack(track, participant, $participants) {
 /**
  * Subscribe to the RemoteParticipant's media.
  * @param participant - the RemoteParticipant
- * @param $participants - the DOM container
  */
-function participantConnected(participant, $participants) {
+function participantConnected(participant) {
   // Subscribe to the RemoteTrackPublications already published by the
   // RemoteParticipant.
   participant.tracks.forEach(publication => {
-    trackPublished(publication, participant, $participants);
+    trackPublished(publication, participant);
   });
 
   // Subscribe to the RemoteTrackPublications that will be published by
   // the RemoteParticipant later.
   participant.on('trackPublished', publication => {
-    trackPublished(publication, participant, $participants);
+    trackPublished(publication, participant);
   });
 }
 
@@ -64,25 +85,24 @@ function participantConnected(participant, $participants) {
  * Subscribe to the RemoteTrackPublication's media.
  * @param publication - the RemoteTrackPublication
  * @param participant - the publishing RemoteParticipant
- * @param $participants - the DOM container
  */
-function trackPublished(publication, participant, $participants) {
+function trackPublished(publication, participant) {
   // If the RemoteTrackPublication is already subscribed to, then
   // attach the RemoteTrack to the DOM.
   if (publication.track) {
-    attachTrack(publication.track, participant, $participants);
+    attachTrack(publication.track, participant);
   }
 
   // Once the RemoteTrackPublication is subscribed to, attach the
   // RemoteTrack to the DOM.
   publication.on('subscribed', track => {
-    attachTrack(track, participant, $participants);
+    attachTrack(track, participant);
   });
 
   // Once the RemoteTrackPublication is unsubscribed from, detach the
   // RemoteTrack from the DOM.
   publication.on('unsubscribed', track => {
-    detachTrack(track, participant, $participants);
+    detachTrack(track, participant);
   });
 }
 
@@ -90,28 +110,31 @@ function trackPublished(publication, participant, $participants) {
  * Join a Room.
  * @param token - the AccessToken used to join a Room
  * @param connectOptions - the ConnectOptions used to join a Room
- * @param $room - the DOM container for the quick start's UI
- * @param $leave - the button for leaving the Room
  */
-function joinRoom(token, connectOptions, $room, $leave) {
-  const $participants = $('#participants', $room);
+function joinRoom(token, connectOptions) {
+  // Join to the Room with the given AccessToken and ConnectOptions.
   return connect(token, connectOptions).then(room => {
+    // Make the Room available in the JavaScript console for debugging.
     window.room = room;
 
     // Find the LocalVideoTrack from the Room's LocalParticipant.
     const localVideoTrack = Array.from(room.localParticipant.videoTracks.values())[0].track;
 
     // Start the local video preview.
-    attachTrack(localVideoTrack, room.localParticipant, $participants);
+    attachTrack(localVideoTrack, room.localParticipant);
 
     // Subscribe to the media published by RemoteParticipants already in the Room.
-    room.participants.forEach(participant => {
-      participantConnected(participant, $participants);
-    });
+    room.participants.forEach(participantConnected);
 
     // Subscribe to the media published by RemoteParticipants joining the Room later.
-    room.on('participantConnected', participant => {
-      participantConnected(participant, $participants);
+    room.on('participantConnected', participantConnected);
+
+    // Set the current active Participant.
+    setActiveParticipant(room.dominantSpeaker || room.localParticipant);
+
+    // Update the active Participant when changed.
+    room.on('dominantSpeakerChanged', () => {
+      setActiveParticipant(room.dominantSpeaker || room.localParticipant);
     });
 
     // Leave the Room when the "Leave Room" button is clicked.
@@ -152,8 +175,12 @@ function joinRoom(token, connectOptions, $room, $leave) {
 
       room.once('disconnected', () => {
         // Stop the local video preview.
-        detachTrack(localVideoTrack, room.localParticipant, $participants);
+        detachTrack(localVideoTrack, room.localParticipant);
+
+        // Clear the Room reference used for debugging from the JavaScript console.
         window.room = null;
+
+        // Resolve the Promise so that the Room selection modal can be displayed.
         resolve();
       });
     });
