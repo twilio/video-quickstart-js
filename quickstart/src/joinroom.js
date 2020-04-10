@@ -5,7 +5,8 @@ const { isMobile, name } = require('./browser');
 
 const $leave = $('#leave-room');
 const $room = $('#room');
-const $activeVideo = $('div#active-participant > video', $room);
+const $activeParticipant = $('div#active-participant > div.participant.main', $room);
+const $activeVideo = $('video', $activeParticipant);
 const $participants = $('div#participants', $room);
 
 // The current active Participant in the Room.
@@ -33,8 +34,9 @@ function setActiveParticipant(participant) {
     $participant.addClass('pinned');
   }
 
-  const $video = $(`[data-identity="${participant.identity}"] > video`, $participants);
+  const $video = $('video', $participant);
   $activeVideo.get(0).srcObject = $video.get(0).srcObject;
+  $activeParticipant.attr('data-identity', participant.identity);
 }
 
 /**
@@ -44,6 +46,21 @@ function setActiveParticipant(participant) {
 function setCurrentActiveParticipant(room) {
   const { dominantSpeaker, localParticipant } = room;
   setActiveParticipant(dominantSpeaker || localParticipant);
+}
+
+/**
+ * Set the VideoTrack priority for the given RemoteParticipant. This has no
+ * effect in Peer-to-Peer Rooms.
+ * @param participant - the RemoteParticipant whose VideoTrack priority is to be set
+ * @param priority - null | 'low' | 'standard' | 'high'
+ */
+function setVideoPriority(participant, priority) {
+  participant.videoTracks.forEach(publication => {
+    const track = publication.track;
+    if (track && track.setPriority) {
+      track.setPriority(priority);
+    }
+  });
 }
 
 /**
@@ -82,19 +99,34 @@ function attachVideoTrack(track, participant) {
   $container.append(videoElement);
 
   // When the RemoteParticipant disables the VideoTrack, hide the <video> element.
-  track.on('disabled', () => videoElement.style.opacity = '0');
+  track.on('disabled', () => {
+    videoElement.style.opacity = '0';
+    if (participant === activeParticipant) {
+      $activeVideo.css('opacity', '0');
+    }
+  });
 
   // When the RemoteParticipant enables the VideoTrack, show the <video> element.
-  track.on('enabled', () => videoElement.style.opacity = '');
+  track.on('enabled', () => {
+    videoElement.style.opacity = '';
+    if (participant === activeParticipant) {
+      $activeVideo.css('opacity', '');
+    }
+  });
 
   // Toggle the pinning of the active Participant's video.
   $container.on('click', () => {
     if (activeParticipant === participant && isActiveParticipantPinned) {
       // Unpin the RemoteParticipant and update the current active Participant.
+      setVideoPriority(participant, null);
       isActiveParticipantPinned = false;
       setCurrentActiveParticipant(window.room);
     } else {
       // Pin the RemoteParticipant as the active Participant.
+      if (isActiveParticipantPinned) {
+        setVideoPriority(activeParticipant, null);
+      }
+      setVideoPriority(participant, 'high');
       isActiveParticipantPinned = true;
       setActiveParticipant(participant);
     }

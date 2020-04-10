@@ -10,15 +10,6 @@ div.container-fluid {
   height: 100%;
 }
 
-div#active-participant {
-  margin: 15px 0;
-}
-
-div#active-participant > video {
-  max-height: 100%;
-  max-width: 100%;
-}
-
 div#participants {
   overflow-y: auto;
 }
@@ -31,6 +22,16 @@ div.participant {
   margin: 15px 10px;
   overflow: hidden;
   width: 160px;
+}
+
+div.participant.main {
+  height: inherit;
+  width: 100%;
+}
+
+div.participant.main > video {
+  height: 720px;
+  width: 1280px;
 }
 
 div.participant.active {
@@ -57,9 +58,26 @@ div.participant::before {
   z-index: 1000;
 }
 
+div.participant.main::before {
+  font-size: 14px;
+  padding: 0 10px;
+}
+
 @media (max-width: 576px) {
   div#participants {
     overflow-x: auto;
     white-space: nowrap;
+  }
+
+  div.participant.main > video {
+    height: 320px;
+    width: 180px;
+  }
+}
+
+@media (max-width: 768px) {
+  div.participant.main > video {
+    height: 270px;
+    width: 480px;
   }
 }
