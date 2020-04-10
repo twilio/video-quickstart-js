@@ -38,6 +38,15 @@ div.participant.active {
   box-shadow: 0 0 5px crimson;
 }
 
+div.participant.active.pinned {
+  border: 1px solid limegreen;
+  box-shadow: 0 0 5px limegreen;
+}
+
+div.participant:hover {
+  cursor: pointer;
+}
+
 div.participant::before {
   background-color: black;
   color: white !important;
@@ -45,6 +54,7 @@ div.participant::before {
   font-size: 10px;
   padding: 0 5px;
   position: absolute;
+  z-index: 1000;
 }
 
 @media (max-width: 576px) {

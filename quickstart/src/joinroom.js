@@ -11,6 +11,10 @@ const $participants = $('div#participants', $room);
 // The current active Participant in the Room.
 let activeParticipant = null;
 
+// Whether the user has selected the active Participant by clicking on
+// one of the video thumbnails.
+let isActiveParticipantPinned = false;
+
 /**
  * Set the active Participant's video.
  * @param participant - the active Participant
@@ -19,12 +23,27 @@ function setActiveParticipant(participant) {
   if (activeParticipant) {
     const $activeParticipant = $(`[data-identity="${activeParticipant.identity}"]`, $participants);
     $activeParticipant.removeClass('active');
+    $activeParticipant.removeClass('pinned');
   }
   activeParticipant = participant;
+
   const $participant = $(`[data-identity="${participant.identity}"]`, $participants);
   $participant.addClass('active');
+  if (isActiveParticipantPinned) {
+    $participant.addClass('pinned');
+  }
+
   const $video = $(`[data-identity="${participant.identity}"] > video`, $participants);
   $activeVideo.get(0).srcObject = $video.get(0).srcObject;
+}
+
+/**
+ * Set the current active Participant in the Room.
+ * @param room - the Room which contains the current active Participant
+ */
+function setCurrentActiveParticipant(room) {
+  const { dominantSpeaker, localParticipant } = room;
+  setActiveParticipant(dominantSpeaker || localParticipant);
 }
 
 /**
@@ -34,10 +53,27 @@ function setActiveParticipant(participant) {
  */
 function attachTrack(track, participant) {
   if (track.kind === 'audio') {
-    const audioElement = track.attach();
-    $participants.append(audioElement);
-    return;
+    attachAudioTrack(track);
+  } else if (track.kind === 'video') {
+    attachVideoTrack(track, participant);
   }
+}
+
+/**
+ * Attach an AudioTrack to the DOM.
+ * @param track - the AudioTrack to attach
+ */
+function attachAudioTrack(track) {
+  const audioElement = track.attach();
+  $participants.append(audioElement);
+}
+
+/**
+ * Attach a VideoTrack to the DOM.
+ * @param track - the VideoTrack to attach
+ * @param participant - the Participant which published the Track
+ */
+function attachVideoTrack(track, participant) {
   const $container = $(`<div class="participant" data-identity="${participant.identity}"></div>`);
   $participants.append($container);
 
@@ -51,6 +87,18 @@ function attachTrack(track, participant) {
   // When the RemoteParticipant enables the VideoTrack, show the <video> element.
   track.on('enabled', () => videoElement.style.opacity = '');
 
+  // Toggle the pinning of the active Participant's video.
+  $container.on('click', () => {
+    if (activeParticipant === participant && isActiveParticipantPinned) {
+      // Unpin the RemoteParticipant and update the current active Participant.
+      isActiveParticipantPinned = false;
+      setCurrentActiveParticipant(window.room);
+    } else {
+      // Pin the RemoteParticipant as the active Participant.
+      isActiveParticipantPinned = true;
+      setActiveParticipant(participant);
+    }
+  });
 }
 
 /**
@@ -60,7 +108,9 @@ function attachTrack(track, participant) {
  */
 function detachTrack(track, participant) {
   track.detach().forEach(mediaElement => mediaElement.remove());
-  $(`[data-identity="${participant.identity}"]`, $participants).remove();
+  if (track.kind === 'video') {
+    $(`[data-identity="${participant.identity}"]`, $participants).remove();
+  }
 }
 
 /**
@@ -121,7 +171,7 @@ function joinRoom(token, connectOptions) {
     const localVideoTrack = Array.from(room.localParticipant.videoTracks.values())[0].track;
 
     // Start the local video preview.
-    attachTrack(localVideoTrack, room.localParticipant);
+    attachVideoTrack(localVideoTrack, room.localParticipant);
 
     // Subscribe to the media published by RemoteParticipants already in the Room.
     room.participants.forEach(participantConnected);
@@ -129,12 +179,24 @@ function joinRoom(token, connectOptions) {
     // Subscribe to the media published by RemoteParticipants joining the Room later.
     room.on('participantConnected', participantConnected);
 
-    // Set the current active Participant.
-    setActiveParticipant(room.dominantSpeaker || room.localParticipant);
+    // If the disconnected RemoteParticipant was pinned as the active Participant,
+    // then unpin it so that the active Participant can be updated.
+    room.on('participantDisconnected', participant => {
+      if (activeParticipant === participant && isActiveParticipantPinned) {
+        isActiveParticipantPinned = false;
+        setCurrentActiveParticipant(room);
+      }
+    });
 
-    // Update the active Participant when changed.
+    // Set the current active Participant.
+    setCurrentActiveParticipant(room);
+
+    // Update the active Participant when changed, only if the user has not
+    // pinned any particular Participant as the active Participant.
     room.on('dominantSpeakerChanged', () => {
-      setActiveParticipant(room.dominantSpeaker || room.localParticipant);
+      if (!isActiveParticipantPinned) {
+        setCurrentActiveParticipant(room);
+      }
     });
 
     // Leave the Room when the "Leave Room" button is clicked.
@@ -176,6 +238,9 @@ function joinRoom(token, connectOptions) {
       room.once('disconnected', () => {
         // Stop the local video preview.
         detachTrack(localVideoTrack, room.localParticipant);
+
+        // Stop the active Participant video.
+        $activeVideo.get(0).srcObject = null;
 
         // Clear the Room reference used for debugging from the JavaScript console.
         window.room = null;
