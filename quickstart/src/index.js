@@ -5,10 +5,12 @@ const joinRoom = require('./joinroom');
 const micLevel = require('./miclevel');
 const selectMedia = require('./selectmedia');
 const selectRoom = require('./selectroom');
+const showError = require('./showerror');
 
 const $modals = $('#modals');
 const $selectMicModal = $('#select-mic', $modals);
 const $selectCameraModal = $('#select-camera', $modals);
+const $showErrorModal = $('#show-error', $modals);
 const $joinRoomModal = $('#join-room', $modals);
 
 const connectOptions = isMobile ? {
@@ -128,6 +130,8 @@ function selectCamera() {
   }).then(deviceId => {
     deviceIds.video = deviceId;
     return selectAndJoinRoom();
+  }, error => {
+    showError($showErrorModal, error)
   });
 }
 
@@ -145,6 +149,8 @@ function selectMicrophone() {
   }).then(deviceId => {
     deviceIds.audio = deviceId;
     return selectCamera();
+  }, error => {
+    showError($showErrorModal, error)
   });
 }
 

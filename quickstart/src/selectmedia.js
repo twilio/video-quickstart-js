@@ -12,10 +12,11 @@ const localTracks = {
  * @param kind - 'audio' or 'video'
  * @param deviceId - the input device ID
  * @param render - the render callback
+ * @returns {Promise<void>} Promise that is resolved if successful
  */
 function applyInputDevice(kind, deviceId, render) {
   // Create a new LocalTrack from the given Device ID.
-  createLocalTracks({ [kind]: { deviceId } }).then(([track]) => {
+  return createLocalTracks({ [kind]: { deviceId } }).then(([track]) => {
     // Stop the previous LocalTrack, if present.
     if (localTracks[kind]) {
       localTracks[kind].stop();
@@ -34,7 +35,9 @@ function applyInputDevice(kind, deviceId, render) {
  * @returns {Promise<MediaDeviceInfo[]>} the list of media devices
  */
 function getInputDevices(kind) {
-  return navigator.mediaDevices.enumerateDevices().then(devices => {
+  return Promise.resolve().then(() => {
+    return navigator.mediaDevices.enumerateDevices();
+  }).then(devices => {
     return devices.filter(device => device.kind === `${kind}input`);
   });
 }
@@ -47,11 +50,12 @@ function getInputDevices(kind) {
  * @returns {Promise<string>} the device ID of the selected media input
  */
 function selectMedia(kind, $modal, render) {
+  const $apply = $('button', $modal);
+  const $inputDevices = $('select', $modal);
+  const setDevice = () => applyInputDevice(kind, $inputDevices.val(), render);
+
   // Get the list of available media input devices.
   return getInputDevices(kind).then(devices => {
-    const $apply = $('button', $modal);
-    const $inputDevices = $('select', $modal);
-
     // Populate the modal with the list of available media input devices.
     $inputDevices.html(devices.map(({ deviceId, label }, i) => {
       const input = { audio: 'Microphone', video: 'Camera' }[kind];
@@ -59,22 +63,18 @@ function selectMedia(kind, $modal, render) {
       return `<option value="${deviceId}">${label}</option>`;
     }));
 
-    // Apply the selected media input device.
-    const setDevice = () => applyInputDevice(kind, $inputDevices.val(), render);
-
+    // Apply the default media input device.
+    return applyInputDevice(kind, devices[0].deviceId, render);
+  }).then(() => {
     return new Promise(resolve => {
       $modal.on('shown.bs.modal', function onShow() {
         $modal.off('shown.bs.modal', onShow);
 
-        // Apply the default media input device.
-        applyInputDevice(kind, devices[0].deviceId, render);
-
-        // When the user selects a different media input device,
-        // apply it.
+        // When the user selects a different media input device, apply it.
         $inputDevices.change(setDevice);
 
-        // When the user clicks the "Apply" button, save the device ID
-        // and close the modal.
+        // When the user clicks the "Apply" button, save the device ID and close
+        // the modal.
         $apply.click(function onApply() {
           $inputDevices.off('change', setDevice);
           $apply.off('click', onApply);
