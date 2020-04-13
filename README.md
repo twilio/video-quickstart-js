@@ -1,5 +1,5 @@
-**NEW:** Please check out the newly open-sourced [multi-party video application](https://github.com/twilio/twilio-video-app-react)
-built with twilio-video.js and [React.js](https://reactjs.org/).
+**NEW:** Please check out our [Best Practices Guide](https://www.twilio.com/docs/video/build-js-video-application-recommendations-and-best-practices)
+for building video applications with twilio-video.js.
 
 # Twilio Video Quickstart for JavaScript
 
