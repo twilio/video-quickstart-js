@@ -17,9 +17,7 @@ const userFriendlyErrors = {
  */
 function showError($modal, error) {
   // Add the appropriate error message to the alert.
-  $('div.alert', $modal).html(userFriendlyErrors[error.name]
-    || 'Unknown error.');
-
+  $('div.alert', $modal).html(userFriendlyErrors[error.name] || error.message);
   $modal.modal({
     backdrop: 'static',
     focus: true,

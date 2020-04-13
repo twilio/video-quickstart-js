@@ -237,7 +237,7 @@ function joinRoom(token, connectOptions) {
       room.disconnect();
     });
 
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
       if ('onbeforeunload' in window) {
         // Leave the Room when the "beforeunload" event is fired.
         window.addEventListener('beforeunload', () => room.disconnect());
@@ -267,7 +267,7 @@ function joinRoom(token, connectOptions) {
         }
       }
 
-      room.once('disconnected', () => {
+      room.once('disconnected', (room, error) => {
         // Stop the local video preview.
         detachTrack(localVideoTrack, room.localParticipant);
 
@@ -277,8 +277,15 @@ function joinRoom(token, connectOptions) {
         // Clear the Room reference used for debugging from the JavaScript console.
         window.room = null;
 
-        // Resolve the Promise so that the Room selection modal can be displayed.
-        resolve();
+        if (error) {
+          // Reject the Promise with the TwilioError so that the Room selection
+          // modal (plus the TwilioError message) can be displayed.
+          reject(error);
+        } else {
+          // Resolve the Promise so that the Room selection modal can be
+          // displayed.
+          resolve();
+        }
       });
     });
   });

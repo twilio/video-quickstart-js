@@ -2,13 +2,22 @@
 
 /**
  * Select your Room name and identity (screen name).
- * @param $modal - modal for selecting your Room name and identity.
+ * @param $modal - modal for selecting your Room name and identity
+ * @param error - Error from the previous Room session, if any
  */
-function selectRoom($modal) {
+function selectRoom($modal, error) {
+  const $alert = $('div.alert', $modal);
   const $changeMedia = $('button.btn-dark', $modal);
   const $identity = $('#screen-name', $modal);
   const $join = $('button.btn-primary', $modal);
   const $roomName = $('#room-name', $modal);
+
+  if (error) {
+    $alert.text(`${error.message}.`);
+    $alert.css('display', '');
+  } else {
+    $alert.css('display', 'none');
+  }
 
   return new Promise(resolve => {
     $modal.on('shown.bs.modal', function onShow() {
