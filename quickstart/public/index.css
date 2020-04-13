@@ -87,14 +87,14 @@ div#local-media {
 
 div.audioContainer {
   order: 1;
-  display: grid;
+  /* display: grid; */
   border: solid 1px red;
   margin: 10px;
 }
 
 div.videoContainer {
   order: 2;
-  display: grid;
+  /* display: grid; */
   border: solid 1px blue;
   margin: 10px;
 }
@@ -125,12 +125,30 @@ div#remote-media video, div#local-media video {
   background-repeat: no-repeat;
 }
 
-/* div#local-media video {
-  max-width: 100% !important;
-  max-height: 80% !important;
-  background-color: green;
-  background-repeat: no-repeat;
-} */
+.labeledStat {
+  margin: 2px;
+}
+
+.enabled.enabled_false,
+.muted.muted_true {
+  background: yellow;
+}
+
+.readyState.readyState_live {
+  background: lightgreen;
+}
+
+.readyState.readyState_ended {
+  background: red;
+}
+
+.bytes {
+  background: lightgreen
+}
+
+.bytes.bytes_0 {
+  background: gray
+}
 
 canvas {
   background-color: #aaa;

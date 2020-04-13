@@ -12,14 +12,13 @@ var Video = require('twilio-video');
 const remoteMediaContainer = document.getElementById('remote-media');
 const btnJoin = document.getElementById('button-join');
 const btnLeave =  document.getElementById('button-leave');
+const logDiv = document.getElementById('log');
 
 const localAudioTrackContainer = document.getElementById('audioTrack');
 const localVideoTrackContainer = document.getElementById('videoTrack');
 const btnPreviewAudio = document.getElementById('button-preview-audio');
 const btnPreviewVideo = document.getElementById('button-preview-video');
-const btnPreviewBoth = document.getElementById('get-both-tracks');
 const localIdentity  = document.getElementById('localIdentity');
-
 
 var activeRoom;
 let localAudioTrack = null;
@@ -32,62 +31,77 @@ function attachAudioTrack(track, container) {
   var audioElement = container.appendChild(track.attach());
   const waveform = new Waveform();
   waveform.setStream(audioElement.srcObject);
-  const canvasContainer = document.createElement('div');
-  canvasContainer.classList.add('canvasContainer');
+  const canvasContainer = createDiv(container, 'canvasContainer');
   canvasContainer.appendChild(waveform.element);
-  container.appendChild(canvasContainer);
   return audioElement;
 }
 
-function getChildDiv(container, divClass) {
-  var el = container.querySelector('.' + divClass);
-  if (!el) {
-    el = document.createElement('div');
-    el.classList.add(divClass);
-    container.appendChild(el);
+function createElement(container, { type, id, classNames }) {
+  const el = document.createElement(type);
+  if (id) {
+    el.id = id;
+  }
+  if (classNames) {
+    el.classList.add(...classNames);
   }
 
-  return el;
-}
-
-function createElement(container, { type, id, className }) {
-  const el = document.createElement(type);
-  el.id = id;
-  el.className = className;
   container.appendChild(el);
   return el;
 }
 
-function createButton(text, container) {
-  const btn = document.createElement('button');
+function createDiv(container, divClass, id) {
+  return createElement(container, { type: 'div', classNames: [divClass], id });
+}
+
+function getChildDiv(container, divClass) {
+  return container.querySelector('.' + divClass) || createDiv(container, divClass);
+}
+
+
+function createButton(text, container, onClick) {
+  const btn = createElement(container, { type: 'button', classNames: ['btn', 'btn-outline-primary', 'btn-sm'] });
   btn.innerHTML = text;
-  btn.classList.add('btn', 'btn-outline-primary', 'btn-sm');
-  container.appendChild(btn);
+  btn.onclick = onClick;
   return btn;
 }
 
 
-function createLabeledStat(container, label, { id, className }) {
-  const el = createElement(container, { type: 'p', id, className });
+// styleMap uses the values to decide the style.
+function createLabeledStat(container, label, { id, className, useValueToStyle = false }) {
+  const el = createElement(container, { type: 'p', id, classNames: [className, 'labeledStat'] });
+  let lastText = null;
   return {
     setText: text => {
+      if (useValueToStyle && lastText !== null) {
+        el.classList.remove(`${className}_${lastText}`);
+      }
       el.textContent = label + ': ' + text;
+      if (useValueToStyle) {
+        el.classList.add(`${className}_${text}`);
+        lastText = text;
+      }
     }
   };
 }
 
-function createTrackStats(track, container, isLocal) {
-  var statsContainer = getChildDiv(container, 'trackStats');
-  const id = track.sid || track.id;
-  statsContainer.id = 'stats_' + track.id;
+function createTrackStats(track, container) {
+  var statsContainer = createDiv(container, 'trackStats');
 
-  const readyState = createLabeledStat(statsContainer, 'readyState', { id: 'readyState_' + id, className: 'readyState' });
-  const enabled = createLabeledStat(statsContainer, 'enabled', { id: 'enabled_' + id, className: 'enabled' });
-  const muted = createLabeledStat(statsContainer, 'muted', { id: 'muted_' + id, className: 'muted' });
-  const started = createLabeledStat(statsContainer, 'started', { id: 'started_' + id, className: 'started' });
-  const ended = createLabeledStat(statsContainer, 'ended', { id: 'ended_' + id, className: 'ended' });
-  const bytes = createLabeledStat(statsContainer, 'bytes', { id: 'bytes_' + id, className: 'bytes' });
+  const readyState = createLabeledStat(statsContainer, 'mediaStreamTrack.readyState', { className: 'readyState', useValueToStyle: true });
+  const enabled = createLabeledStat(statsContainer, 'mediaStreamTrack.enabled', { className: 'enabled', useValueToStyle: true });
+  const muted = createLabeledStat(statsContainer, 'mediaStreamTrack.muted', { className: 'muted', useValueToStyle: true });
+  const started = createLabeledStat(statsContainer, 'Track.started', { className: 'started', useValueToStyle: true });
+  const trackEnabled = createLabeledStat(statsContainer, 'Track.enabled', { className: 'enabled', useValueToStyle: true });
+  const bytes = createLabeledStat(statsContainer, 'bytes', { className: 'bytes', useValueToStyle: true });
   bytes.setText('0');
+
+  track.on('disabled', () => updateStats('disabled'));
+  track.on('enabled', () => updateStats('enabled'));
+  track.on('stopped', () => updateStats('stopped'));
+  track.on('started', () => updateStats('started'));
+  track.mediaStreamTrack.addEventListener('ended', () => updateStats('ended'));
+  track.mediaStreamTrack.addEventListener('mute', () => updateStats('mute'));
+  track.mediaStreamTrack.addEventListener('unmute', () => updateStats('unmute'));
 
   function updateStats(event, byteUpdate) {
     if (event === 'bytes') {
@@ -95,16 +109,13 @@ function createTrackStats(track, container, isLocal) {
     } else {
       log(`${track.sid || track.id} got: ${event}`);
       readyState.setText(track.mediaStreamTrack.readyState);
-      enabled.setText((track.isEnabled === track.mediaStreamTrack.enabled) ?  track.isEnabled : `${track.isEnabled} != ${track.mediaStreamTrack.enabled}`);
+      enabled.setText(track.mediaStreamTrack.enabled);
       started.setText(track.isStarted);
       muted.setText(track.mediaStreamTrack.muted);
-      if (event === 'ended') {
-        ended.setText('true');
-      } else if (event === 'initial') {
-        ended.setText('unknown');
-      }
+      trackEnabled.setText(track.isEnabled);
     }
   }
+
   return updateStats;
 }
 
@@ -118,44 +129,60 @@ function updateTrackStats({ trackId, trackSid, bytesSent, bytesReceived, trackTy
   });
 }
 
+
 // Attach the Track to the DOM.
-function attachTrack(track, container, isLocal) {
-  const trackContainer = getChildDiv(container, track.kind + 'Container');
+function renderTrack(track, container, isLocal) {
+  console.log(`track.sid:${track.sid}, track.id:${track.id}`);
+  const trackContainerId = isLocal ? track.id : track.sid;
+  const trackContainer = createDiv(container, track.kind + 'Container', trackContainerId);
   const updateStats = createTrackStats(track, trackContainer, isLocal);
   trackStatUpdater.set(track, updateStats);
 
-  track.on('disabled', () => updateStats('disabled'));
-  track.on('enabled', () => updateStats('enabled'));
-  track.on('stopped', () => updateStats('stopped'));
-  track.on('started', () => updateStats('started'));
-  track.mediaStreamTrack.addEventListener('ended', () => updateStats('ended'));
-  track.mediaStreamTrack.addEventListener('mute', () => updateStats('mute'));
-  track.mediaStreamTrack.addEventListener('unmute', () => updateStats('unmute'));
+  const controlContainer = createDiv(trackContainer, 'trackControls');
 
   if (isLocal) {
-    createButton('publish', trackContainer).onclick = () => activeRoom && activeRoom.localParticipant.publishTrack(track);
-    createButton('unpublish', trackContainer).onclick = () => activeRoom && activeRoom.localParticipant.unpublishTrack(track);
-    createButton('disable', trackContainer).onclick = () => track.disable();
-    createButton('enable', trackContainer).onclick = () => track.enable();
-    createButton('stop', trackContainer).onclick = () => track.stop();
+    let trackPublication = null;
+    const publishUnPublishBtn = createButton('publish', controlContainer, async () => {
+      if (trackPublication) {
+        trackPublication.unpublish();
+        trackPublication = null;
+        publishUnPublishBtn.innerHTML = 'publish';
+      } else if (activeRoom) {
+        trackPublication = await activeRoom.localParticipant.publishTrack(track);
+        publishUnPublishBtn.innerHTML = 'unPublish';
+      }
+    });
+    createButton('disable', controlContainer, () => track.disable());
+    createButton('enable', controlContainer, () => track.enable());
+    createButton('stop', controlContainer, () => track.stop());
+    createButton('close', controlContainer, () => trackContainer.remove());
   }
-  createButton('update', trackContainer).onclick = () => updateStats('update');
+  createButton('update', controlContainer, () => updateStats('update'));
+
+  createButton('attach', controlContainer, () => {
+    const mediaControls = createDiv(trackContainer, 'mediaControls');
+    let audioVideoElement = null;
+    if (track.kind === 'audio') {
+      audioVideoElement = attachAudioTrack(track, mediaControls);
+    } else {
+      audioVideoElement = track.attach();
+      mediaControls.appendChild(audioVideoElement);
+    }
+    createButton('pause', mediaControls, () => audioVideoElement.pause());
+    createButton('play', mediaControls, () => audioVideoElement.play());
+    createButton('detach', mediaControls, () => {
+      track.detach(audioVideoElement);
+      audioVideoElement.remove();
+      mediaControls.remove();
+    });
+  });
   updateStats('initial');
 
-  let audioVideoElement = null;
-  if (track.kind === 'audio') {
-    audioVideoElement = attachAudioTrack(track, trackContainer);
-  } else {
-    audioVideoElement = track.attach();
-    trackContainer.appendChild(audioVideoElement);
-  }
-  createButton('pause', trackContainer).onclick = () => audioVideoElement.pause();
-  createButton('play', trackContainer).onclick = () => audioVideoElement.play();
 }
 
 // Detach given track from the DOM.
 function detachTrack(track, container) {
-  const trackContainer = getChildDiv(container, track.kind === 'audio' ? 'audioContainer' : 'videoContainer');
+  const trackContainer = document.getElementById(track.sid);
   track.detach().forEach(function(element) {
     element.remove();
   });
@@ -165,12 +192,12 @@ function detachTrack(track, container) {
 
 // Attach array of Tracks to the DOM.
 function attachTracks(tracks, container, isLocal) {
-  tracks.forEach(track => attachTrack(track, container, isLocal));
+  tracks.forEach(track => renderTrack(track, container, isLocal));
 }
 
 // Appends remoteParticipant name to the DOM.
 function appendName(identity, container) {
-  const name = createElement(container, { type: 'h6', id: `participantName-${identity}`, className: 'participantName' });
+  const name = createElement(container, { type: 'h6', id: `participantName-${identity}`, classNames: ['participantName'] });
   name.innerHTML = identity;
 }
 
@@ -178,11 +205,11 @@ function appendName(identity, container) {
 // A new RemoteTrack was published to the Room.
 function trackPublished(publication, container) {
   if (publication.isSubscribed) {
-    attachTrack(publication.track, container);
+    renderTrack(publication.track, container);
   }
   publication.on('subscribed', function(track) {
     log('Subscribed to ' + publication.kind + ' track');
-    attachTrack(track, container);
+    renderTrack(track, container);
   });
   publication.on('unsubscribed', track => detachTrack(track, container));
 }
@@ -194,12 +221,11 @@ function trackUnpublished(publication) {
 
 // A new RemoteParticipant joined the Room
 function participantConnected(participant, container, isLocal = false) {
-  let selfContainer = document.createElement('div');
-  selfContainer.id = `participantContainer-${participant.identity}`;
-  selfContainer.classList.add('participantDiv');
+  let selfContainer = createDiv(container, 'participantDiv', `participantContainer-${participant.identity}`);
 
-  container.appendChild(selfContainer);
-  appendName(participant.identity, selfContainer);
+  const name = createElement(selfContainer, { type: 'h6', classNames: ['participantName'] });
+  name.innerHTML = participant.identity;
+
   const participantMediaDiv = getChildDiv(selfContainer, 'participantMediaDiv');
 
   if (isLocal) {
@@ -249,7 +275,7 @@ function joinRoom(token) {
 
   // Join the Room with the token from the server and the
   // LocalParticipant's Tracks.
-  Video.connect(token, connectOptions).then(roomJoined, function(error) {
+  Video.connect(token, connectOptions).then(roomJoined).catch(error => {
     log('Could not connect to Twilio: ' + error.message);
   });
 }
@@ -269,8 +295,6 @@ function updateControls(connected) {
   [btnPreviewAudio, btnPreviewVideo].forEach(btn => {
     btn.disabled = false;
   });
-
-
 }
 
 (async function main() {
@@ -283,6 +307,7 @@ function updateControls(connected) {
   }
 
   btnJoin.onclick = () => joinRoom(token);
+
   btnLeave.onclick = function() {
     log('Leaving room...');
     activeRoom.disconnect();
@@ -347,27 +372,6 @@ function roomJoined(room) {
   });
 }
 
-btnPreviewBoth.onclick = async () => {
-  if (localAudioTrack) {
-    detachTrack(localAudioTrack, localAudioTrackContainer);
-    localAudioTrack = null;
-  }
-  if (localVideoTrack) {
-    detachTrack(localVideoTrack, localVideoTrackContainer);
-    localVideoTrack = null;
-  }
-
-  // eslint-disable-next-line require-atomic-updates
-  const tracks = await Video.createLocalTracks();
-  // eslint-disable-next-line require-atomic-updates
-  localAudioTrack = tracks.find(track => track.kind === 'audio');
-  attachTrack(localAudioTrack, localAudioTrackContainer, true);
-
-  // eslint-disable-next-line require-atomic-updates
-  localVideoTrack = tracks.find(track => track.kind === 'video');
-  attachTrack(localVideoTrack, localVideoTrackContainer, true);
-}
-
 btnPreviewAudio.onclick = async () => {
   if (localAudioTrack) {
     detachTrack(localAudioTrack, localAudioTrackContainer);
@@ -375,22 +379,26 @@ btnPreviewAudio.onclick = async () => {
   }
   // eslint-disable-next-line require-atomic-updates
   localAudioTrack = await Video.createLocalAudioTrack();
-  attachTrack(localAudioTrack, localAudioTrackContainer, true);
+  renderTrack(localAudioTrack, localAudioTrackContainer, true);
 };
 
 btnPreviewVideo.onclick = async () => {
-  if (localVideoTrack) {
-    detachTrack(localVideoTrack, localVideoTrackContainer);
-    localVideoTrack = null;
-  }
-  // eslint-disable-next-line require-atomic-updates
-  localVideoTrack = await Video.createLocalVideoTrack();
-  attachTrack(localVideoTrack, localVideoTrackContainer, true);
+  // if (localVideoTrack) {
+  //   detachTrack(localVideoTrack, localVideoTrackContainer);
+  //   localVideoTrack = null;
+  // }
+  // // eslint-disable-next-line require-atomic-updates
+  // console.log('makarand calling createLocalTracks:', { width: 1920, height: 1080, frameRate: 24 });
+  // localVideoTrack = await Video.createLocalVideoTrack({ width: 1920, height: 1080, frameRate: 24 });
+  // attachTrack(localVideoTrack, localVideoTrackContainer, true);
+  const localVideoTrack = await Video.createLocalVideoTrack({ width: 1920, height: 1080, frameRate: 24 });
+  renderTrack(localVideoTrack, localVideoTrackContainer, true);
 };
 
 // Activity log.
 function log(message) {
-  var logDiv = document.getElementById('log');
+  console.log('QuickStart: ' + message);
+
   logDiv.innerHTML += '<p>&gt;&nbsp;' + message + '</p>';
   logDiv.scrollTop = logDiv.scrollHeight;
 }
