@@ -23,6 +23,9 @@
           <h2 id='localIdentity'> Not Joined Room Yet</h2>
           <p class="instructions">Room Name</p>
           <input id="room-name" type="text" placeholder="Enter a room name" />
+          <br>
+          <p class="instructions">Include Tracks</p>
+          <input type="checkbox" id="includeTracks">
           <button id="button-join" type="submit" class="btn btn-primary btn-block" > Join Room </button>
           <button id="button-leave" type="submit" class="btn btn-primary btn-block" > Leave Room </button>
         </div>
@@ -31,7 +34,8 @@
         <div id="remote-media"></div>
       </div>
     </div>
-    <div id="log"></div>
+    <div id="log">
+    </div>
     <script src="index.js"></script>
   </body>
 </html>

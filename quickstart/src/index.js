@@ -19,10 +19,9 @@ const localVideoTrackContainer = document.getElementById('videoTrack');
 const btnPreviewAudio = document.getElementById('button-preview-audio');
 const btnPreviewVideo = document.getElementById('button-preview-video');
 const localIdentity  = document.getElementById('localIdentity');
-
+const checkIncludeTracks  = document.getElementById('includeTracks');
 var activeRoom;
-let localAudioTrack = null;
-let localVideoTrack = null;
+const localTracks = [];
 
 /**
  * Attach the AudioTrack to the HTMLAudioElement and start the Waveform.
@@ -57,14 +56,12 @@ function getChildDiv(container, divClass) {
   return container.querySelector('.' + divClass) || createDiv(container, divClass);
 }
 
-
 function createButton(text, container, onClick) {
   const btn = createElement(container, { type: 'button', classNames: ['btn', 'btn-outline-primary', 'btn-sm'] });
   btn.innerHTML = text;
   btn.onclick = onClick;
   return btn;
 }
-
 
 // styleMap uses the values to decide the style.
 function createLabeledStat(container, label, { id, className, useValueToStyle = false }) {
@@ -141,6 +138,7 @@ function renderTrack(track, container, isLocal) {
   const controlContainer = createDiv(trackContainer, 'trackControls');
 
   if (isLocal) {
+    localTracks.push(track);
     let trackPublication = null;
     const publishUnPublishBtn = createButton('publish', controlContainer, async () => {
       if (trackPublication) {
@@ -155,10 +153,15 @@ function renderTrack(track, container, isLocal) {
     createButton('disable', controlContainer, () => track.disable());
     createButton('enable', controlContainer, () => track.enable());
     createButton('stop', controlContainer, () => track.stop());
-    createButton('close', controlContainer, () => trackContainer.remove());
+    createButton('close', controlContainer, () => {
+      var index = localTracks.indexOf(track);
+      if (index > -1) {
+        localTracks.splice(index, 1);
+      }
+      trackContainer.remove();
+    });
   }
   createButton('update', controlContainer, () => updateStats('update'));
-
   createButton('attach', controlContainer, () => {
     const mediaControls = createDiv(trackContainer, 'mediaControls');
     let audioVideoElement = null;
@@ -177,7 +180,6 @@ function renderTrack(track, container, isLocal) {
     });
   });
   updateStats('initial');
-
 }
 
 // Detach given track from the DOM.
@@ -191,21 +193,16 @@ function detachTrack(track, container) {
 }
 
 // Attach array of Tracks to the DOM.
-function attachTracks(tracks, container, isLocal) {
+function renderTracks(tracks, container, isLocal) {
   tracks.forEach(track => renderTrack(track, container, isLocal));
 }
-
-// Appends remoteParticipant name to the DOM.
-function appendName(identity, container) {
-  const name = createElement(container, { type: 'h6', id: `participantName-${identity}`, classNames: ['participantName'] });
-  name.innerHTML = identity;
-}
-
 
 // A new RemoteTrack was published to the Room.
 function trackPublished(publication, container) {
   if (publication.isSubscribed) {
     renderTrack(publication.track, container);
+  } else {
+    console.log('not subscribed:', publication);
   }
   publication.on('subscribed', function(track) {
     log('Subscribed to ' + publication.kind + ' track');
@@ -229,7 +226,7 @@ function participantConnected(participant, container, isLocal = false) {
   const participantMediaDiv = getChildDiv(selfContainer, 'participantMediaDiv');
 
   if (isLocal) {
-    attachTracks(getTracks(participant), participantMediaDiv, isLocal);
+    renderTracks(getTracks(participant), participantMediaDiv, isLocal);
   } else {
     participant.tracks.forEach(publication => trackPublished(publication, participantMediaDiv));
     participant.on('trackPublished', publication => trackPublished(publication, participantMediaDiv));
@@ -246,7 +243,6 @@ function participantDisconnected(participant) {
   }
 }
 
-
 // When we are about to transition away from this page, disconnect
 // from the room, if joined.
 window.addEventListener('beforeunload', leaveRoomIfJoined);
@@ -259,18 +255,37 @@ function joinRoom(token) {
     return;
   }
 
-  log("Joining room '" + roomName + "'...");
+  log(`Joining room ${roomName} ${checkIncludeTracks.checked ? "with" : "without"} ${localTracks.length} localTracks`);
   var connectOptions = {
-    tracks: [],
+    tracks: checkIncludeTracks.checked ? localTracks : [],
     name: roomName,
     logLevel: 'debug'
   };
 
-  if (localAudioTrack) {
-    connectOptions.tracks.push(localAudioTrack);
-  }
-  if (localVideoTrack) {
-    connectOptions.tracks.push(localVideoTrack);
+  const c = urlParams.get('c');
+  if (c === '1') {
+    log(`using connecttoptions 1`);
+    connectOptions = {
+      name: roomName,
+      logLevel: 'debug',
+      tracks: localTracks
+    };
+  } else if (c === '2') {
+    log(`using connecttoptions 2`);
+    connectOptions = {
+      name: roomName,
+      logLevel: 'debug',
+      tracks: localTracks,
+      bandwidthProfile: {
+        video: {
+          dominantSpeakerPriority: 'standard',
+          maxSubscriptionBitrate: 500000,
+          mode: 'collaboration'
+        }
+      },
+      dominantSpeaker: true,
+      video: { height: 640, frameRate: 24, width: 360 }
+    };
   }
 
   // Join the Room with the token from the server and the
@@ -330,10 +345,6 @@ function roomJoined(room) {
   updateControls(true);
 
   log("Joined as '" + activeRoom.localParticipant.identity + "'");
-
-  // Attach the Tracks of the Room's Participants.
-  // participantConnected(room.localParticipant, localMediaContainer, true);
-
   room.participants.forEach(function(participant) {
     log("Already in Room: '" + participant.identity + "'");
     participantConnected(participant, remoteMediaContainer);
@@ -349,7 +360,6 @@ function roomJoined(room) {
   room.on('participantDisconnected', function(participant) {
     log("RemoteParticipant '" + participant.identity + "' left the room");
     participantDisconnected(participant);
-
   });
 
   var statUpdater = setInterval(async () => {
@@ -373,32 +383,20 @@ function roomJoined(room) {
 }
 
 btnPreviewAudio.onclick = async () => {
-  if (localAudioTrack) {
-    detachTrack(localAudioTrack, localAudioTrackContainer);
-    localAudioTrack = null;
-  }
   // eslint-disable-next-line require-atomic-updates
-  localAudioTrack = await Video.createLocalAudioTrack();
+  const localAudioTrack = await Video.createLocalAudioTrack();
   renderTrack(localAudioTrack, localAudioTrackContainer, true);
+  console.log('localTracks.length:', localTracks.length);
 };
 
 btnPreviewVideo.onclick = async () => {
-  // if (localVideoTrack) {
-  //   detachTrack(localVideoTrack, localVideoTrackContainer);
-  //   localVideoTrack = null;
-  // }
-  // // eslint-disable-next-line require-atomic-updates
-  // console.log('makarand calling createLocalTracks:', { width: 1920, height: 1080, frameRate: 24 });
-  // localVideoTrack = await Video.createLocalVideoTrack({ width: 1920, height: 1080, frameRate: 24 });
-  // attachTrack(localVideoTrack, localVideoTrackContainer, true);
-  const localVideoTrack = await Video.createLocalVideoTrack({ width: 1920, height: 1080, frameRate: 24 });
+  const localVideoTrack = await Video.createLocalVideoTrack();
   renderTrack(localVideoTrack, localVideoTrackContainer, true);
+  console.log('localTracks.length:', localTracks.length);
 };
 
-// Activity log.
 function log(message) {
   console.log('QuickStart: ' + message);
-
   logDiv.innerHTML += '<p>&gt;&nbsp;' + message + '</p>';
   logDiv.scrollTop = logDiv.scrollHeight;
 }
