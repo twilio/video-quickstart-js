@@ -19,7 +19,14 @@ const localVideoTrackContainer = document.getElementById('videoTrack');
 const btnPreviewAudio = document.getElementById('button-preview-audio');
 const btnPreviewVideo = document.getElementById('button-preview-video');
 const localIdentity  = document.getElementById('localIdentity');
-const checkIncludeTracks  = document.getElementById('includeTracks');
+const autoPublish  = document.getElementById('autoPublish');
+const autoAttach  = document.getElementById('autoAttach');
+const autoJoin  = document.getElementById('autoJoin');
+
+autoAttach.checked = urlParams.has('autoAttach');
+autoPublish.checked = urlParams.has('autoPublish');
+autoJoin.checked = urlParams.has('autoJoin');
+
 var activeRoom;
 const localTracks = [];
 
@@ -147,9 +154,13 @@ function renderTrack(track, container, isLocal) {
         publishUnPublishBtn.innerHTML = 'publish';
       } else if (activeRoom) {
         trackPublication = await activeRoom.localParticipant.publishTrack(track);
-        publishUnPublishBtn.innerHTML = 'unPublish';
+        publishUnPublishBtn.innerHTML = 'unpublish';
       }
     });
+    if (autoPublish.checked) {
+      publishUnPublishBtn.onclick();
+    }
+
     createButton('disable', controlContainer, () => track.disable());
     createButton('enable', controlContainer, () => track.enable());
     createButton('stop', controlContainer, () => track.stop());
@@ -162,23 +173,33 @@ function renderTrack(track, container, isLocal) {
     });
   }
   createButton('update', controlContainer, () => updateStats('update'));
-  createButton('attach', controlContainer, () => {
-    const mediaControls = createDiv(trackContainer, 'mediaControls');
-    let audioVideoElement = null;
-    if (track.kind === 'audio') {
-      audioVideoElement = attachAudioTrack(track, mediaControls);
-    } else {
-      audioVideoElement = track.attach();
-      mediaControls.appendChild(audioVideoElement);
-    }
-    createButton('pause', mediaControls, () => audioVideoElement.pause());
-    createButton('play', mediaControls, () => audioVideoElement.play());
-    createButton('detach', mediaControls, () => {
-      track.detach(audioVideoElement);
-      audioVideoElement.remove();
+
+  let mediaControls = null;
+  const attachDetachBtn = createButton('attach', controlContainer, () => {
+    if (mediaControls) {
+      // track is already attached.
+      track.detach().forEach(el => el.remove());
       mediaControls.remove();
-    });
+      mediaControls = null;
+      attachDetachBtn.innerHTML = 'attach';
+    } else {
+      // track is detached.
+      mediaControls = createDiv(trackContainer, 'mediaControls');
+      let audioVideoElement = null;
+      if (track.kind === 'audio') {
+        audioVideoElement = attachAudioTrack(track, mediaControls);
+      } else {
+        audioVideoElement = track.attach();
+        mediaControls.appendChild(audioVideoElement);
+      }
+      createButton('pause', mediaControls, () => audioVideoElement.pause());
+      createButton('play', mediaControls, () => audioVideoElement.play());
+      attachDetachBtn.innerHTML = 'detach';
+    }
   });
+  if (autoAttach.checked) {
+    attachDetachBtn.onclick();
+  }
   updateStats('initial');
 }
 
@@ -255,41 +276,15 @@ function joinRoom(token) {
     return;
   }
 
-  log(`Joining room ${roomName} ${checkIncludeTracks.checked ? "with" : "without"} ${localTracks.length} localTracks`);
+  log(`Joining room ${roomName} ${autoPublish.checked ? "with" : "without"} ${localTracks.length} localTracks`);
   var connectOptions = {
-    tracks: checkIncludeTracks.checked ? localTracks : [],
+    tracks: autoPublish.checked ? localTracks : [],
     name: roomName,
     logLevel: 'debug'
   };
-
-  const c = urlParams.get('c');
-  if (c === '1') {
-    log(`using connecttoptions 1`);
-    connectOptions = {
-      name: roomName,
-      logLevel: 'debug',
-      tracks: localTracks
-    };
-  } else if (c === '2') {
-    log(`using connecttoptions 2`);
-    connectOptions = {
-      name: roomName,
-      logLevel: 'debug',
-      tracks: localTracks,
-      bandwidthProfile: {
-        video: {
-          dominantSpeakerPriority: 'standard',
-          maxSubscriptionBitrate: 500000,
-          mode: 'collaboration'
-        }
-      },
-      dominantSpeaker: true,
-      video: { height: 640, frameRate: 24, width: 360 }
-    };
-  }
-
   // Join the Room with the token from the server and the
   // LocalParticipant's Tracks.
+
   Video.connect(token, connectOptions).then(roomJoined).catch(error => {
     log('Could not connect to Twilio: ' + error.message);
   });
@@ -321,12 +316,15 @@ function updateControls(connected) {
     console.log('Using Token:', token);
   }
 
-  btnJoin.onclick = () => joinRoom(token);
-
   btnLeave.onclick = function() {
     log('Leaving room...');
     activeRoom.disconnect();
   };
+
+  btnJoin.onclick = () => joinRoom(token);
+  if (autoJoin.checked) {
+    btnJoin.onclick();
+  }
 }());
 
 
@@ -407,3 +405,5 @@ function leaveRoomIfJoined() {
     activeRoom.disconnect();
   }
 }
+
+
