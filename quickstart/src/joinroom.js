@@ -196,105 +196,105 @@ function trackPublished(publication, participant) {
  * @param token - the AccessToken used to join a Room
  * @param connectOptions - the ConnectOptions used to join a Room
  */
-function joinRoom(token, connectOptions) {
+async function joinRoom(token, connectOptions) {
   // Join to the Room with the given AccessToken and ConnectOptions.
-  return connect(token, connectOptions).then(room => {
-    // Make the Room available in the JavaScript console for debugging.
-    window.room = room;
+  const room = await connect(token, connectOptions);
 
-    // Find the LocalVideoTrack from the Room's LocalParticipant.
-    const localVideoTrack = Array.from(room.localParticipant.videoTracks.values())[0].track;
+  // Make the Room available in the JavaScript console for debugging.
+  window.room = room;
 
-    // Start the local video preview.
-    attachVideoTrack(localVideoTrack, room.localParticipant);
+  // Find the LocalVideoTrack from the Room's LocalParticipant.
+  const localVideoTrack = Array.from(room.localParticipant.videoTracks.values())[0].track;
 
-    // Subscribe to the media published by RemoteParticipants already in the Room.
-    room.participants.forEach(participantConnected);
+  // Start the local video preview.
+  attachVideoTrack(localVideoTrack, room.localParticipant);
 
-    // Subscribe to the media published by RemoteParticipants joining the Room later.
-    room.on('participantConnected', participantConnected);
+  // Subscribe to the media published by RemoteParticipants already in the Room.
+  room.participants.forEach(participantConnected);
 
-    // If the disconnected RemoteParticipant was pinned as the active Participant,
-    // then unpin it so that the active Participant can be updated.
-    room.on('participantDisconnected', participant => {
-      if (activeParticipant === participant && isActiveParticipantPinned) {
-        isActiveParticipantPinned = false;
-        setCurrentActiveParticipant(room);
-      }
-    });
+  // Subscribe to the media published by RemoteParticipants joining the Room later.
+  room.on('participantConnected', participantConnected);
 
-    // Set the current active Participant.
-    setCurrentActiveParticipant(room);
+  // If the disconnected RemoteParticipant was pinned as the active Participant,
+  // then unpin it so that the active Participant can be updated.
+  room.on('participantDisconnected', participant => {
+    if (activeParticipant === participant && isActiveParticipantPinned) {
+      isActiveParticipantPinned = false;
+      setCurrentActiveParticipant(room);
+    }
+  });
 
-    // Update the active Participant when changed, only if the user has not
-    // pinned any particular Participant as the active Participant.
-    room.on('dominantSpeakerChanged', () => {
-      if (!isActiveParticipantPinned) {
-        setCurrentActiveParticipant(room);
-      }
-    });
+  // Set the current active Participant.
+  setCurrentActiveParticipant(room);
 
-    // Leave the Room when the "Leave Room" button is clicked.
-    $leave.click(function onLeave() {
-      $leave.off('click', onLeave);
+  // Update the active Participant when changed, only if the user has not
+  // pinned any particular Participant as the active Participant.
+  room.on('dominantSpeakerChanged', () => {
+    if (!isActiveParticipantPinned) {
+      setCurrentActiveParticipant(room);
+    }
+  });
+
+  // Leave the Room when the "Leave Room" button is clicked.
+  $leave.click(function onLeave() {
+    $leave.off('click', onLeave);
+    room.disconnect();
+  });
+
+  return new Promise((resolve, reject) => {
+    // Leave the Room when the "beforeunload" event is fired.
+    window.onbeforeunload = () => {
       room.disconnect();
-    });
+    };
 
-    return new Promise((resolve, reject) => {
-      // Leave the Room when the "beforeunload" event is fired.
-      window.onbeforeunload = () => {
+    if (isMobile) {
+      // TODO(mmalavalli): investigate why "pagehide" is not working in iOS Safari.
+      // In iOS Safari, "beforeunload" is not fired, so use "pagehide" instead.
+      window.onpagehide = () => {
         room.disconnect();
       };
 
-      if (isMobile) {
-        // TODO(mmalavalli): investigate why "pagehide" is not working in iOS Safari.
-        // In iOS Safari, "beforeunload" is not fired, so use "pagehide" instead.
-        window.onpagehide = () => {
-          room.disconnect();
-        };
+      // On mobile browsers, use "visibilitychange" event to determine when
+      // the app is backgrounded or foregrounded.
+      document.onvisibilitychange = () => {
+        if (document.visibilityState === 'hidden') {
+          // When the app is backgrounded, your app can no longer capture
+          // video frames. So, disable the LocalVideoTrack.
+          localVideoTrack.disable();
+        } else {
+          // When the app is foregrounded, your app can now continue to
+          // capture video frames. So, enable the LocalVideoTrack.
+          localVideoTrack.enable();
+        }
+      };
+    }
 
-        // On mobile browsers, use "visibilitychange" event to determine when
-        // the app is backgrounded or foregrounded.
-        document.onvisibilitychange = () => {
-          if (document.visibilityState === 'hidden') {
-            // When the app is backgrounded, your app can no longer capture
-            // video frames. So, disable the LocalVideoTrack.
-            localVideoTrack.disable();
-          } else {
-            // When the app is foregrounded, your app can now continue to
-            // capture video frames. So, enable the LocalVideoTrack.
-            localVideoTrack.enable();
-          }
-        };
+    room.once('disconnected', (room, error) => {
+      // Clear the event handlers on document and window..
+      window.onbeforeunload = null;
+      if (isMobile) {
+        window.onpagehide = null;
+        document.onvisibilitychange = null;
       }
 
-      room.once('disconnected', (room, error) => {
-        // Clear the event handlers on document and window..
-        window.onbeforeunload = null;
-        if (isMobile) {
-          window.onpagehide = null;
-          document.onvisibilitychange = null;
-        }
+      // Stop the local video preview.
+      detachTrack(localVideoTrack, room.localParticipant);
 
-        // Stop the local video preview.
-        detachTrack(localVideoTrack, room.localParticipant);
+      // Stop the active Participant video.
+      $activeVideo.get(0).srcObject = null;
 
-        // Stop the active Participant video.
-        $activeVideo.get(0).srcObject = null;
+      // Clear the Room reference used for debugging from the JavaScript console.
+      window.room = null;
 
-        // Clear the Room reference used for debugging from the JavaScript console.
-        window.room = null;
-
-        if (error) {
-          // Reject the Promise with the TwilioError so that the Room selection
-          // modal (plus the TwilioError message) can be displayed.
-          reject(error);
-        } else {
-          // Resolve the Promise so that the Room selection modal can be
-          // displayed.
-          resolve();
-        }
-      });
+      if (error) {
+        // Reject the Promise with the TwilioError so that the Room selection
+        // modal (plus the TwilioError message) can be displayed.
+        reject(error);
+      } else {
+        // Resolve the Promise so that the Room selection modal can be
+        // displayed.
+        resolve();
+      }
     });
   });
 }
