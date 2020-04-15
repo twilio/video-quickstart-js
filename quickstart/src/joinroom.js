@@ -35,6 +35,7 @@ function setActiveParticipant(participant) {
   }
 
   const $video = $('video', $participant);
+  $activeVideo.css('opacity', $video.css('opacity'));
   $activeVideo.get(0).srcObject = $video.get(0).srcObject;
   $activeParticipant.attr('data-identity', participant.identity);
 }
@@ -97,6 +98,8 @@ function attachVideoTrack(track, participant) {
   const videoElement = track.attach();
   videoElement.style.width = '100%';
   $container.append(videoElement);
+
+  // When the <video> element is muted by the browser, hide it.
 
   // When the RemoteParticipant disables the VideoTrack, hide the <video> element.
   track.on('disabled', () => {
@@ -238,36 +241,41 @@ function joinRoom(token, connectOptions) {
     });
 
     return new Promise((resolve, reject) => {
-      if ('onbeforeunload' in window) {
-        // Leave the Room when the "beforeunload" event is fired.
-        window.addEventListener('beforeunload', () => room.disconnect());
-      }
+      // Leave the Room when the "beforeunload" event is fired.
+      window.onbeforeunload = () => {
+        room.disconnect();
+      };
 
       if (isMobile) {
         // TODO(mmalavalli): investigate why "pagehide" is not working in iOS Safari.
         // In iOS Safari, "beforeunload" is not fired, so use "pagehide" instead.
-        if (name === 'safari' && 'onpagehide' in window) {
-          window.addEventListener('pagehide', () => room.disconnect());
-        }
+        window.onpagehide = () => {
+          room.disconnect();
+        };
 
         // On mobile browsers, use "visibilitychange" event to determine when
         // the app is backgrounded or foregrounded.
-        if ('onvisibilitychange' in document) {
-          document.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'hidden') {
-              // When the app is backgrounded, your app can no longer capture
-              // video frames. So, disable the LocalVideoTrack.
-              localVideoTrack.disable();
-            } else {
-              // When the app is foregrounded, your app can now continue to
-              // capture video frames. So, enable the LocalVideoTrack.
-              localVideoTrack.enable();
-            }
-          });
-        }
+        document.onvisibilitychange = () => {
+          if (document.visibilityState === 'hidden') {
+            // When the app is backgrounded, your app can no longer capture
+            // video frames. So, disable the LocalVideoTrack.
+            localVideoTrack.disable();
+          } else {
+            // When the app is foregrounded, your app can now continue to
+            // capture video frames. So, enable the LocalVideoTrack.
+            localVideoTrack.enable();
+          }
+        };
       }
 
       room.once('disconnected', (room, error) => {
+        // Clear the event handlers on document and window..
+        window.onbeforeunload = null;
+        if (isMobile) {
+          window.onpagehide = null;
+          document.onvisibilitychange = null;
+        }
+
         // Stop the local video preview.
         detachTrack(localVideoTrack, room.localParticipant);
 

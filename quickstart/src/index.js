@@ -43,7 +43,7 @@ const connectOptions = isMobile ? {
   // Comment this line if you are in a Peer-to-Peer Room.
   preferredVideoCodecs: [{ codec: 'VP8', simulcast: true }],
 
-  // For mobile browsers, capture 360p video @ 24 fps.
+  // For mobile browsers, capture 720p video @ 24 fps.
   video: { height: 720, frameRate: 24, width: 1280 }
 } : {
   // Available only in Small Group or Group Rooms only. Please set "Room Type"
@@ -65,8 +65,8 @@ const connectOptions = isMobile ? {
   // https://www.twilio.com/console/video/configure
   dominantSpeaker: true,
 
-  // Comment this line to disable verbose logging.
-  logLevel: 'debug',
+  // Uncomment this line to enable verbose logging.
+  // logLevel: 'debug',
 
   // Comment this line if you are playing music.
   maxAudioBitrate: 16000,
@@ -99,6 +99,7 @@ function selectAndJoinRoom(error = null) {
 
     // Fetch an AccessToken to join the Room.
     return fetch(`/token?identity=${identity}`).then(response => {
+      // Extract the AccessToken from the Response.
       return response.text();
     }).then(token => {
       // Add the specified audio device ID to ConnectOptions.
@@ -127,7 +128,7 @@ function selectCamera() {
     deviceIds.video = deviceId;
     return selectAndJoinRoom();
   }, error => {
-    showError($showErrorModal, error)
+    showError($showErrorModal, error);
   });
 }
 
@@ -143,7 +144,7 @@ function selectMicrophone() {
     deviceIds.audio = deviceId;
     return selectCamera();
   }, error => {
-    showError($showErrorModal, error)
+    showError($showErrorModal, error);
   });
 }
 

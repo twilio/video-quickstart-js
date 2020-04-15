@@ -73,22 +73,26 @@ function selectMedia(kind, $modal, render) {
         // When the user selects a different media input device, apply it.
         $inputDevices.change(setDevice);
 
-        // When the user clicks the "Apply" button, save the device ID and close
-        // the modal.
+        // When the user clicks the "Apply" button, close the modal.
         $apply.click(function onApply() {
           $inputDevices.off('change', setDevice);
           $apply.off('click', onApply);
           $modal.modal('hide');
-
-          // Stop the LocalTrack, if present.
-          if (localTracks[kind]) {
-            localTracks[kind].stop();
-            localTracks[kind] = null;
-          }
-
-          // Resolve the Promise with the selected device ID.
-          resolve($inputDevices.val());
         });
+      });
+
+      // When the modal is closed, save the device ID.
+      $modal.on('hidden.bs.modal', function onHide() {
+        $modal.off('hidden.bs.modal', onHide);
+
+        // Stop the LocalTrack, if present.
+        if (localTracks[kind]) {
+          localTracks[kind].stop();
+          localTracks[kind] = null;
+        }
+
+        // Resolve the Promise with the selected device ID.
+        resolve($inputDevices.val());
       });
 
       // Show the modal.
