@@ -30,6 +30,32 @@ autoJoin.checked = urlParams.has('autoJoin');
 var activeRoom;
 const localTracks = [];
 
+const roomChangeCallbacks = [];
+class RoomChanged {
+  register(callback) {
+    roomChangeCallbacks.push(callback);
+    callback(activeRoom);
+  }
+
+  unregister(callback) {
+    var index = roomChangeCallbacks.indexOf(callback);
+    if (index > -1) {
+      roomChangeCallbacks.splice(index, 1);
+    }
+  }
+
+  emitRoomChange(room) {
+    window.room = activeRoom = room;
+    roomChangeCallbacks.forEach(callback => callback(room));
+  }
+
+  get room() {
+    return activeRoom;
+  }
+}
+
+const roomChangeMonitor = new RoomChanged();
+
 /**
  * Attach the AudioTrack to the HTMLAudioElement and start the Waveform.
  */
@@ -67,7 +93,11 @@ function createButton(text, container, onClick) {
   const btn = createElement(container, { type: 'button', classNames: ['btn', 'btn-outline-primary', 'btn-sm'] });
   btn.innerHTML = text;
   btn.onclick = onClick;
-  return btn;
+  return {
+    btn,
+    show: visible => { btn.style.display = visible ? 'inline-block' : 'none'; },
+    text: newText => { btn.innerHTML = newText; }
+  };
 }
 
 // styleMap uses the values to decide the style.
@@ -146,32 +176,55 @@ function renderTrack(track, container, isLocal) {
 
   if (isLocal) {
     localTracks.push(track);
-    let trackPublication = null;
-    const publishUnPublishBtn = createButton('publish', controlContainer, async () => {
-      if (trackPublication) {
-        trackPublication.unpublish();
-        trackPublication = null;
-        publishUnPublishBtn.innerHTML = 'publish';
-      } else if (activeRoom) {
-        trackPublication = await activeRoom.localParticipant.publishTrack(track);
-        publishUnPublishBtn.innerHTML = 'unpublish';
-      }
-    });
-    if (autoPublish.checked) {
-      publishUnPublishBtn.onclick();
-    }
 
     createButton('disable', controlContainer, () => track.disable());
     createButton('enable', controlContainer, () => track.enable());
     createButton('stop', controlContainer, () => track.stop());
+
+    let trackPublication = null;
+    let unPublishBtn = null;
+    const publishBtn = createButton('publish', controlContainer, async () => {
+      trackPublication = await activeRoom.localParticipant.publishTrack(track);
+      publishBtn.show(!trackPublication);
+      unPublishBtn.show(!!trackPublication);
+    });
+
+    unPublishBtn = createButton('unpublish', controlContainer, () => {
+      if (trackPublication) {
+        trackPublication.unpublish();
+        trackPublication = null;
+        publishBtn.show(!trackPublication);
+        unPublishBtn.show(!!trackPublication);
+      }
+    });
+
+    const onRoomChanged = room => {
+      console.warn('makarand: roomChangeMonitor fired:', room);
+      if (room) {
+        trackPublication = [...room.localParticipant.tracks.values()].find(trackPub => trackPub.track === track);
+      }
+      publishBtn.show(room && !trackPublication);
+      unPublishBtn.show(room && !!trackPublication);
+    };
+
+    // show hide publish button on room joining/leaving.
+    roomChangeMonitor.register(onRoomChanged);
+
+    // if autoPublish and room exits, publish the track
+    if (roomChangeMonitor.room && autoPublish.checked) {
+      publishBtn.onclick();
+    }
+
     createButton('close', controlContainer, () => {
       var index = localTracks.indexOf(track);
       if (index > -1) {
         localTracks.splice(index, 1);
       }
       trackContainer.remove();
+      roomChangeMonitor.unregister(onRoomChanged);
     });
   }
+
   createButton('update', controlContainer, () => updateStats('update'));
 
   let mediaControls = null;
@@ -181,7 +234,7 @@ function renderTrack(track, container, isLocal) {
       track.detach().forEach(el => el.remove());
       mediaControls.remove();
       mediaControls = null;
-      attachDetachBtn.innerHTML = 'attach';
+      attachDetachBtn.text('attach');
     } else {
       // track is detached.
       mediaControls = createDiv(trackContainer, 'mediaControls');
@@ -194,7 +247,7 @@ function renderTrack(track, container, isLocal) {
       }
       createButton('pause', mediaControls, () => audioVideoElement.pause());
       createButton('play', mediaControls, () => audioVideoElement.play());
-      attachDetachBtn.innerHTML = 'detach';
+      attachDetachBtn.text('detach');
     }
   });
   if (autoAttach.checked) {
@@ -309,6 +362,7 @@ function updateControls(connected) {
 
 (async function main() {
   updateControls(false);
+  roomChangeMonitor.emitRoomChange(null);
   if (!token) {
     console.log('getting token');
     token = (await getRoomCredentials()).token;
@@ -319,6 +373,7 @@ function updateControls(connected) {
   btnLeave.onclick = function() {
     log('Leaving room...');
     activeRoom.disconnect();
+    roomChangeMonitor.emitRoomChange(null);
   };
 
   btnJoin.onclick = () => joinRoom(token);
@@ -339,7 +394,7 @@ function getTracks(participant) {
 
 // Successfully connected!
 function roomJoined(room) {
-  window.room = activeRoom = room;
+  roomChangeMonitor.emitRoomChange(room);
   updateControls(true);
 
   log("Joined as '" + activeRoom.localParticipant.identity + "'");
@@ -404,6 +459,7 @@ function leaveRoomIfJoined() {
   if (activeRoom) {
     activeRoom.disconnect();
   }
+  roomChangeMonitor.emitRoomChange(null);
 }
 
 
