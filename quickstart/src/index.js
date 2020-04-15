@@ -58,10 +58,14 @@ if (isMobile) {
     .maxSubscriptionBitrate = 2500000;
 }
 
-// Selected microphone and camera device IDs.
+// On mobile browsers, there is the possibility of not getting any media even
+// after the user has given permission, most likely due to some other app reserving
+// the media device. So, we make sure users always test their media devices before
+// joining the Room. For more best practices, please refer to the following guide:
+// https://www.twilio.com/docs/video/build-js-video-application-recommendations-and-best-practices
 const deviceIds = {
-  audio: localStorage.getItem('audioDeviceId'),
-  video: localStorage.getItem('videoDeviceId')
+  audio: isMobile ? null : localStorage.getItem('audioDeviceId'),
+  video: isMobile ? null : localStorage.getItem('videoDeviceId')
 };
 
 /**

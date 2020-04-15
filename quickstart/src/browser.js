@@ -27,26 +27,6 @@ function getUrlParams() {
 }
 
 /**
- * Browser name.
- * @type {null|string}
- */
-const name = (() => {
-  if (typeof navigator === 'undefined' || typeof navigator.userAgent !== 'string') {
-    return null;
-  }
-  if (/Chrome|CriOS/.test(navigator.userAgent)) {
-    return 'chrome';
-  }
-  if (/Firefox|FxiOS/.test(navigator.userAgent)) {
-    return 'firefox';
-  }
-  if (/Safari/.test(navigator.userAgent)) {
-    return 'safari';
-  }
-  return null;
-})();
-
-/**
  * Whether the web app is running on a mobile browser.
  * @type {boolean}
  */
@@ -60,6 +40,5 @@ const isMobile = (() => {
 module.exports = {
   addUrlParams,
   getUrlParams,
-  isMobile,
-  name
+  isMobile
 };

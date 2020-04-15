@@ -1,7 +1,7 @@
 'use strict';
 
 const { connect } = require('twilio-video');
-const { isMobile, name } = require('./browser');
+const { isMobile } = require('./browser');
 
 const $leave = $('#leave-room');
 const $room = $('#room');
@@ -98,8 +98,6 @@ function attachVideoTrack(track, participant) {
   const videoElement = track.attach();
   videoElement.style.width = '100%';
   $container.append(videoElement);
-
-  // When the <video> element is muted by the browser, hide it.
 
   // When the RemoteParticipant disables the VideoTrack, hide the <video> element.
   track.on('disabled', () => {
