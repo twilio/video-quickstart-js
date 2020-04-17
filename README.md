@@ -12,6 +12,8 @@ _For Twilio Video 1.x Quickstart, go [here](https://github.com/twilio/video-quic
 This application should give you a ready-made starting point for writing your
 own video apps with Twilio Video.
 
+![screenshot of chat app](quickstart/public/quickstart.png)
+
 ## Setup Requirements
 
 Before we begin, we need to collect all the config values we need to run the application:
@@ -58,8 +60,6 @@ time you load the application in order to make sure they are not reserved by ano
 After choosing your input devices, you will be prompted to enter your Room name and user name, following
 which you will join the Room. Now, all you have to do is open another tab and join the same Room in order
 to see and hear yourself on both tabs!
-
-![screenshot of chat app](quickstart/public/quickstart.png)
 
 ## Running On Multiple Devices
 
