@@ -24,6 +24,10 @@ div.participant {
   overflow: hidden;
 }
 
+div.participant > video {
+  width: 100%;
+}
+
 div.participant.main {
   height: inherit;
   margin: 10px 0;
@@ -33,7 +37,6 @@ div.participant.main {
 
 div.participant.main > video {
   height: 720px;
-  width: 1280px;
 }
 
 div.participant.active {
@@ -72,14 +75,12 @@ div.participant.main::before {
   }
 
   div.participant.main > video {
-    height: 320px;
-    width: 180px;
+    height: 180px;
   }
 }
 
 @media (max-width: 768px) {
   div.participant.main > video {
     height: 270px;
-    width: 480px;
   }
 }

@@ -1,6 +1,7 @@
 'use strict';
 
 const { addUrlParams, getUrlParams } = require('./browser');
+const getUserFriendlyError = require('./userfriendlyerror');
 
 /**
  * Select your Room name and identity (screen name).
@@ -25,7 +26,7 @@ function selectRoom($modal, error) {
   }
 
   if (error) {
-    $alert.text(`${error.message}.`);
+    $alert.text(getUserFriendlyError(error));
     $alert.css('display', '');
   } else {
     $alert.css('display', 'none');
