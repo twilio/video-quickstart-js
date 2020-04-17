@@ -51,17 +51,22 @@ async function selectMedia(kind, $modal, render) {
   const setDevice = () => applyInputDevice(kind, $inputDevices.val(), render);
 
   // Get the list of available media input devices.
-  const devices =  await getInputDevices(kind);
-
-  // Populate the modal with the list of available media input devices.
-  $inputDevices.html(devices.map(({ deviceId, label }, i) => {
-    const input = { audio: 'Microphone', video: 'Camera' }[kind];
-    label = label || (i === 0 ? `Default ${input}` : `${input} ${i + 1}`);
-    return `<option value="${deviceId}">${label}</option>`;
-  }));
+  let devices =  await getInputDevices(kind);
 
   // Apply the default media input device.
   await applyInputDevice(kind, devices[0].deviceId, render);
+
+  // If all device IDs and/or labels are empty, that means they were
+  // enumerated before the user granted media permissions. So, enumerate
+  // the devices again.
+  if (devices.every(({ deviceId, label }) => !deviceId || !label)) {
+    devices = await getInputDevices(kind);
+  }
+
+  // Populate the modal with the list of available media input devices.
+  $inputDevices.html(devices.map(({ deviceId, label }) => {
+    return `<option value="${deviceId}">${label}</option>`;
+  }));
 
   return new Promise(resolve => {
     $modal.on('shown.bs.modal', function onShow() {
