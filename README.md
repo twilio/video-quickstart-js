@@ -61,6 +61,10 @@ After choosing your input devices, you will be prompted to enter your Room name 
 which you will join the Room. Now, all you have to do is open another tab and join the same Room in order
 to see and hear yourself on both tabs!
 
+[joinroom.js](quickstart/src/joinroom.js) demonstrates how to use the SDK APIs to build a multi-party
+video sesssion. You can start building your own application by incorporating this code into your own
+application, and build your user interface around it.
+
 ## Running On Multiple Devices
 
 You can use [ngrok](https://ngrok.com/) to try your application
