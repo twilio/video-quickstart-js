@@ -1,120 +1,86 @@
-@import url(https://fonts.googleapis.com/css?family=Share+Tech+Mono);
-
-div#controls {
-  display: flex;
-  justify-content: center;
-  flex-direction: row;
+html {
+  height: 100%;
 }
 
-div#remote-media {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  height: 43%;
+body {
+  height: 100%;
+}
+
+div.container-fluid {
+  height: 100%;
+}
+
+div#participants {
+  overflow-y: auto;
+}
+
+div.participant {
+  background: center no-repeat url("data:image/svg+xml;utf8,<svg class='bi bi-person-fill' width='80' height='45' viewBox='0 0 16 16' fill='currentColor' xmlns='http://www.w3.org/2000/svg'><path fill-rule='evenodd' d='M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 100-6 3 3 0 000 6z' clip-rule='evenodd'/></svg>");
+  border: 1px solid gray;
+  display: inline-flex;
+  height: 90px;
+  margin: 10px 5px;
+  max-width: 160px;
+  overflow: hidden;
+}
+
+div.participant > video {
   width: 100%;
-  background-color: #fff;
-  text-align: center;
-  margin: auto;
 }
 
-div#remote-media video {
-  border: 1px solid #272726;
-  max-width: 80% !important;
-  background-repeat: no-repeat;
-  background-color: lightgrey !important;
-  background-image: url("https://static0.twilio.com/marketing/bundles/archetype/img/logo-wordmark.svg");
-  background-position: 50%;
-}
-
-div#controls div#room-controls,
-div#controls div#preview div#log {
-  width: 16em;
-  margin: 0 1.5em;
-  text-align: center;
-}
-
-div#controls div#preview button#button-preview {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-div#controls div#preview button#button-preview img#button-preview-image {
-  padding-right: 1em;
-  color: white;
-}
-
-div#controls p.instructions {
-  text-align: left;
-  margin-bottom: 1em;
-  font-size: 1.25em;
-  color: #777776;
-}
-
-div#controls div#preview div#local-media {
-  width: 270px;
-  height: 202px;
-  border: 1px solid #cececc;
-  box-sizing: border-box;
-  margin: 0 auto;
-  background-color: lightgrey !important;
-  background-image: url("https://static0.twilio.com/marketing/bundles/archetype/img/logo-wordmark.svg");
-  background-position: 50%;
-  background-repeat: no-repeat;
-}
-
-div#controls div#preview div#local-media video {
+div.participant.main {
+  height: inherit;
+  margin: 10px 0;
   max-width: 100%;
-  max-height: 100%;
-  border: none;
-}
-
-button#button-preview {
-  width: 270px;
-}
-
-div#controls div#log {
-  border: 1px solid #686865;
-}
-
-div#controls div#room-controls {
-  display: flex;
-}
-
-div#controls div#room-controls input {
   width: 100%;
-  height: 2.5em;
-  padding: 0.5em;
-  text-align: center;
 }
 
-div#controls div#room-controls > button#button-leave {
-  display: none;
-  text-align: center;
-  margin-top: 0;
+div.participant.main > video {
+  height: 720px;
 }
 
-div#room-controls > button {
-  text-align: center;
+div.participant.active {
+  border: 1px solid crimson;
+  box-shadow: 0 0 5px crimson;
 }
 
-div#log {
-  width: 25em;
-  height: 15em;
-  min-height: 100%;
-  max-height: 100%;
-  margin-top: 3.125em;
-  text-align: left;
-  padding: 1.5em;
-  overflow-y: scroll;
+div.participant.active.pinned {
+  border: 1px solid limegreen;
+  box-shadow: 0 0 5px limegreen;
 }
 
-div#log p {
-  color: #686865;
-  font-family: "Share Tech Mono", "Courier New", Courier, fixed-width;
-  font-size: 1.25em;
-  line-height: 1.25em;
-  margin-left: 1em;
-  text-indent: -1.25em;
-  width: 90%;
+div.participant:hover {
+  cursor: pointer;
+}
+
+div.participant::before {
+  background-color: black;
+  color: white !important;
+  content: attr(data-identity);
+  font-size: 10px;
+  padding: 0 5px;
+  position: absolute;
+  z-index: 1000;
+}
+
+div.participant.main::before {
+  font-size: 14px;
+  padding: 0 10px;
+}
+
+@media (max-width: 576px) {
+  div#participants {
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  div.participant.main > video {
+    height: 180px;
+  }
+}
+
+@media (max-width: 768px) {
+  div.participant.main > video {
+    height: 270px;
+  }
 }
