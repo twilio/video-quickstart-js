@@ -46,6 +46,7 @@ function Waveform(options) {
   canvasContext.strokeStyle = 'rgb(0, 0, 0)';
 
   // We will get the frequency data by using an AnalyserNode, a feature of the AudioContext APIs.
+  const AudioContext = window.AudioContext || window.webkitAudioContext;
   const audioContext = new AudioContext();
   const analyser = audioContext.createAnalyser();
 
