@@ -21,10 +21,14 @@ or possibly your `~/.bash_profile`.
 ## Setting Up The Application
 
 Create a configuration file for your application:
+On Mac or Linux distributions
 ```bash
 cp .env.template .env
 ```
-
+On windows use the command
+```bash
+xcopy .env.template .env
+```
 Edit `.env` with the configuration parameters we gathered from above.
 
 Next, we need to install our dependencies from npm:
