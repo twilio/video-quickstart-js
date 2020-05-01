@@ -43,12 +43,13 @@ function getTracks(participant) {
 
   pre.innerHTML = Prism.highlight(snippet, Prism.languages.javascript);
 
+
+  // For Mobile : Buttons and state to interact with code snippet
   const state = {
     snippetShown: false,
   }
 
   const updateUI = () => {
-    console.log('state', state);
     if(state.snippetShown) {
       showSnippetBtn.classList.add('hidden');
       hideSnippetBtn.classList.remove('hidden');
@@ -60,33 +61,36 @@ function getTracks(participant) {
     }
   }
 
-  // For Mobile : Buttons to interact with code snippet
   showSnippetBtn.addEventListener('click', () => {
     state.snippetShown = true;
     updateUI()
-    // showSnippetBtn.classList.add('hidden');
-    // showSnippetBtn.classList.remove('visible');
-
-    // shownSnippet.classList.add('visible');
-    // shownSnippet.classList.remove('hidden');
-
-    // hideSnippetBtn.classList.remove('hidden');
-    // hideSnippetBtn.classList.add('visible');
   });
 
   hideSnippetBtn.addEventListener('click', () => {
     state.snippetShown = false;
     updateUI();
-
-  //   shownSnippet.classList.add('hidden');
-  //   shownSnippet.classList.remove('visible');
-
-  //   showSnippetBtn.classList.add('hidden');
-  //   showSnippetBtn.classList.remove('visible');
-
-  //   hideSnippetBtn.classList.remove('visible');
-  //   hideSnippetBtn.classList.add('hidden');
   });
+
+  // Stateless counterparts
+  // showSnippetBtn.addEventListener('click', () => {
+  //   if(snippetEl.classList.contains('hidden')) {
+  //     showSnippetBtn.classList.add('hidden');
+  //     hideSnippetBtn.classList.remove('hidden');
+  //     snippetEl.classList.remove('hidden');
+  //   } else {
+  //     console.log('Snippet is already shown, why are u here')
+  //   }
+  // });
+
+  // hideSnippetBtn.addEventListener('click', () => {
+  //   if(!snippetEl.classList.contains('hidden')) {
+  //     showSnippetBtn.classList.remove('hidden');
+  //     hideSnippetBtn.classList.add('hidden');
+  //     snippetEl.classList.add('hidden');
+  //   } else {
+  //     console.log('Snippet is hidden already')
+  //   }
+  // })
 
   // Get the credentials to connect to the Room.
   const credsP1 = await getRoomCredentials();
