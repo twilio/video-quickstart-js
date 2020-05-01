@@ -12,6 +12,9 @@ const p1Media = document.getElementById('p1-media');
 const p2Media = document.getElementById('p2-media');
 const P1simulateReconnection = document.getElementById('p1-simulate-reconnection');
 const P2simulateReconnection = document.getElementById('p2-simulate-reconnection');
+const showSnippetBtn = document.getElementById('show-snippet-btn');
+const hideSnippetBtn = document.getElementById('hide-snippet-btn');
+const snippetEl = document.getElementById('shown-snippet');
 
 // Update UI to indicate remote side room state changes
 const onRoomStateChange = (participant, newState) => {
@@ -37,26 +40,71 @@ function getTracks(participant) {
   // Load the code snippet.
   const snippet = await getSnippet('./helpers.js');
   const pre = document.querySelector('pre.language-javascript');
-  
+
   pre.innerHTML = Prism.highlight(snippet, Prism.languages.javascript);
-  
+
+  const state = {
+    snippetShown: false,
+  }
+
+  const updateUI = () => {
+    console.log('state', state);
+    if(state.snippetShown) {
+      showSnippetBtn.classList.add('hidden');
+      hideSnippetBtn.classList.remove('hidden');
+      snippetEl.classList.remove('hidden');
+    } else {
+      showSnippetBtn.classList.remove('hidden');
+      hideSnippetBtn.classList.add('hidden');
+      snippetEl.classList.add('hidden');
+    }
+  }
+
+  // For Mobile : Buttons to interact with code snippet
+  showSnippetBtn.addEventListener('click', () => {
+    state.snippetShown = true;
+    updateUI()
+    // showSnippetBtn.classList.add('hidden');
+    // showSnippetBtn.classList.remove('visible');
+
+    // shownSnippet.classList.add('visible');
+    // shownSnippet.classList.remove('hidden');
+
+    // hideSnippetBtn.classList.remove('hidden');
+    // hideSnippetBtn.classList.add('visible');
+  });
+
+  hideSnippetBtn.addEventListener('click', () => {
+    state.snippetShown = false;
+    updateUI();
+
+  //   shownSnippet.classList.add('hidden');
+  //   shownSnippet.classList.remove('visible');
+
+  //   showSnippetBtn.classList.add('hidden');
+  //   showSnippetBtn.classList.remove('visible');
+
+  //   hideSnippetBtn.classList.remove('visible');
+  //   hideSnippetBtn.classList.add('hidden');
+  });
+
   // Get the credentials to connect to the Room.
   const credsP1 = await getRoomCredentials();
   const credsP2 = await getRoomCredentials();
-  
+
   // Create room instance and name for participants to join.
   const roomP1 = await Video.connect(credsP1.token, {
     region: 'au1'
   });
-  
+
   // Set room name for participant 2 to join.
   const roomName = roomP1.name;
-  
+
   // Appends video/audio tracks when LocalParticipant is connected.
   getTracks(roomP1.localParticipant).forEach(track => {
     p1Media.appendChild(track.attach());
   })
-  
+
   // Appends video/audio tracks when LocalParticipant is subscribed.
   roomP1.on('trackSubscribed', track => {
     p2Media.appendChild(track.attach());
@@ -81,12 +129,12 @@ function getTracks(participant) {
   handleRemoteParticipantReconnectionUpdates(roomP1, state => {
     onRoomStateChange('p2', state);
   });
-  
+
   handleLocalParticipantReconnectionUpdates(roomP1, state => {
     onRoomStateChange('p1', state);
   });
 
-  // Disconnect from the Room 
+  // Disconnect from the Room
   window.onbeforeunload = () => {
     roomP1.disconnect();
     roomP2.disconnect();
