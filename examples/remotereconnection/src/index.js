@@ -43,55 +43,6 @@ function getTracks(participant) {
 
   pre.innerHTML = Prism.highlight(snippet, Prism.languages.javascript);
 
-
-  // For Mobile : Buttons and state to interact with code snippet
-  // const state = {
-  //   snippetShown: false,
-  // }
-
-  // const updateUI = () => {
-  //   if(state.snippetShown) {
-  //     showSnippetBtn.classList.add('hidden');
-  //     hideSnippetBtn.classList.remove('hidden');
-  //     snippetEl.classList.remove('hidden');
-  //   } else {
-  //     showSnippetBtn.classList.remove('hidden');
-  //     hideSnippetBtn.classList.add('hidden');
-  //     snippetEl.classList.add('hidden');
-  //   }
-  // }
-
-  // showSnippetBtn.addEventListener('click', () => {
-  //   state.snippetShown = true;
-  //   updateUI()
-  // });
-
-  // hideSnippetBtn.addEventListener('click', () => {
-  //   state.snippetShown = false;
-  //   updateUI();
-  // });
-
-  // Stateless counterparts
-  // showSnippetBtn.addEventListener('click', () => {
-  //   if(snippetEl.classList.contains('hidden')) {
-  //     showSnippetBtn.classList.add('hidden');
-  //     hideSnippetBtn.classList.remove('hidden');
-  //     snippetEl.classList.remove('hidden');
-  //   } else {
-  //     console.log('Snippet is already shown, why are u here')
-  //   }
-  // });
-
-  // hideSnippetBtn.addEventListener('click', () => {
-  //   if(!snippetEl.classList.contains('hidden')) {
-  //     showSnippetBtn.classList.remove('hidden');
-  //     hideSnippetBtn.classList.add('hidden');
-  //     snippetEl.classList.add('hidden');
-  //   } else {
-  //     console.log('Snippet is hidden already')
-  //   }
-  // })
-
   // Get the credentials to connect to the Room.
   const credsP1 = await getRoomCredentials();
   const credsP2 = await getRoomCredentials();
