@@ -8,37 +8,29 @@ body {
   height: 100%;
 }
 
-.show-snippet-btn {
-  display: none;
-}
-
-.hide-snippet-btn {
+[data-toggle="collapse"].if-collapsed {
   display: none;
 }
 
 /* portrait tablets, portrait iPad, landscape e-readers, landscape 800x480 or 854x480 phones
 * and smartphones, iPhone, portrait 480x320 phones */
-@media screen and (max-device-width : 640px) and (orientation: portrait) {
-  .show-snippet-btn {
-    display: grid;
-  }
-
-  .hide-snippet-btn {
-    display: grid;
-  }
-
-  .shown-snippet {
-    display: none;
-  }
-
-  .hidden {
-    display: none;
+@media (min-width: 768px) {
+  .collapse.dont-collapse-sm {
+    display: block;
+    height: auto !important;
+    visibility: visible;
   }
 }
 
-/* tablet, landscape iPad, lo-res laptops ands desktops and big landscape tablets, laptops, and desktops
-@media (min-width:961px) and (min-width:1025px) {
-} */
+@media screen and (max-device-width : 640px) and (orientation: portrait) {
+  [data-toggle="collapse"].collapsed .if-not-collapsed {
+    display: none;
+  }
+
+  [data-toggle="collapse"]:not(.collapsed) .if-collapsed {
+    display: none;
+  }
+}
 
 div.container-fluid {
   height: 100%;

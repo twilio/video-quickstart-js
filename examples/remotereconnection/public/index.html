@@ -17,10 +17,19 @@
             <h4 class="card-title">
               Remote Participant Reconnection States
             </h4>
-            <button id="show-snippet-btn" class="btn btn-primary btn-block show-snippet-btn" >Show Code Snippet</button>
+            <!-- <button id="show-snippet-btn" class="btn btn-primary btn-block show-snippet-btn" >Show Code Snippet</button>
             <pre id="shown-snippet" class="language-javascript hidden"></pre>
-            <button id="hide-snippet-btn" class="btn btn-primary btn-block hide-snippet-btn hidden" >Hide Code Snippet</button>
+            <button id="hide-snippet-btn" class="btn btn-primary btn-block hide-snippet-btn hidden" >Hide Code Snippet</button> -->
+            <!-- yes -->
+            <button class="btn btn-primary collapsed" type="button" data-toggle="collapse" data-target="#collapseSnippet" aria-expanded="false" aria-controls="collapseSnippet">
+              <span class="if-collapsed">Show Snippet</span>
+              <span class="if-not-collapsed">Hide Snippet</span>
+            </button>
+          </p>
+          <div class="collapse dont-collapse-sm" id="collapseSnippet">
+              <pre id="shown-snippet" class="language-javascript"></pre>
           </div>
+          <!--YES-->
         </div>
       </div>
     </div>
@@ -52,5 +61,8 @@
     </div>
   </div>
 <script src="index.js"></script>
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
 </body>
 </html>

@@ -45,31 +45,31 @@ function getTracks(participant) {
 
 
   // For Mobile : Buttons and state to interact with code snippet
-  const state = {
-    snippetShown: false,
-  }
+  // const state = {
+  //   snippetShown: false,
+  // }
 
-  const updateUI = () => {
-    if(state.snippetShown) {
-      showSnippetBtn.classList.add('hidden');
-      hideSnippetBtn.classList.remove('hidden');
-      snippetEl.classList.remove('hidden');
-    } else {
-      showSnippetBtn.classList.remove('hidden');
-      hideSnippetBtn.classList.add('hidden');
-      snippetEl.classList.add('hidden');
-    }
-  }
+  // const updateUI = () => {
+  //   if(state.snippetShown) {
+  //     showSnippetBtn.classList.add('hidden');
+  //     hideSnippetBtn.classList.remove('hidden');
+  //     snippetEl.classList.remove('hidden');
+  //   } else {
+  //     showSnippetBtn.classList.remove('hidden');
+  //     hideSnippetBtn.classList.add('hidden');
+  //     snippetEl.classList.add('hidden');
+  //   }
+  // }
 
-  showSnippetBtn.addEventListener('click', () => {
-    state.snippetShown = true;
-    updateUI()
-  });
+  // showSnippetBtn.addEventListener('click', () => {
+  //   state.snippetShown = true;
+  //   updateUI()
+  // });
 
-  hideSnippetBtn.addEventListener('click', () => {
-    state.snippetShown = false;
-    updateUI();
-  });
+  // hideSnippetBtn.addEventListener('click', () => {
+  //   state.snippetShown = false;
+  //   updateUI();
+  // });
 
   // Stateless counterparts
   // showSnippetBtn.addEventListener('click', () => {
