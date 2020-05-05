@@ -8,50 +8,16 @@ body {
   height: 100%;
 }
 
-/* portrait tablets, portrait iPad, landscape e-readers, landscape 800x480 or 854x480 phones
-* and smartphones, iPhone, portrait 480x320 phones */
-/* @media screen and (min-width: 768px) {
-  .collapse.dont-collapse-sm {
-    display: block;
-    height: auto !important;
-    visibility: visible;
-  }
-  [data-toggle="collapse"].collapsed .if-not-collapsed {
-    display: none;
-  }
-
-  [data-toggle="collapse"]:not(.collapsed) .if-collapsed {
-    display: none;
-  }
-} */
-/* @media screen and (max-device-width : 640px) and (orientation: portrait) {
-  .collapse.dont-collapse-sm {
-    display: block;
-    height: auto !important;
-    visibility: visible;
-  }
-
-  [data-toggle="collapse"].collapsed .if-not-collapsed {
-    display: none;
-  }
-
-  [data-toggle="collapse"]:not(.collapsed) .if-collapsed {
-    display: none;
-  }
-} */
-
-/* .collapse.dont-collapse-sm {
-  display: block;
-  height: auto !important;
-  visibility: visible;
-} */
-
 [data-toggle="collapse"].collapsed .if-not-collapsed {
   display: none;
 }
 
 [data-toggle="collapse"]:not(.collapsed) .if-collapsed {
   display: none;
+}
+
+.card {
+  border: none;
 }
 
 div.container-fluid {
