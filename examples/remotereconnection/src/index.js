@@ -12,9 +12,6 @@ const p1Media = document.getElementById('p1-media');
 const p2Media = document.getElementById('p2-media');
 const P1simulateReconnection = document.getElementById('p1-simulate-reconnection');
 const P2simulateReconnection = document.getElementById('p2-simulate-reconnection');
-const showSnippetBtn = document.getElementById('show-snippet-btn');
-const hideSnippetBtn = document.getElementById('hide-snippet-btn');
-const snippetEl = document.getElementById('shown-snippet');
 
 // Update UI to indicate remote side room state changes
 const onRoomStateChange = (participant, newState) => {

@@ -18,6 +18,7 @@ body {
 
 .card {
   border: none;
+  max-height: min-content;
 }
 
 div.container-fluid {
@@ -75,7 +76,7 @@ div#p1-media video,
 div#p2-media video {
   margin: 1em;
   max-width: 80% !important;
-  max-height: 80% !important;
+  max-height: 60% !important;
   background-color: lightgrey !important;
   background-image: url('https://static0.twilio.com/marketing/bundles/archetype/img/logo-wordmark.svg');
   background-position: 50%;
