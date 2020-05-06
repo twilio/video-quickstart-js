@@ -1,5 +1,7 @@
 'use strict';
 
+const { isSupported } = require('twilio-video');
+
 const { isMobile } = require('./browser');
 const joinRoom = require('./joinroom');
 const micLevel = require('./miclevel');
@@ -46,7 +48,7 @@ const connectOptions = {
   // using Peer-to-Peer Rooms, so you can comment this line.
   preferredVideoCodecs: [{ codec: 'VP8', simulcast: true }],
 
-  // For desktop browsers, capture 720p video @ 24 fps.
+  // Capture 720p video @ 24 fps.
   video: { height: 720, frameRate: 24, width: 1280 }
 };
 
@@ -146,4 +148,8 @@ async function selectMicrophone() {
   return selectCamera();
 }
 
-window.addEventListener('load', selectMicrophone);
+// If the current browser is not supported by twilio-video.js, show an error
+// message. Otherwise, start the application.
+window.addEventListener('load', isSupported ? selectMicrophone : () => {
+  showError($showErrorModal, new Error('This browser is not supported.'));
+});
