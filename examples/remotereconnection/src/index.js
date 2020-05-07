@@ -37,26 +37,26 @@ function getTracks(participant) {
   // Load the code snippet.
   const snippet = await getSnippet('./helpers.js');
   const pre = document.querySelector('pre.language-javascript');
-  
+
   pre.innerHTML = Prism.highlight(snippet, Prism.languages.javascript);
-  
+
   // Get the credentials to connect to the Room.
   const credsP1 = await getRoomCredentials();
   const credsP2 = await getRoomCredentials();
-  
+
   // Create room instance and name for participants to join.
   const roomP1 = await Video.connect(credsP1.token, {
     region: 'au1'
   });
-  
+
   // Set room name for participant 2 to join.
   const roomName = roomP1.name;
-  
+
   // Appends video/audio tracks when LocalParticipant is connected.
   getTracks(roomP1.localParticipant).forEach(track => {
     p1Media.appendChild(track.attach());
   })
-  
+
   // Appends video/audio tracks when LocalParticipant is subscribed.
   roomP1.on('trackSubscribed', track => {
     p2Media.appendChild(track.attach());
@@ -81,12 +81,12 @@ function getTracks(participant) {
   handleRemoteParticipantReconnectionUpdates(roomP1, state => {
     onRoomStateChange('p2', state);
   });
-  
+
   handleLocalParticipantReconnectionUpdates(roomP1, state => {
     onRoomStateChange('p1', state);
   });
 
-  // Disconnect from the Room 
+  // Disconnect from the Room
   window.onbeforeunload = () => {
     roomP1.disconnect();
     roomP2.disconnect();
