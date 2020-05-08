@@ -8,6 +8,14 @@ body {
   height: 100%;
 }
 
+[data-toggle="collapse"].collapsed .if-not-collapsed {
+  display: none;
+}
+
+[data-toggle="collapse"]:not(.collapsed) .if-collapsed {
+  display: none;
+}
+
 div.container-fluid {
   height: 100%;
 }
@@ -26,7 +34,7 @@ div.row.thin-gutters > [class*="col-"] {
 }
 
 div.col-sm-6, div.col-sm-6 {
-  height: 100%;
+  max-height: fit-content;
 }
 
 div#remote-media {
