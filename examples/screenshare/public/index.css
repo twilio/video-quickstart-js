@@ -22,6 +22,10 @@ body {
   overflow-y: auto;
 }
 
+.align {
+  align-content: flex-start;
+}
+
 .card-body {
   width: 640px;
   max-width: fit-content;

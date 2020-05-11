@@ -21,6 +21,10 @@ body {
   max-height: min-content;
 }
 
+.align {
+  align-content: flex-start;
+}
+
 div.container-fluid {
   height: 100%;
 }

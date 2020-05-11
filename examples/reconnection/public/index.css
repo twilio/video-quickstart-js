@@ -16,6 +16,10 @@ body {
   display: none;
 }
 
+.align {
+  align-content: flex-start;
+}
+
 div.container-fluid {
   height: 100%;
 }
