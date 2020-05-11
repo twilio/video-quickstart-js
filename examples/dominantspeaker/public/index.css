@@ -127,18 +127,9 @@ div.input-group > select {
   width: 100%;
 }
 
-div.col-sm-8 > .card {
-  height: 100%;
+div.col-sm-6, div.col-sm-6 {
+  max-height: fit-content;
 }
-
-div.col-sm-4 > .card:first-child {
-  height: 30%;
-}
-
-div.col-sm-4 > .card:last-child {
-  height: 70%;
-}
-
 
 @media (max-width: 900px) {
   div.col-sm-8, div.col-sm-4 {
