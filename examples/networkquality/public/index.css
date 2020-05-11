@@ -8,6 +8,23 @@ body {
   height: 100%;
 }
 
+[data-toggle="collapse"].collapsed .if-not-collapsed {
+  display: none;
+}
+
+[data-toggle="collapse"]:not(.collapsed) .if-collapsed {
+  display: none;
+}
+
+.card {
+  border: none;
+  max-height: min-content;
+}
+
+.align {
+  align-content: flex-start;
+}
+
 div.container-fluid {
   height: 100%;
 }
@@ -26,11 +43,11 @@ div.row.thin-gutters > [class*="col-"] {
 }
 
 div.col-sm-6, div.col-sm-6 {
-  height: 100%;
+  height: fit-content;
 }
 
 div#remotemedia {
-  display: flex;
+  display: grid;
   justify-content: flex-start;
   flex-wrap: wrap;
   height: auto;
@@ -74,7 +91,7 @@ div#remotemedia textarea {
 }
 
 div#usercontrols {
-  display: flex;
+  display: grid;
   flex-direction: column;
   flex-wrap: wrap;
   width: 100%;
@@ -105,27 +122,9 @@ pre.language-javascript a:hover {
   text-decoration: none;
 }
 
-div.card {
-  border: none;
-  overflow-y: auto;
-}
-
 div.input-group > select {
   width: 100%;
 }
-
-div.col-sm-8 > .card {
-  height: 100%;
-}
-
-div.col-sm-4 > .card:first-child {
-  height: 30%;
-}
-
-div.col-sm-4 > .card:last-child {
-  height: 70%;
-}
-
 
 @media (max-width: 900px) {
   div.col-sm-8, div.col-sm-4 {
