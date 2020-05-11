@@ -76,10 +76,6 @@ span.input-group-btn > button.btn.btn-primary.btn-sm {
   border-radius: 0;
 }
 
-/* div.col-sm-8 > .card {
-  height: 100%;
-} */
-
 div#audioinputwaveform {
   position: absolute;
   left: 20px;
