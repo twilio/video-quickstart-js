@@ -8,6 +8,18 @@ body {
   height: 100%;
 }
 
+[data-toggle="collapse"].collapsed .if-not-collapsed {
+  display: none;
+}
+
+[data-toggle="collapse"]:not(.collapsed) .if-collapsed {
+  display: none;
+}
+
+.align {
+  align-content: flex-start;
+}
+
 div.container-fluid {
   height: 100%;
 }
@@ -25,8 +37,8 @@ div.row.thin-gutters > [class*="col-"] {
   padding: 0 2px;
 }
 
-div.col-sm-8, div.col-sm-4 {
-  height: 100%;
+div.col-sm-6, div.col-sm-6 {
+  height: fit-content;
 }
 
 pre.language-javascript {
@@ -50,18 +62,6 @@ div.card {
 
 div.input-group > select {
   width: 100%;
-}
-
-div.col-sm-8 > .card {
-  height: 100%;
-}
-
-div.col-sm-4 > .card:first-child {
-  height: 30%;
-}
-
-div.col-sm-4 > .card:last-child {
-  height: 70%;
 }
 
 div#audiowaveform {
