@@ -44,9 +44,13 @@ function getTracks(participant) {
   const credsP1 = await getRoomCredentials();
   const credsP2 = await getRoomCredentials();
 
+    // Create Local Tracks
+    const localTracks = await Video.createLocalTracks();
+
   // Create room instance and name for participants to join.
   const roomP1 = await Video.connect(credsP1.token, {
-    region: 'au1'
+    region: 'au1',
+    tracks: localTracks,
   });
 
   // Set room name for participant 2 to join.
@@ -55,7 +59,7 @@ function getTracks(participant) {
   // Appends video/audio tracks when LocalParticipant is connected.
   getTracks(roomP1.localParticipant).forEach(track => {
     p1Media.appendChild(track.attach());
-  })
+  });
 
   // Appends video/audio tracks when LocalParticipant is subscribed.
   roomP1.on('trackSubscribed', track => {
@@ -65,7 +69,8 @@ function getTracks(participant) {
   // Connecting remote participants.
   const roomP2 = await Video.connect(credsP2.token, {
     name: roomName,
-    region: 'au1'
+    region: 'au1',
+    tracks: localTracks
   });
 
   // Simulate reconnection button functionalities, adding in region in order to extend reconnection time
