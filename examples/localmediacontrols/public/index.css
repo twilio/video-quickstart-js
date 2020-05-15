@@ -75,15 +75,20 @@ div#userControls > button {
   transition-duration: 0.4s;
 }
 
+div#media-container {
+  position: relative;
+}
+
 div#audiopreview {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
+  position: absolute;
+  top: 0;
+  right: 0;
   height: auto;
   width: 100%;
-  background-color: #fff;
+  background-color: transparent;
   text-align: center;
   margin: auto;
+  padding: 2px 2px;
 }
 
 div#audiopreview > span > i#activeIcon {
@@ -96,9 +101,6 @@ div#audiopreview > span > i#inactiveIcon {
 }
 
 div#videopreview {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
   height: 75%;
   width: 75%;
   background-color: #fff;
