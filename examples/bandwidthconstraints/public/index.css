@@ -66,8 +66,6 @@ div.input-group > select {
 
 div#audiowaveform {
   position: absolute;
-  left: 20px;
-  top: 58px;
   width: 20%;
   height: 20%;
   background-color: darkgrey !important;
