@@ -45,7 +45,7 @@ div.row.thin-gutters {
 
 div.row.thin-gutters > .col,
 div.row.thin-gutters > [class*="col-"] {
-  padding: 0 2px;
+  padding: 8px 8px;
 }
 
 div.col-sm-8, div.col-sm-4 {
