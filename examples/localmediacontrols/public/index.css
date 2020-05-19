@@ -76,20 +76,24 @@ div#userControls > button {
 }
 
 div#media-container {
-  position: relative;
+  display: grid;
+  grid-template-areas: 'content';
+  width: 100%
+}
+
+div#videopreview {
+  grid-area: content;
+  width: 100%;
 }
 
 div#audiopreview {
-  position: absolute;
-  top: 0;
-  right: 0;
-  height: auto;
-  width: 100%;
+  grid-area: content;
+  z-index: 1;
   background-color: transparent;
-  text-align: center;
-  margin: auto;
   padding: 2px 2px;
+  width: 100%;
 }
+
 
 div#audiopreview > span > i#activeIcon {
  display: flex;
@@ -98,14 +102,6 @@ div#audiopreview > span > i#activeIcon {
 
 div#audiopreview > span > i#inactiveIcon {
   display:none;
-}
-
-div#videopreview {
-  height: 75%;
-  width: 75%;
-  background-color: #fff;
-  margin: auto;
-  width: 100%;
 }
 
 div#videopreview > video {
