@@ -19,7 +19,7 @@ let roomName = null;
   // Load the code snippet.
   const snippet = await getSnippet('./helpers.js');
   const pre = document.querySelector('pre.language-javascript');
-  
+
   pre.innerHTML = Prism.highlight(snippet, Prism.languages.javascript);
 
   // Get the credentials to connect to the Room.
@@ -47,35 +47,35 @@ let roomName = null;
     if(mute) {
       muteYourAudio(roomP1);
       muteAudioBtn.classList.add('muted');
-      muteAudioBtn.innerText = 'Unmute Audio';
+      muteAudioBtn.innerText = 'Enable Audio';
       activeIcon.id = 'inactiveIcon';
       inactiveIcon.id = 'activeIcon';
 
     } else {
       unmuteYourAudio(roomP1);
       muteAudioBtn.classList.remove('muted');
-      muteAudioBtn.innerText = 'Mute Audio';
+      muteAudioBtn.innerText = 'Disable Audio';
       activeIcon.id = 'inactiveIcon';
       inactiveIcon.id = 'activeIcon';
     }
   }
-  
+
   muteVideoBtn.onclick = () => {
     const mute = !muteVideoBtn.classList.contains('muted');
-    
+
     if(mute) {
       muteYourVideo(roomP1);
       muteVideoBtn.classList.add('muted');
-      muteVideoBtn.innerText = 'Start Video';
+      muteVideoBtn.innerText = 'Enable Video';
     } else {
       unmuteYourVideo(roomP1);
       muteVideoBtn.classList.remove('muted');
-      muteVideoBtn.innerText = 'Stop Video';
+      muteVideoBtn.innerText = 'Disable Video';
     }
   }
 
   // Starts video upon P2 joining room
-  roomP2.on('trackSubscribed', (track => {
+  roomP2.on('trackSubscribed', track => {
     if (track.isEnabled) {
       if (track.kind === 'audio') {
         audioPreview.appendChild(track.attach());
@@ -83,22 +83,22 @@ let roomName = null;
         videoPreview.appendChild(track.attach());
       }
     }
+  });
 
-    participantMutedOrUnmutedMedia(roomP2, track => {
-      track.detach().forEach(element => {
-        element.remove();
-      });
-    }, track => {
-        if (track.kind === 'audio') {
-          audioPreview.appendChild(track.attach());
-        }
-        if (track.kind === 'video') {
-          videoPreview.appendChild(track.attach());
-        }
-      });
-  }));
+  participantMutedOrUnmutedMedia(roomP2, track => {
+    track.detach().forEach(element => {
+      element.remove();
+    });
+  }, track => {
+      if (track.kind === 'audio') {
+        audioPreview.appendChild(track.attach());
+      }
+      if (track.kind === 'video') {
+        videoPreview.appendChild(track.attach());
+      }
+  });
 
-  // Disconnect from the Room 
+  // Disconnect from the Room
   window.onbeforeunload = () => {
     roomP1.disconnect();
     roomP2.disconnect();

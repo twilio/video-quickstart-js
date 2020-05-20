@@ -8,6 +8,23 @@ body {
   height: 100%;
 }
 
+[data-toggle="collapse"].collapsed .if-not-collapsed {
+  display: none;
+}
+
+[data-toggle="collapse"]:not(.collapsed) .if-collapsed {
+  display: none;
+}
+
+.card {
+  border: none;
+  max-height: min-content;
+}
+
+.align {
+  align-content: flex-start;
+}
+
 div.container-fluid {
   height: 100%;
 }
@@ -29,11 +46,11 @@ div#remote-media video {
 
 div.row.thin-gutters > .col,
 div.row.thin-gutters > [class*="col-"] {
-  padding: 0 2px;
+  padding: 8px 8px;
 }
 
-div.col-sm-8, div.col-sm-4 {
-  height: 100%;
+div.col-sm-6, div.col-sm-6 {
+  height: fit-content;
 }
 
 pre.language-javascript {
@@ -50,11 +67,6 @@ pre.language-javascript a:hover {
   text-decoration: none;
 }
 
-div.card {
-  border: none;
-  overflow-y: auto;
-}
-
 div.input-group > select {
   width: 100%;
 }
@@ -62,10 +74,6 @@ div.input-group > select {
 span.input-group-btn > button.btn.btn-primary.btn-sm {
   margin-left: 5px;
   border-radius: 0;
-}
-
-div.col-sm-8 > .card {
-  height: 100%;
 }
 
 div#audioinputwaveform {

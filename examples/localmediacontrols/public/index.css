@@ -8,6 +8,18 @@ body {
   height: 100%;
 }
 
+[data-toggle="collapse"].collapsed .if-not-collapsed {
+  display: none;
+}
+
+[data-toggle="collapse"]:not(.collapsed) .if-collapsed {
+  display: none;
+}
+
+.align {
+  align-content: flex-start;
+}
+
 div.container-fluid {
   height: 100%;
 }
@@ -22,7 +34,7 @@ div.row.thin-gutters {
 
 div.row.thin-gutters > .col,
 div.row.thin-gutters > [class*="col-"] {
-  padding: 0 2px;
+  padding: 8px 8px;
 }
 
 div.card {
@@ -30,8 +42,8 @@ div.card {
   overflow-y: auto;
 }
 
-div.col-sm-8 > .card {
-  height: 100%;
+div.col-sm-6, div.col-sm-6 {
+  max-height: fit-content;
 }
 
 
@@ -60,19 +72,28 @@ div#userControls > button {
   align-items: center;
   margin:5px;
   border-radius: 8px;
-  transition-duration: 0.4s; 
+  transition-duration: 0.4s;
+}
+
+div#media-container {
+  display: grid;
+  grid-template-areas: 'content';
+  width: 100%
+}
+
+div#videopreview {
+  grid-area: content;
+  width: 100%;
 }
 
 div#audiopreview {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  height: auto;
+  grid-area: content;
+  z-index: 1;
+  background-color: transparent;
+  padding: 2px 2px;
   width: 100%;
-  background-color: #fff;
-  text-align: center;
-  margin: auto;
 }
+
 
 div#audiopreview > span > i#activeIcon {
  display: flex;
@@ -81,17 +102,6 @@ div#audiopreview > span > i#activeIcon {
 
 div#audiopreview > span > i#inactiveIcon {
   display:none;
-}
-
-div#videopreview {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  height: 75%;
-  width: 75%;
-  background-color: #fff;
-  margin: auto;
-  width: 100%;
 }
 
 div#videopreview > video {
