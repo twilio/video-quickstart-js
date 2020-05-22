@@ -70,6 +70,17 @@ pre.language-javascript a:hover {
   text-decoration: none;
 }
 
+#chat-log {
+  width: 25em;
+  height: 15em;
+  min-height: 100%;
+  max-height: 100%;
+  margin-top: 3.125em;
+  text-align: left;
+  padding: 1.5em;
+  overflow-y: scroll;
+}
+
 video#screenpreview {
   margin: auto;
   background-color: lightgrey !important;
