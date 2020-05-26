@@ -17,6 +17,7 @@
     "build:examples:screenshare": "copyfiles -f examples/screenshare/src/helpers.js examples/screenshare/public && browserify examples/screenshare/src/index.js > examples/screenshare/public/index.js",
     "build:examples:localmediacontrols": "copyfiles -f examples/localmediacontrols/src/helpers.js examples/localmediacontrols/public && browserify examples/localmediacontrols/src/index.js > examples/localmediacontrols/public/index.js",
     "build:examples:remotereconnection": "copyfiles -f examples/remotereconnection/src/helpers.js examples/remotereconnection/public && browserify examples/remotereconnection/src/index.js > examples/remotereconnection/public/index.js",
+    "build:examples:datatracks": "copyfiles -f examples/datatracks/src/helpers.js examples/datatracks/public && browserify examples/datatracks/src/index.js > examples/datatracks/public/index.js",
     "build:quickstart": "browserify quickstart/src/index.js > quickstart/public/index.js",
     "clean": "npm-run-all clean:*",
     "clean:examples": "npm-run-all clean:examples:*",
@@ -31,6 +32,7 @@
     "clean:examples:screenshare": "rimraf examples/screenshare/public/index.js examples/screenshare/public/helpers.js",
     "clean:examples:localmediacontrols": "rimraf examples/localmediacontrols/public/index.js examples/localmediacontrols/public/helpers.js",
     "clean:examples:remotereconnection": "rimraf examples/remotereconnection/public/index.js examples/remotereconnection/public/helpers.js",
+    "clean:examples:datatracks": "rimraf examples/datatracks/public/index.js examples/datatracks/public/helpers.js",
     "clean:quickstart": "rimraf quickstart/public/index.js",
     "start": "npm run clean && npm run build && node server"
   },

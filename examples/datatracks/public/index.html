@@ -7,7 +7,6 @@
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
   <link rel="stylesheet" href="prism.css">
   <link rel="stylesheet" href="index.css">
-  <script src="https://kit.fontawesome.com/015382c4ee.js" crossorigin="anonymous"></script>
 </head>
 <body>
   <div class="container-fluid">
@@ -25,6 +24,7 @@
             <div class="collapse dont-collapse-sm d-md-block" id="collapseSnippet">
               <pre id="shown-snippet" class="language-javascript"></pre>
             </div>
+            NOTE : Open a new window to connect another participant
           </div>
         </div>
       </div>
@@ -35,7 +35,7 @@
               <div class="card-block">
                 <h4 class="card-title">P1 LocalParticipant</h4>
                 <div id="p1-video-preview"></div>
-                <button id="p1-connect" class="btn btn-primary btn-block">Connect</button>
+                <input id="p1-connectordisconnect" type="submit" class="btn btn-primary btn-block" value="Connect to Room">
               </div>
             </div>
           </div>
@@ -44,7 +44,7 @@
               <div class="card-block">
                 <h4 class="card-title">P2 RemoteParticipant</h4>
                 <div id="p2-video-preview"></div>
-                <button id="p2-connect" class="btn btn-primary btn-block">Connect</button>
+                <input id="p2-connectordisconnect" type="submit" class="btn btn-primary btn-block" value="Connect to Room">
               </div>
             </div>
           </div>
