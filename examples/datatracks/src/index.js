@@ -2,34 +2,96 @@
 
 const Prism = require('prismjs');
 const Video = require('twilio-video');
+const getSnippet = require('../../util/getsnippet');
+const getRoomCredentials = require('../../util/getroomcredentials');
+const helpers = require('./helpers');
 
-// Create Room Name
+const P1Connect = document.querySelector('input#p1-connectordisconnect');
+const P2Connect = document.querySelector('input#p2-connectordisconnect');
+const P1Video = document.getElementById('p1-video-preview');
+const P2Video = document.getElementById('p2-video-preview');
 
-// Create localDataTracks
-  /**
-   * Setup a LocalAudioTrack and LocalVideoTrack to render to a <video> element.
-   * @param {HTMLVideoElement} video
-   * @returns {Promise<Array<LocalAudioTrack|LocalVideoTrack>>} audioAndVideoTrack
-   */
-  // async function setupLocalAudioAndVideoTracks(video) {
-  //   const audioAndVideoTrack = await createLocalTracks();
-  //   audioAndVideoTrack.forEach(track => track.attach(video));
-  //   return audioAndVideoTrack;
-  // }
+const roomName = "room1"
+let room = null;
+let localTracks = null;
 
-  //   const dataTrack = setupLocalDataTrack();
-  //   const videoTrack = await setupLocalAudioAndVideoTracks(video);
+/*
+ * Connect to or disconnect the Participant with media from the Room.
+ */
+function connectToOrDisconnectFromRoom(event, id) {
+  event.preventDefault();
+  return room ? disconnectFromRoom(id) : connectToRoom(id);
+}
 
-// Concat tracks with Audio & Video track (not doing audio)
-  //  const tracks = audioAndVideoTrack.concat(dataTrack);
+/**
+ * Connect the Participant with media to the Room.
+ */
+async function connectToRoom(id) {
+  const creds = await getRoomCredentials();
 
+  room = await connectWithTracks(
+    creds.token,
+    { room: roomName,
+      tracks: localTracks,
+    }
+  )
 
-// Connect P1 with {room: roomName, tracks:ALLTRACKSHERE} on button click
+  id.value = 'Disconnect from Room';
+}
 
-// Attach video to P1 DOM
+/**
+ * Disconnect the Participant with media from the Room.
+ */
+function disconnectFromRoom(id) {
+  room.disconnect();
+  room = null;
+  id.value = 'Connect to Room';
+  return;
+}
 
-// OPEN A NEW WINDOW
+/**
+ * Get the Tracks of the given Participant.
+ */
+function getTracks(participant) {
+  return Array.from(participant.tracks.values()).filter(function(publication) {
+    return publication.track;
+  }).map(function(publication) {
+    return publication.track;
+  });
+}
 
-// Connect P2 with {room: roomName, tracks: ALLTRACKSHERE} on button click
+(async function() {
+  // Load the code snippet.
+  const snippet = await getSnippet('./helpers.js');
+  const pre = document.querySelector('pre.language-javascript');
 
-//
+  pre.innerHTML = Prism.highlight(snippet, Prism.languages.javascript);
+
+  // Create tracks.
+  const newDataTrack = Video.LocalDataTrack();
+  const audioAndVideoTrack = await Video.createLocalTracks();
+
+  localTracks = audioAndVideoTrack.concat(newDataTrack);
+
+  // Connect P1
+  P1Connect.onClick = () => connectToOrDisconnectFromRoom(event, 'P1Connect');
+
+  // OPEN A NEW WINDOW
+
+  // Connect P2 with {room: roomName, tracks: ALLTRACKSHERE} on button click
+  P2Connect.onClick = () => connectToOrDisconnectFromRoom(event, 'P2Connect');
+
+  // Attach tracks to DOM
+  // room.on('participantConnected', function(participant) {
+
+  // });
+
+  // Disconnect from the Room on page unload.
+  window.onbeforeunload = function() {
+    if (room) {
+      room.disconnect();
+      room = null;
+    }
+    room.disconnect();
+  };
+}());
