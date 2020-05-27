@@ -31,6 +31,26 @@ body {
   max-width: fit-content;
 }
 
+div#p1-video-preview,
+div#p2-video-preview {
+  height: 50%;
+  width: 100%;
+  background-color: #fff;
+  text-align: center;
+  margin: auto;
+}
+
+div#p1-video-preview video,
+div#p2-video-preview video {
+  margin: 1em;
+  max-width: 80% !important;
+  max-height: 60% !important;
+  background-color: lightgrey !important;
+  background-image: url('https://static0.twilio.com/marketing/bundles/archetype/img/logo-wordmark.svg');
+  background-position: 50%;
+  background-repeat: no-repeat;
+}
+
 div.container-fluid {
   height: 100%;
 }

@@ -18,23 +18,37 @@ let localTracks = null;
 /*
  * Connect to or disconnect the Participant with media from the Room.
  */
-function connectToOrDisconnectFromRoom(event, id) {
+function connectToOrDisconnectFromRoom(event, id, localVideoDiv, remoteVideoDiv) {
   event.preventDefault();
-  return room ? disconnectFromRoom(id) : connectToRoom(id);
+  return room ? disconnectFromRoom(id, localVideoDiv, remoteVideoDiv) : connectToRoom(id, localVideoDiv, remoteVideoDiv);
 }
 
 /**
- * Connect the Participant with media to the Room.
+ * Connect the Participant with localVideoDiv to the Room.
  */
-async function connectToRoom(id) {
+async function connectToRoom(id, localVideoDiv, remoteVideoDiv) {
   const creds = await getRoomCredentials();
 
   room = await Video.connect(
     creds.token,
-    { room: roomName,
+    { name: roomName,
       tracks: localTracks,
     }
   )
+
+  // Local Tracks attach to DOM
+  getTracks(room.localParticipant).forEach(track => {
+    localVideoDiv.appendChild(track.attach());
+  });
+
+  // Remote tracks attach to DOM
+  room.on('participantConnected', participant => {
+    participant.on('trackSubscribed', function(track) {
+      remoteVideoDiv.appendChild(track.attach());
+    });
+  })
+
+  console.log('room', room);
   id.value = 'Disconnect from Room';
 }
 
@@ -42,8 +56,15 @@ async function connectToRoom(id) {
  * Disconnect the Participant with media from the Room.
  */
 function disconnectFromRoom(id) {
+  getTracks(room.localParticipant).forEach(track => {
+    track.detach().forEach(element => {
+      element.remove();
+    });
+  });
+
   room.disconnect();
   room = null;
+
   id.value = 'Connect to Room';
   return;
 }
@@ -73,17 +94,15 @@ function getTracks(participant) {
   localTracks = audioAndVideoTrack.concat(newDataTrack);
 
   // Connect P1
-  P1Connect.addEventListener('click', event => connectToOrDisconnectFromRoom(event, P1Connect));
+  P1Connect.addEventListener('click', event => connectToOrDisconnectFromRoom(event, P1Connect, P1Video, P2Video));
 
   // OPEN A NEW WINDOW
 
   // Connect P2 with {room: roomName, tracks: ALLTRACKSHERE} on button click
-  P2Connect.addEventListener('click', event => connectToOrDisconnectFromRoom(event, P2Connect));
+  P2Connect.addEventListener('click', event => connectToOrDisconnectFromRoom(event, P2Connect, P2Video, P1Video));
 
   // Attach tracks to DOM
-  // room.on('participantConnected', function(participant) {
 
-  // });
 
   // Disconnect from the Room on page unload.
   window.onbeforeunload = function() {
