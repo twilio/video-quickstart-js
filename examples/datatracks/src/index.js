@@ -29,13 +29,12 @@ function connectToOrDisconnectFromRoom(event, id) {
 async function connectToRoom(id) {
   const creds = await getRoomCredentials();
 
-  room = await connectWithTracks(
+  room = await Video.connect(
     creds.token,
     { room: roomName,
       tracks: localTracks,
     }
   )
-
   id.value = 'Disconnect from Room';
 }
 
@@ -74,12 +73,12 @@ function getTracks(participant) {
   localTracks = audioAndVideoTrack.concat(newDataTrack);
 
   // Connect P1
-  P1Connect.onClick = () => connectToOrDisconnectFromRoom(event, 'P1Connect');
+  P1Connect.addEventListener('click', event => connectToOrDisconnectFromRoom(event, P1Connect));
 
   // OPEN A NEW WINDOW
 
   // Connect P2 with {room: roomName, tracks: ALLTRACKSHERE} on button click
-  P2Connect.onClick = () => connectToOrDisconnectFromRoom(event, 'P2Connect');
+  P2Connect.addEventListener('click', event => connectToOrDisconnectFromRoom(event, P2Connect));
 
   // Attach tracks to DOM
   // room.on('participantConnected', function(participant) {
