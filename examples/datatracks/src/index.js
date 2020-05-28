@@ -36,19 +36,6 @@ async function connectToRoom(id, localVideoDiv, remoteVideoDiv) {
     }
   )
 
-  // Local Tracks attach to DOM
-  getTracks(room.localParticipant).forEach(track => {
-    localVideoDiv.appendChild(track.attach());
-  });
-
-  // Remote tracks attach to DOM
-  room.on('participantConnected', participant => {
-    participant.on('trackSubscribed', function(track) {
-      remoteVideoDiv.appendChild(track.attach());
-    });
-  })
-
-  console.log('room', room);
   id.value = 'Disconnect from Room';
 }
 
@@ -56,12 +43,6 @@ async function connectToRoom(id, localVideoDiv, remoteVideoDiv) {
  * Disconnect the Participant with media from the Room.
  */
 function disconnectFromRoom(id) {
-  getTracks(room.localParticipant).forEach(track => {
-    track.detach().forEach(element => {
-      element.remove();
-    });
-  });
-
   room.disconnect();
   room = null;
 
@@ -98,11 +79,35 @@ function getTracks(participant) {
 
   // OPEN A NEW WINDOW
 
-  // Connect P2 with {room: roomName, tracks: ALLTRACKSHERE} on button click
+  // Connect P2 
   P2Connect.addEventListener('click', event => connectToOrDisconnectFromRoom(event, P2Connect, P2Video, P1Video));
 
   // Attach tracks to DOM
 
+  // Subscribe to the media published by RemoteParticipants already in the Room.
+  room.participants.forEach(participant => {
+    participant.tracks.forEach(publication => {
+      publication.on('subscribed', track => {
+        /*WHICHDIVGOESHERE*/.appendChild(track.attach());
+      });
+    });
+  });
+
+    // Subscribe to the media published by RemoteParticipants joining the Room later
+  room.on('participantConnected', participant => {
+    participant.on('trackSubscribed', track => {
+      /*WHICHDIVGOESHERE*/.appendChild(track.attach());
+    });
+  })
+
+  // Handle a disconnected RemoteParticipant.
+  room.on('participantDisconnected', participant => {
+    getTracks(participant).forEach(track => {
+      track.detach().forEach(element => {
+        element.remove();
+      });
+    });
+  });
 
   // Disconnect from the Room on page unload.
   window.onbeforeunload = function() {
