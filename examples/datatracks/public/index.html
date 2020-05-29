@@ -24,7 +24,6 @@
             <div class="collapse dont-collapse-sm d-md-block" id="collapseSnippet">
               <pre id="shown-snippet" class="language-javascript"></pre>
             </div>
-            NOTE : Open a new window to connect another participant
           </div>
         </div>
       </div>
@@ -33,32 +32,30 @@
           <div class="col-sm-6">
             <div class="card">
               <div class="card-block">
-                <h4 class="card-title">P1 LocalParticipant</h4>
+                <h4 class="card-title">P1</h4>
                 <div id="p1-video-preview"></div>
                 <input id="p1-connectordisconnect" type="submit" class="btn btn-primary btn-block" value="Connect to Room">
+                <div id="p1-chat-log" class="card-block">
+
+                </div>
+                <form name="message" action="">
+                  <input name="usermsg" type="text" id="p1usermsg" placeholder="Message"/>
+                  <button type="submit" class="btn btn-primary">Submit</button>
+              </form>
               </div>
             </div>
           </div>
           <div class="col-sm-6">
             <div class="card">
               <div class="card-block">
-                <h4 class="card-title">P2 RemoteParticipant</h4>
+                <h4 class="card-title">P2</h4>
                 <div id="p2-video-preview"></div>
                 <input id="p2-connectordisconnect" type="submit" class="btn btn-primary btn-block" value="Connect to Room">
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-sm-12">
-            <div class="card">
-              <div class="card-block">
-                <h4 class="card-title">Chat Box</h4>
-                <div id="chat-log" class="card-block">
+                <div id="p2-chat-log" class="card-block">
 
                 </div>
                 <form name="message" action="">
-                  <input name="usermsg" type="text" id="usermsg" placeholder="Message"/>
+                  <input name="usermsg" type="text" id="p2usermsg" placeholder="Message"/>
                   <button type="submit" class="btn btn-primary">Submit</button>
               </form>
               </div>

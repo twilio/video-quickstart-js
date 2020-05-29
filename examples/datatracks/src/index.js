@@ -12,27 +12,29 @@ const P1Video = document.getElementById('p1-video-preview');
 const P2Video = document.getElementById('p2-video-preview');
 
 const roomName = "room1"
-let room = null;
-let localTracks = null;
+let roomP1 = null;
+let roomP2 = null;
+
+let newDataTrack;
 
 /*
  * Connect to or disconnect the Participant with media from the Room.
  */
-function connectToOrDisconnectFromRoom(event, id, localVideoDiv, remoteVideoDiv) {
+function connectToOrDisconnectFromRoom(event, id, room) {
   event.preventDefault();
-  return room ? disconnectFromRoom(id, localVideoDiv, remoteVideoDiv) : connectToRoom(id, localVideoDiv, remoteVideoDiv);
+  return room ? disconnectFromRoom(id, room) : connectToRoom(id, room);
 }
 
 /**
  * Connect the Participant with localVideoDiv to the Room.
  */
-async function connectToRoom(id, localVideoDiv, remoteVideoDiv) {
+async function connectToRoom(id, room) {
   const creds = await getRoomCredentials();
 
   room = await Video.connect(
     creds.token,
     { name: roomName,
-      tracks: localTracks,
+      tracks: [newDataTrack],
     }
   )
 
@@ -42,7 +44,7 @@ async function connectToRoom(id, localVideoDiv, remoteVideoDiv) {
 /**
  * Disconnect the Participant with media from the Room.
  */
-function disconnectFromRoom(id) {
+function disconnectFromRoom(id, room) {
   room.disconnect();
   room = null;
 
@@ -69,39 +71,31 @@ function getTracks(participant) {
   pre.innerHTML = Prism.highlight(snippet, Prism.languages.javascript);
 
   // Create tracks.
-  const newDataTrack = Video.LocalDataTrack();
-  const audioAndVideoTrack = await Video.createLocalTracks();
-
-  localTracks = audioAndVideoTrack.concat(newDataTrack);
+  newDataTrack = Video.LocalDataTrack();
 
   // Connect P1
-  P1Connect.addEventListener('click', event => connectToOrDisconnectFromRoom(event, P1Connect, P1Video, P2Video));
-
-  // OPEN A NEW WINDOW
-
-  // Connect P2 
-  P2Connect.addEventListener('click', event => connectToOrDisconnectFromRoom(event, P2Connect, P2Video, P1Video));
+  P1Connect.addEventListener('click', event => connectToOrDisconnectFromRoom(event, P1Connect, roomP1));
 
   // Attach tracks to DOM
 
-  // Subscribe to the media published by RemoteParticipants already in the Room.
-  room.participants.forEach(participant => {
+  // P1 Subscribe to tracks published by remoteParticipants
+  roomP1.participants.forEach(participant => {
     participant.tracks.forEach(publication => {
       publication.on('subscribed', track => {
-        /*WHICHDIVGOESHERE*/.appendChild(track.attach());
+        P2Video.appendChild(track.attach());
       });
     });
   });
 
-    // Subscribe to the media published by RemoteParticipants joining the Room later
-  room.on('participantConnected', participant => {
+    // P1 Subscribe to tracks published by remoteParticipants who join in the future
+  roomP1.on('participantConnected', participant => {
     participant.on('trackSubscribed', track => {
-      /*WHICHDIVGOESHERE*/.appendChild(track.attach());
+      P2Video.appendChild(track.attach());
     });
   })
 
-  // Handle a disconnected RemoteParticipant.
-  room.on('participantDisconnected', participant => {
+  // P1 to handle disconnected RemoteParticipants.
+  roomP1.on('participantDisconnected', participant => {
     getTracks(participant).forEach(track => {
       track.detach().forEach(element => {
         element.remove();
@@ -109,12 +103,42 @@ function getTracks(participant) {
     });
   });
 
+  // Connect P2
+  P2Connect.addEventListener('click', event => connectToOrDisconnectFromRoom(event, P2Connect, roomP2));
+
+  // P2 Subscribe to tracks published by remoteParticipants
+  roomP2.participants.forEach(participant => {
+    participant.tracks.forEach(publication => {
+      publication.on('subscribed', track => {
+        P1Video.appendChild(track.attach());
+      });
+    });
+  });
+
+    // P2 Subscribe to tracks published by remoteParticipants who join in the future
+  roomP2.on('participantConnected', participant => {
+    participant.on('trackSubscribed', track => {
+      P1Video.appendChild(track.attach());
+    });
+  })
+
+  // P2 to handle disconnected RemoteParticipants.
+  roomP2.on('participantDisconnected', participant => {
+    getTracks(participant).forEach(track => {
+      track.detach().forEach(element => {
+        element.remove();
+      });
+    });
+  });
+
+
+
   // Disconnect from the Room on page unload.
-  window.onbeforeunload = function() {
-    if (room) {
-      room.disconnect();
-      room = null;
-    }
-    room.disconnect();
-  };
+  // window.onbeforeunload = function() {
+  //   if (room) {
+  //     room.disconnect();
+  //     room = null;
+  //   }
+  //   room.disconnect();
+  // };
 }());
