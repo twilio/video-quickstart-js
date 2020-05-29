@@ -3,15 +3,14 @@
 var Video = require('twilio-video');
 
 // publish
-function publishDataTrackOnConnect (token, roomName) {
-  const localDataTrack = new Video.localDataTrack();
+async function connectToRoomWithDataTrack (token) {
+  const localDataTrack = new Video.LocalDataTrack();
 
-  const room = await connect(token, {
-    name: roomName,
+  const room = await Video.connect(token, {
     tracks: [localDataTrack]
   });
 
-  console.log(`Connected to room "${room.name}"!`)
+  return room;
 }
 
 // subscribe
@@ -61,7 +60,7 @@ function receiveData (participant) {
 }
 
 
-exports.publishDataTrackOnConnect = publishDataTrackOnConnect;
+exports.connectToRoomWithDataTrack = connectToRoomWithDataTrack;
 exports.localSendData = localSendData;
 exports.subscribeDataTrack = subscribeDataTrack;
 exports.sendData = sendData;

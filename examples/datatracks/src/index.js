@@ -15,9 +15,7 @@ const p2ChatLog = document.getElementById('p2-usermsg');
 const roomName = "room1"
 let roomP1 = null;
 let roomP2 = null;
-// let room = null;
-
-let newDataTrack;
+let newDataTrack = null;
 
 /*
  * Connect to or disconnect the Participant with media from the Room.
@@ -73,7 +71,7 @@ function getTracks(participant) {
   pre.innerHTML = Prism.highlight(snippet, Prism.languages.javascript);
 
   // Create new Data track.
-  newDataTrack = Video.LocalDataTrack();
+  newDataTrack = new Video.LocalDataTrack();
 
   // Connect P1
   P1Connect.addEventListener('click', event => connectToOrDisconnectFromRoom(event, P1Connect, roomP1));
@@ -132,8 +130,6 @@ function getTracks(participant) {
       });
     });
   });
-
-
 
   // Disconnect from the Room on page unload.
   window.onbeforeunload = function() {
