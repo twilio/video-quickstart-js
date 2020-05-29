@@ -15,6 +15,15 @@ function publishDataTrackOnConnect (token, roomName) {
 }
 
 // subscribe
+function subscribeDataTrack (room, dataDiv) {
+  room.participants.forEach(participant => {
+    participant.tracks.forEach(publication => {
+      publication.on('subscribed', track => {
+        dataDiv.appendChild(track.attach());
+      });
+    });
+  });
+}
 
 // send
 function sendData (room, message) {
@@ -43,10 +52,9 @@ function sendData (room, message) {
 // receive
 function receiveData (participant) {
   participant.on('trackSubscribed', track => {
-    console.log(`Participant "${participant.identity}" added ${track.kind} Track ${track.sid}`);
     if (track.kind === 'data') {
       track.on('message', data => {
-        console.log(data);
+        console.log('data received', data);
       });
     }
   });
@@ -55,5 +63,6 @@ function receiveData (participant) {
 
 exports.publishDataTrackOnConnect = publishDataTrackOnConnect;
 exports.localSendData = localSendData;
+exports.subscribeDataTrack = subscribeDataTrack;
 exports.sendData = sendData;
 exports.receiveData = receiveData;

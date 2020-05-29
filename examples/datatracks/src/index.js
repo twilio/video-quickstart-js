@@ -8,12 +8,14 @@ const helpers = require('./helpers');
 
 const P1Connect = document.querySelector('input#p1-connectordisconnect');
 const P2Connect = document.querySelector('input#p2-connectordisconnect');
-const P1Video = document.getElementById('p1-video-preview');
-const P2Video = document.getElementById('p2-video-preview');
+const p1ChatLog = document.getElementById('p1-usermsg');
+const p2ChatLog = document.getElementById('p2-usermsg');
+
 
 const roomName = "room1"
 let roomP1 = null;
 let roomP2 = null;
+// let room = null;
 
 let newDataTrack;
 
@@ -70,7 +72,7 @@ function getTracks(participant) {
 
   pre.innerHTML = Prism.highlight(snippet, Prism.languages.javascript);
 
-  // Create tracks.
+  // Create new Data track.
   newDataTrack = Video.LocalDataTrack();
 
   // Connect P1
@@ -82,7 +84,7 @@ function getTracks(participant) {
   roomP1.participants.forEach(participant => {
     participant.tracks.forEach(publication => {
       publication.on('subscribed', track => {
-        P2Video.appendChild(track.attach());
+        p1ChatLog.appendChild(track.attach());
       });
     });
   });
@@ -90,7 +92,7 @@ function getTracks(participant) {
     // P1 Subscribe to tracks published by remoteParticipants who join in the future
   roomP1.on('participantConnected', participant => {
     participant.on('trackSubscribed', track => {
-      P2Video.appendChild(track.attach());
+      p1ChatLog.appendChild(track.attach());
     });
   })
 
@@ -110,7 +112,7 @@ function getTracks(participant) {
   roomP2.participants.forEach(participant => {
     participant.tracks.forEach(publication => {
       publication.on('subscribed', track => {
-        P1Video.appendChild(track.attach());
+        p2ChatLog.appendChild(track.attach());
       });
     });
   });
@@ -118,7 +120,7 @@ function getTracks(participant) {
     // P2 Subscribe to tracks published by remoteParticipants who join in the future
   roomP2.on('participantConnected', participant => {
     participant.on('trackSubscribed', track => {
-      P1Video.appendChild(track.attach());
+      p2ChatLog.appendChild(track.attach());
     });
   })
 
@@ -134,11 +136,14 @@ function getTracks(participant) {
 
 
   // Disconnect from the Room on page unload.
-  // window.onbeforeunload = function() {
-  //   if (room) {
-  //     room.disconnect();
-  //     room = null;
-  //   }
-  //   room.disconnect();
-  // };
+  window.onbeforeunload = function() {
+    if (roomP1) {
+      roomP1.disconnect();
+      roomP1 = null;
+    }
+    if (roomP2) {
+      roomP2.disconnect();
+      roomP2 = null;
+    }
+  };
 }());
