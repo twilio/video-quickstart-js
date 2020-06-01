@@ -20,18 +20,18 @@ let newDataTrack = null;
 /*
  * Connect to or disconnect the Participant with media from the Room.
  */
-function connectToOrDisconnectFromRoom(event, id, room) {
+async function connectToOrDisconnectFromRoom(event, id, room) {
   event.preventDefault();
-  return room ? disconnectFromRoom(id, room) : connectToRoom(id, room);
+  return room ? disconnectFromRoom(id, room) : await connectToRoom(id);
 }
 
 /**
  * Connect the Participant with localVideoDiv to the Room.
  */
-async function connectToRoom(id, room) {
+async function connectToRoom(id) {
   const creds = await getRoomCredentials();
 
-  room = await Video.connect(
+  const room = await Video.connect(
     creds.token,
     { name: roomName,
       tracks: [newDataTrack],
@@ -39,6 +39,7 @@ async function connectToRoom(id, room) {
   )
 
   id.value = 'Disconnect from Room';
+  return room;
 }
 
 /**
@@ -46,10 +47,8 @@ async function connectToRoom(id, room) {
  */
 function disconnectFromRoom(id, room) {
   room.disconnect();
-  room = null;
 
   id.value = 'Connect to Room';
-  return;
 }
 
 /**
@@ -74,59 +73,72 @@ function getTracks(participant) {
   newDataTrack = new Video.LocalDataTrack();
 
   // Connect P1
-  P1Connect.addEventListener('click', event => connectToOrDisconnectFromRoom(event, P1Connect, roomP1));
+  P1Connect.addEventListener('click', async event => {
+    roomP1 = await connectToOrDisconnectFromRoom(event, P1Connect, roomP1);
 
-  // Attach tracks to DOM
-
-  // P1 Subscribe to tracks published by remoteParticipants
-  roomP1.participants.forEach(participant => {
-    participant.tracks.forEach(publication => {
-      publication.on('subscribed', track => {
-        p1ChatLog.appendChild(track.attach());
-      });
-    });
-  });
-
-    // P1 Subscribe to tracks published by remoteParticipants who join in the future
-  roomP1.on('participantConnected', participant => {
-    participant.on('trackSubscribed', track => {
+    // Attach local P1 Data Tracks to DOM
+    getTracks(roomP1.localParticipant).forEach(track => {
       p1ChatLog.appendChild(track.attach());
     });
-  })
 
-  // P1 to handle disconnected RemoteParticipants.
-  roomP1.on('participantDisconnected', participant => {
-    getTracks(participant).forEach(track => {
-      track.detach().forEach(element => {
-        element.remove();
+    // P1 Subscribe to tracks published by remoteParticipants
+    roomP1.participants.forEach(participant => {
+      participant.tracks.forEach(publication => {
+        publication.on('subscribed', track => {
+          p1ChatLog.appendChild(track.attach());
+        });
+      });
+    });
+
+    // P1 Subscribe to tracks published by remoteParticipants who join in the future
+    roomP1.on('participantConnected', participant => {
+      participant.on('trackSubscribed', track => {
+        p1ChatLog.appendChild(track.attach());
+      });
+    })
+
+    // P1 to handle disconnected RemoteParticipants.
+    roomP1.on('participantDisconnected', participant => {
+      getTracks(participant).forEach(track => {
+        track.detach().forEach(element => {
+          element.remove();
+        });
       });
     });
   });
 
-  // Connect P2
-  P2Connect.addEventListener('click', event => connectToOrDisconnectFromRoom(event, P2Connect, roomP2));
 
-  // P2 Subscribe to tracks published by remoteParticipants
-  roomP2.participants.forEach(participant => {
-    participant.tracks.forEach(publication => {
-      publication.on('subscribed', track => {
+  // Connect P2
+  P2Connect.addEventListener('click', async event => {
+    roomP2 = await connectToOrDisconnectFromRoom(event, P2Connect);
+
+    // Attach local Data Tracks to DOM
+    getTracks(roomP2.localParticipant).forEach(track => {
+      p2ChatLog.appendChild(track.attach());
+    });
+
+    // P2 Subscribe to tracks published by remoteParticipants
+    roomP2.participants.forEach(participant => {
+      participant.tracks.forEach(publication => {
+        publication.on('subscribed', track => {
+          p2ChatLog.appendChild(track.attach());
+        });
+      });
+    });
+
+    // P2 Subscribe to tracks published by remoteParticipants who join in the future
+    roomP2.on('participantConnected', participant => {
+      participant.on('trackSubscribed', track => {
         p2ChatLog.appendChild(track.attach());
       });
     });
-  });
 
-    // P2 Subscribe to tracks published by remoteParticipants who join in the future
-  roomP2.on('participantConnected', participant => {
-    participant.on('trackSubscribed', track => {
-      p2ChatLog.appendChild(track.attach());
-    });
-  })
-
-  // P2 to handle disconnected RemoteParticipants.
-  roomP2.on('participantDisconnected', participant => {
-    getTracks(participant).forEach(track => {
-      track.detach().forEach(element => {
-        element.remove();
+    // P2 to handle disconnected RemoteParticipants.
+    roomP2.on('participantDisconnected', participant => {
+      getTracks(participant).forEach(track => {
+        track.detach().forEach(element => {
+          element.remove();
+        });
       });
     });
   });
