@@ -53,6 +53,7 @@ function sendData (room, message) {
 
   dataTrackPublished.promise.then(function(){
     dataTrack.send(message)
+    console.log('message to be sent: ', msg)
   });
 }
 
