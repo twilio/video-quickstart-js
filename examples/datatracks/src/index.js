@@ -4,12 +4,16 @@ const Prism = require('prismjs');
 const Video = require('twilio-video');
 const getSnippet = require('../../util/getsnippet');
 const getRoomCredentials = require('../../util/getroomcredentials');
-const helpers = require('./helpers');
+const {subscribeDataTrack, sendData, receiveData} = require('./helpers');
 
 const P1Connect = document.querySelector('input#p1-connectordisconnect');
 const P2Connect = document.querySelector('input#p2-connectordisconnect');
-const p1ChatLog = document.getElementById('p1-usermsg');
-const p2ChatLog = document.getElementById('p2-usermsg');
+const p1ChatLog = document.getElementById('p1-chat-log');
+const p2ChatLog = document.getElementById('p2-chat-log');
+const p1MsgText = document.getElementById('p1-usermsg');
+const p2MsgText = document.getElementById('p2-usermsg');
+const P1Submit = document.getElementById('P1-msg-submit');
+const P2Submit = document.getElementById('P2-msg-submit');
 
 
 const roomName = "room1"
@@ -82,20 +86,35 @@ function getTracks(participant) {
     });
 
     // P1 Subscribe to tracks published by remoteParticipants
-    roomP1.participants.forEach(participant => {
-      participant.tracks.forEach(publication => {
-        publication.on('subscribed', track => {
-          p1ChatLog.appendChild(track.attach());
-        });
-      });
-    });
+    // roomP1.participants.forEach(participant => {
+    //   participant.tracks.forEach(publication => {
+    //     publication.on('subscribed', track => {
+    //       p1ChatLog.appendChild(track.attach());
+
+    //       if (track.kind === 'data') {
+    //         track.on('message', data => {
+    //           // APPEND MESSAGE TO THE DOM
+    //           console.log(data);
+    //         });
+    //       }
+    //     });
+    //   });
+    // });
+
+    // OR
+    subscribeDataTrack(roomP1, p1ChatLog)
 
     // P1 Subscribe to tracks published by remoteParticipants who join in the future
     roomP1.on('participantConnected', participant => {
       participant.on('trackSubscribed', track => {
+        if (track.kind === 'data') {
+          track.on('message', data => {
+            console.log('P1 received data', data);
+          });
+        }
         p1ChatLog.appendChild(track.attach());
       });
-    })
+    });
 
     // P1 to handle disconnected RemoteParticipants.
     roomP1.on('participantDisconnected', participant => {
@@ -107,6 +126,14 @@ function getTracks(participant) {
     });
   });
 
+  // P1 sends a text message over the Data Track
+  P1Submit.addEventListener('click', () => {
+    const msg = p1MsgText.value
+    console.log('P1 sending', msg)
+    sendData(roomP1, msg);
+  })
+
+  // P1 receives a text message over the Data Track
 
   // Connect P2
   P2Connect.addEventListener('click', async event => {
@@ -118,17 +145,24 @@ function getTracks(participant) {
     });
 
     // P2 Subscribe to tracks published by remoteParticipants
-    roomP2.participants.forEach(participant => {
-      participant.tracks.forEach(publication => {
-        publication.on('subscribed', track => {
-          p2ChatLog.appendChild(track.attach());
-        });
-      });
-    });
+    // roomP2.participants.forEach(participant => {
+    //   participant.tracks.forEach(publication => {
+    //     publication.on('subscribed', track => {
+    //       p2ChatLog.appendChild(track.attach());
+    //     });
+    //   });
+    // });
+    // OR
+    subscribeDataTrack(roomP2, p2ChatLog)
 
     // P2 Subscribe to tracks published by remoteParticipants who join in the future
     roomP2.on('participantConnected', participant => {
       participant.on('trackSubscribed', track => {
+        if (track.kind === 'data') {
+          track.on('message', function(data) {
+            console.log('P2 received data', data);
+          });
+        }
         p2ChatLog.appendChild(track.attach());
       });
     });
@@ -142,6 +176,15 @@ function getTracks(participant) {
       });
     });
   });
+
+  // P2 sends a text message over the Data Track
+  P2Submit.addEventListener('click', () => {
+    const msg = p2MsgText.value
+    console.log('P2 sending ', msg)
+    sendData(roomP2, msg);
+  })
+
+  // P2 receives a text message over the Data Track
 
   // Disconnect from the Room on page unload.
   window.onbeforeunload = function() {

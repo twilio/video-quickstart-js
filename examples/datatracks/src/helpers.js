@@ -15,10 +15,16 @@ async function connectToRoomWithDataTrack (token) {
 
 // subscribe
 function subscribeDataTrack (room, dataDiv) {
-  room.participants.forEach(participant => {
-    participant.tracks.forEach(publication => {
-      publication.on('subscribed', track => {
-        dataDiv.appendChild(track.attach());
+  room.participants.forEach(function(participant) {
+    participant.tracks.forEach(function(publication) {
+      publication.on('subscribed', function(track) {
+        if (track.kind === 'data') {
+          track.on('message', data => {
+            // APPEND MESSAGE TO THE DOM
+            console.log(data)
+          });
+          dataDiv.appendChild(track.attach());
+        }
       });
     });
   });
@@ -28,31 +34,33 @@ function subscribeDataTrack (room, dataDiv) {
 function sendData (room, message) {
   const dataTrackPublished = {};
 
-  dataTrackPublished.promise = new Promise((resolve, reject) => {
+  dataTrackPublished.promise = new Promise(function(resolve, reject) {
     dataTrackPublished.resolve = resolve;
     dataTrackPublished.reject = reject;
   });
 
-  room.localParticipant.on('trackPublished', publication => {
+  room.localParticipant.on('trackPublished', function(publication) {
     if (publication.track === dataTrack) {
       dataTrackPublished.resolve();
     }
   });
 
-  room.localParticipant.on('trackPublicationFailed', (error, track) => {
+  room.localParticipant.on('trackPublicationFailed', function(error, track) {
     if (track === dataTrack) {
       dataTrackPublished.reject(error);
     }
   });
 
-  dataTrackPublished.promise.then(() => dataTrack.send(message));
+  dataTrackPublished.promise.then(function(){
+    dataTrack.send(message)
+  });
 }
 
 // receive
 function receiveData (participant) {
-  participant.on('trackSubscribed', track => {
+  participant.on('trackSubscribed', function(track) {
     if (track.kind === 'data') {
-      track.on('message', data => {
+      track.on('message', function(data) {
         console.log('data received', data);
       });
     }
@@ -61,7 +69,6 @@ function receiveData (participant) {
 
 
 exports.connectToRoomWithDataTrack = connectToRoomWithDataTrack;
-exports.localSendData = localSendData;
 exports.subscribeDataTrack = subscribeDataTrack;
 exports.sendData = sendData;
 exports.receiveData = receiveData;
