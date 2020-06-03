@@ -21,9 +21,9 @@ function subscribeDataTrack (room, dataDiv) {
         if (track.kind === 'data') {
           track.on('message', data => {
             // APPEND MESSAGE TO THE DOM
-            console.log(data)
+            console.log('message received', data);
           });
-          dataDiv.appendChild(track.attach());
+          // dataDiv.appendChild(track.attach());
         }
       });
     });
@@ -32,26 +32,21 @@ function subscribeDataTrack (room, dataDiv) {
 
 // send
 function sendData (room, message) {
-  const dataTrackPublished = {};
+  const dataTrackPublished = new Promise(function (resolve, reject){
+    room.localParticipant.on('trackPublished', function(publication) {
+      if (publication.track === dataTrack) {
+        resolve(dataTrack);
+      }
+    });
 
-  dataTrackPublished.promise = new Promise(function(resolve, reject) {
-    dataTrackPublished.resolve = resolve;
-    dataTrackPublished.reject = reject;
+    room.localParticipant.on('trackPublicationFailed', function(error, track) {
+      if (track === dataTrack) {
+        reject(error);
+      }
+    });
   });
 
-  room.localParticipant.on('trackPublished', function(publication) {
-    if (publication.track === dataTrack) {
-      dataTrackPublished.resolve();
-    }
-  });
-
-  room.localParticipant.on('trackPublicationFailed', function(error, track) {
-    if (track === dataTrack) {
-      dataTrackPublished.reject(error);
-    }
-  });
-
-  dataTrackPublished.promise.then(function(){
+  dataTrackPublished.then(function(dataTrack){
     dataTrack.send(message)
     console.log('message to be sent: ', msg)
   });

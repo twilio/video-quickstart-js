@@ -86,26 +86,18 @@ function getTracks(participant) {
     });
 
     // P1 Subscribe to tracks published by remoteParticipants
-    subscribeDataTrack(roomP1, p1ChatLog)
+    subscribeDataTrack(roomP1, p1ChatLog);
 
     // P1 sends a text message over the Data Track
     P1Submit.addEventListener('click', event => {
       event.preventDefault();
       const msg = p1MsgText.value
-      console.log('P1 sending', msg)
       sendData(roomP1, msg);
     });
 
     // P1 Subscribe to tracks published by remoteParticipants who join in the future
     roomP1.on('participantConnected', participant => {
-      participant.on('trackSubscribed', track => {
-        // P1 receives a text message over the Data Track
-        if (track.kind === 'data') {
-          track.on('message', data => {
-            console.log('P1 received data', data);
-          });
-        }
-      });
+      receiveData(participant);
     });
 
     // P1 to handle disconnected RemoteParticipants.
@@ -118,8 +110,6 @@ function getTracks(participant) {
     });
   });
 
-
-
   // Connect P2
   P2Connect.addEventListener('click', async event => {
     roomP2 = await connectToOrDisconnectFromRoom(event, P2Connect);
@@ -130,25 +120,17 @@ function getTracks(participant) {
     });
 
     // P2 Subscribe to tracks published by remoteParticipants
-    subscribeDataTrack(roomP2, p2ChatLog)
+    subscribeDataTrack(roomP2, p2ChatLog);
 
     // P2 Subscribe to tracks published by remoteParticipants who join in the future
     roomP2.on('participantConnected', participant => {
-      participant.on('trackSubscribed', track => {
-        // P2 receives a text message over the Data Track
-        if (track.kind === 'data') {
-          track.on('message', function(data) {
-            console.log('P2 received data', data);
-          });
-        }
-      });
+      receiveData(participant);
     });
 
     // P2 sends a text message over the Data Track
     P2Submit.addEventListener('click', event => {
       event.preventDefault();
       const msg = p2MsgText.value
-      console.log('P2 sending ', msg)
       sendData(roomP2, msg);
     })
 
@@ -161,7 +143,6 @@ function getTracks(participant) {
       });
     });
   });
-
 
   // Disconnect from the Room on page unload.
   window.onbeforeunload = function() {
