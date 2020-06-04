@@ -14,23 +14,23 @@ async function connectToRoomWithDataTrack (token) {
 }
 
 // subscribe
-function subscribeDataTrack (room, dataDiv) {
+function subscribeDataTrack (room) {
   room.participants.forEach(function(participant) {
     receiveData(participant)
   })
 }
 
 // send
-function dataTrackPromise (room) {
+function getDataTrackPromise (room, dataTrack) {
   return new Promise(function (resolve, reject){
     room.localParticipant.on('trackPublished', function(publication) {
       if (publication.track === dataTrack) {
-        resolve(dataTrack);
+        resolve(publication.track);
       }
     });
 
     room.localParticipant.on('trackPublicationFailed', function(error, track) {
-      if (track === dataTrack) {
+      if (track === dataTrack){
         reject(error);
       }
     });
@@ -38,7 +38,6 @@ function dataTrackPromise (room) {
 }
 
 function sendData(dataTrack, message) {
-  console.log('msg about to be sent', message)
   dataTrack.send(message)
 }
 
@@ -46,7 +45,7 @@ function sendData(dataTrack, message) {
 function receiveData (participant) {
   participant.on('trackSubscribed', function(track) {
     if (track.kind === 'data') {
-      track.on('message received', function(data) {
+      track.on('message', function(data) {
         console.log('data received', data);
       });
     }
@@ -58,4 +57,4 @@ exports.connectToRoomWithDataTrack = connectToRoomWithDataTrack;
 exports.subscribeDataTrack = subscribeDataTrack;
 exports.sendData = sendData;
 exports.receiveData = receiveData;
-exports.dataTrackPromise = dataTrackPromise;
+exports.getDataTrackPromise = getDataTrackPromise;

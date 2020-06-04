@@ -4,7 +4,7 @@ const Prism = require('prismjs');
 const Video = require('twilio-video');
 const getSnippet = require('../../util/getsnippet');
 const getRoomCredentials = require('../../util/getroomcredentials');
-const {subscribeDataTrack, dataTrackPromise, sendData, receiveData} = require('./helpers');
+const {subscribeDataTrack, getDataTrackPromise, sendData, receiveData} = require('./helpers');
 
 const P1Connect = document.querySelector('input#p1-connectordisconnect');
 const P2Connect = document.querySelector('input#p2-connectordisconnect');
@@ -75,6 +75,8 @@ function getTracks(participant) {
 
   // Connect P1
   P1Connect.addEventListener('click', async event => {
+    event.preventDefault();
+
     // Create new Data track.
     const newDataTrack = new Video.LocalDataTrack();
 
@@ -82,7 +84,7 @@ function getTracks(participant) {
     roomP1 = await connectToOrDisconnectFromRoom(event, P1Connect, roomP1, newDataTrack);
 
     // P1 Data Track Promise
-    const dataTrack = dataTrackPromise(roomP1)
+    const dataTrackPromise = getDataTrackPromise(roomP1, newDataTrack);
 
     // Attach local P1 Data Tracks to DOM
     getTracks(roomP1.localParticipant).forEach(track => {
@@ -101,7 +103,7 @@ function getTracks(participant) {
     P1Submit.addEventListener('click', event => {
       event.preventDefault();
       const msg = p1MsgText.value
-      dataTrack.then(() => sendData(dataTrack, msg));
+      dataTrackPromise.then(dataTrack => sendData(dataTrack, msg));
     });
 
     // P1 to handle disconnected RemoteParticipants.
@@ -116,13 +118,15 @@ function getTracks(participant) {
 
   // Connect P2
   P2Connect.addEventListener('click', async event => {
+    event.preventDefault();
+
     // Create new Data track.
     const newDataTrack = new Video.LocalDataTrack();
 
     roomP2 = await connectToOrDisconnectFromRoom(event, P2Connect, roomP2, newDataTrack);
 
     // P2 Data Track Promise
-    const dataTrack = dataTrackPromise(roomP2);
+    const dataTrackPromise = getDataTrackPromise(roomP2, newDataTrack);
 
     // Attach local Data Tracks to DOM
     getTracks(roomP2.localParticipant).forEach(track => {
@@ -141,7 +145,7 @@ function getTracks(participant) {
     P2Submit.addEventListener('click', event => {
       event.preventDefault();
       const msg = p2MsgText.value
-      sendData(dataTrack, msg);
+      dataTrackPromise.then(dataTrack => sendData(dataTrack, msg));
     })
 
     // P2 to handle disconnected RemoteParticipants.
