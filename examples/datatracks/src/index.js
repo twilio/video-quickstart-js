@@ -23,7 +23,7 @@ let roomP2 = null;
 /*
  * Connect to or disconnect the Participant with media from the Room.
  */
-async function connectToOrDisconnectFromRoom(event, id, dataTrack) {
+async function connectToOrDisconnectFromRoom(event, id, room, dataTrack) {
   event.preventDefault();
   return room ? disconnectFromRoom(id, room) : await connectToRoom(id, dataTrack);
 }
@@ -79,7 +79,7 @@ function getTracks(participant) {
     const newDataTrack = new Video.LocalDataTrack();
 
     // Connect P1 to Room
-    roomP1 = await connectToOrDisconnectFromRoom(event, P1Connect, newDataTrack);
+    roomP1 = await connectToOrDisconnectFromRoom(event, P1Connect, roomP1, newDataTrack);
 
     // P1 Data Track Promise
     const dataTrack = dataTrackPromise(roomP1)
@@ -92,16 +92,16 @@ function getTracks(participant) {
     // P1 Subscribe to tracks published by remoteParticipants
     subscribeDataTrack(roomP1, p1ChatLog);
 
+    // P1 Subscribe to tracks published by remoteParticipants who join in the future
+    roomP1.on('participantConnected', participant => {
+      receiveData(participant);
+    });
+
     // P1 sends a text message over the Data Track
     P1Submit.addEventListener('click', event => {
       event.preventDefault();
       const msg = p1MsgText.value
-      sendData(dataTrack, msg);
-    });
-
-    // P1 Subscribe to tracks published by remoteParticipants who join in the future
-    roomP1.on('participantConnected', participant => {
-      receiveData(participant);
+      dataTrack.then(() => sendData(dataTrack, msg));
     });
 
     // P1 to handle disconnected RemoteParticipants.
@@ -119,10 +119,10 @@ function getTracks(participant) {
     // Create new Data track.
     const newDataTrack = new Video.LocalDataTrack();
 
-    roomP2 = await connectToOrDisconnectFromRoom(event, P2Connect, newDataTrack);
+    roomP2 = await connectToOrDisconnectFromRoom(event, P2Connect, roomP2, newDataTrack);
 
     // P2 Data Track Promise
-    const dataTrack = dataTrackPromise(roomP1)
+    const dataTrack = dataTrackPromise(roomP2);
 
     // Attach local Data Tracks to DOM
     getTracks(roomP2.localParticipant).forEach(track => {
