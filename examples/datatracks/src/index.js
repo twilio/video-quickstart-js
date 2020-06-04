@@ -4,7 +4,7 @@ const Prism = require('prismjs');
 const Video = require('twilio-video');
 const getSnippet = require('../../util/getsnippet');
 const getRoomCredentials = require('../../util/getroomcredentials');
-const {subscribeDataTrack, sendData, receiveData} = require('./helpers');
+const {subscribeDataTrack, dataTrackPromise, sendData, receiveData} = require('./helpers');
 
 const P1Connect = document.querySelector('input#p1-connectordisconnect');
 const P2Connect = document.querySelector('input#p2-connectordisconnect');
@@ -19,26 +19,25 @@ const P2Submit = document.getElementById('P2-msg-submit');
 const roomName = "room1"
 let roomP1 = null;
 let roomP2 = null;
-let newDataTrack = null;
 
 /*
  * Connect to or disconnect the Participant with media from the Room.
  */
-async function connectToOrDisconnectFromRoom(event, id, room) {
+async function connectToOrDisconnectFromRoom(event, id, dataTrack) {
   event.preventDefault();
-  return room ? disconnectFromRoom(id, room) : await connectToRoom(id);
+  return room ? disconnectFromRoom(id, room) : await connectToRoom(id, dataTrack);
 }
 
 /**
  * Connect the Participant with localVideoDiv to the Room.
  */
-async function connectToRoom(id) {
+async function connectToRoom(id,dataTrack) {
   const creds = await getRoomCredentials();
 
   const room = await Video.connect(
     creds.token,
     { name: roomName,
-      tracks: [newDataTrack],
+      tracks: [dataTrack],
     }
   )
 
@@ -73,12 +72,17 @@ function getTracks(participant) {
 
   pre.innerHTML = Prism.highlight(snippet, Prism.languages.javascript);
 
-  // Create new Data track.
-  newDataTrack = new Video.LocalDataTrack();
 
   // Connect P1
   P1Connect.addEventListener('click', async event => {
-    roomP1 = await connectToOrDisconnectFromRoom(event, P1Connect, roomP1);
+    // Create new Data track.
+    const newDataTrack = new Video.LocalDataTrack();
+
+    // Connect P1 to Room
+    roomP1 = await connectToOrDisconnectFromRoom(event, P1Connect, newDataTrack);
+
+    // P1 Data Track Promise
+    const dataTrack = dataTrackPromise(roomP1)
 
     // Attach local P1 Data Tracks to DOM
     getTracks(roomP1.localParticipant).forEach(track => {
@@ -92,7 +96,7 @@ function getTracks(participant) {
     P1Submit.addEventListener('click', event => {
       event.preventDefault();
       const msg = p1MsgText.value
-      sendData(roomP1, msg);
+      sendData(dataTrack, msg);
     });
 
     // P1 Subscribe to tracks published by remoteParticipants who join in the future
@@ -112,7 +116,13 @@ function getTracks(participant) {
 
   // Connect P2
   P2Connect.addEventListener('click', async event => {
-    roomP2 = await connectToOrDisconnectFromRoom(event, P2Connect);
+    // Create new Data track.
+    const newDataTrack = new Video.LocalDataTrack();
+
+    roomP2 = await connectToOrDisconnectFromRoom(event, P2Connect, newDataTrack);
+
+    // P2 Data Track Promise
+    const dataTrack = dataTrackPromise(roomP1)
 
     // Attach local Data Tracks to DOM
     getTracks(roomP2.localParticipant).forEach(track => {
@@ -131,7 +141,7 @@ function getTracks(participant) {
     P2Submit.addEventListener('click', event => {
       event.preventDefault();
       const msg = p2MsgText.value
-      sendData(roomP2, msg);
+      sendData(dataTrack, msg);
     })
 
     // P2 to handle disconnected RemoteParticipants.

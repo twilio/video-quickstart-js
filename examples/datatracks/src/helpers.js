@@ -31,8 +31,10 @@ function subscribeDataTrack (room, dataDiv) {
 }
 
 // send
-function sendData (room, message) {
-  const dataTrackPublished = new Promise(function (resolve, reject){
+function dataTrackPromise (room) {
+  const dataTrackPublished = {};
+
+  const dataTrack = new Promise(function (resolve, reject){
     room.localParticipant.on('trackPublished', function(publication) {
       if (publication.track === dataTrack) {
         resolve(dataTrack);
@@ -46,9 +48,12 @@ function sendData (room, message) {
     });
   });
 
-  dataTrackPublished.then(function(dataTrack){
+  return dataTrackPublished;
+}
+
+function sendData(dataTrackPublished, message) {
+  dataTrackPublished.promise.then(function(){
     dataTrack.send(message)
-    console.log('message to be sent: ', msg)
   });
 }
 
@@ -68,3 +73,4 @@ exports.connectToRoomWithDataTrack = connectToRoomWithDataTrack;
 exports.subscribeDataTrack = subscribeDataTrack;
 exports.sendData = sendData;
 exports.receiveData = receiveData;
+exports.dataTrackPromise = dataTrackPromise;
