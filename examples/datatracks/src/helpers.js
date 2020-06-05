@@ -14,9 +14,10 @@ async function connectToRoomWithDataTrack (token) {
 }
 
 // subscribe
-function subscribeDataTrack (room) {
+function subscribeDataTrack (room, onMessageReceived) {
+  console.log('subscribe', room)
   room.participants.forEach(function(participant) {
-    receiveData(participant)
+    receiveData(participant, onMessageReceived)
   })
 }
 
@@ -38,15 +39,15 @@ function getDataTrackPromise (room, dataTrack) {
 }
 
 function sendData(dataTrack, message) {
-  dataTrack.send(message)
+  dataTrack.send(message);
 }
 
 // receive
-function receiveData (participant) {
+function receiveData (participant, onMessageReceived) {
   participant.on('trackSubscribed', function(track) {
     if (track.kind === 'data') {
       track.on('message', function(data) {
-        console.log('data received', data);
+        onMessageReceived(data)
       });
     }
   });

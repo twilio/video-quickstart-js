@@ -65,6 +65,17 @@ function getTracks(participant) {
   });
 }
 
+/**
+ * Creates messages for the chat log
+ */
+function createMessages(fromName, message) {
+  const pElement = document.createElement("p");
+  pElement.className = 'text'
+  pElement.innerText = `${fromName}: ${message}`;
+
+  return pElement
+}
+
 (async function() {
   // Load the code snippet.
   const snippet = await getSnippet('./helpers.js');
@@ -92,17 +103,20 @@ function getTracks(participant) {
     });
 
     // P1 Subscribe to tracks published by remoteParticipants
-    subscribeDataTrack(roomP1, p1ChatLog);
+    subscribeDataTrack(roomP1, createMessages);
 
     // P1 Subscribe to tracks published by remoteParticipants who join in the future
     roomP1.on('participantConnected', participant => {
-      receiveData(participant);
+      receiveData(participant, data => {
+        p1ChatLog.appendChild(createMessages('P2', data));
+      });
     });
 
     // P1 sends a text message over the Data Track
     P1Submit.addEventListener('click', event => {
       event.preventDefault();
       const msg = p1MsgText.value
+      p1ChatLog.appendChild(createMessages('P1', msg))
       dataTrackPromise.then(dataTrack => sendData(dataTrack, msg));
     });
 
@@ -134,17 +148,20 @@ function getTracks(participant) {
     });
 
     // P2 Subscribe to tracks published by remoteParticipants
-    subscribeDataTrack(roomP2, p2ChatLog);
+    subscribeDataTrack(roomP2, createMessages);
 
     // P2 Subscribe to tracks published by remoteParticipants who join in the future
     roomP2.on('participantConnected', participant => {
-      receiveData(participant);
+      receiveData(participant, data => {
+        p2ChatLog.appendChild(createMessages('P1', data))
+      });
     });
 
     // P2 sends a text message over the Data Track
     P2Submit.addEventListener('click', event => {
       event.preventDefault();
       const msg = p2MsgText.value
+      p2ChatLog.appendChild(createMessages('P2', msg));
       dataTrackPromise.then(dataTrack => sendData(dataTrack, msg));
     })
 
