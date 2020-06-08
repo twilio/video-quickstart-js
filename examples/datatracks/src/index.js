@@ -120,11 +120,7 @@ function createMessages(fromName, message) {
 
     // P1 to handle disconnected RemoteParticipants.
     roomP1.on('participantDisconnected', participant => {
-      getTracks(participant).forEach(track => {
-        track.detach().forEach(element => {
-          element.remove();
-        });
-      });
+      appendText('has disconnected')
     });
   });
 
@@ -162,11 +158,7 @@ function createMessages(fromName, message) {
 
     // P2 to handle disconnected RemoteParticipants.
     roomP2.on('participantDisconnected', participant => {
-      getTracks(participant).forEach(track => {
-        track.detach().forEach(element => {
-          element.remove();
-        });
-      });
+      appendText('has disconnected')
     });
   });
 
