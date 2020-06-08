@@ -97,23 +97,21 @@ function createMessages(fromName, message) {
     // P1 Data Track Promise
     const dataTrackPromise = getDataTrackPromise(roomP1, newDataTrack);
 
-    // Attach local P1 Data Tracks to DOM
-    getTracks(roomP1.localParticipant).forEach(track => {
-      p1ChatLog.appendChild(track.attach());
-    });
+    // P1 Subscribe to tracks published by remoteParticipants and append them
+    function appendText (text) {
+      p1ChatLog.appendChild(createMessages('P2', text))
+    }
 
-    // P1 Subscribe to tracks published by remoteParticipants
-    subscribeDataTrack(roomP1, createMessages);
+    subscribeDataTrack(roomP1, appendText);
 
     // P1 Subscribe to tracks published by remoteParticipants who join in the future
     roomP1.on('participantConnected', participant => {
-      receiveData(participant, data => {
-        p1ChatLog.appendChild(createMessages('P2', data));
-      });
+      receiveData(participant, appendText);
     });
 
     // P1 sends a text message over the Data Track
     P1Submit.addEventListener('click', event => {
+      console.log('P1 submit clicked')
       event.preventDefault();
       const msg = p1MsgText.value
       p1ChatLog.appendChild(createMessages('P1', msg))
@@ -142,19 +140,16 @@ function createMessages(fromName, message) {
     // P2 Data Track Promise
     const dataTrackPromise = getDataTrackPromise(roomP2, newDataTrack);
 
-    // Attach local Data Tracks to DOM
-    getTracks(roomP2.localParticipant).forEach(track => {
-      p2ChatLog.appendChild(track.attach());
-    });
+    // P2 Subscribe to tracks published by remoteParticipants and append them
+    function appendText (text) {
+      p2ChatLog.appendChild(createMessages('P1', text))
+    }
 
-    // P2 Subscribe to tracks published by remoteParticipants
-    subscribeDataTrack(roomP2, createMessages);
+    subscribeDataTrack(roomP2, appendText);
 
     // P2 Subscribe to tracks published by remoteParticipants who join in the future
     roomP2.on('participantConnected', participant => {
-      receiveData(participant, data => {
-        p2ChatLog.appendChild(createMessages('P1', data))
-      });
+      receiveData(participant, appendText);
     });
 
     // P2 sends a text message over the Data Track
