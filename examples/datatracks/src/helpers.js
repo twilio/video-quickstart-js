@@ -2,7 +2,11 @@
 
 var Video = require('twilio-video');
 
-// publish
+/**
+ * Connect to a Room with Data Track
+ * @param {string} token - Token for joining the Room
+ * @returns {CancelablePromise<Room>}
+ */
 async function connectToRoomWithDataTrack (token) {
   const localDataTrack = new Video.LocalDataTrack();
 
@@ -13,15 +17,22 @@ async function connectToRoomWithDataTrack (token) {
   return room;
 }
 
-// subscribe
+/**
+ * Subscribing to the remote Data Tracks published to the Room
+ * @param {Room} room - The Room's tracks you're subscribing to
+ * @param {Function} onMessageReceived - Updates UI when a message has been received
+ */
 function subscribeDataTrack (room, onMessageReceived) {
-  console.log('subscribe', room)
   room.participants.forEach(function(participant) {
     receiveData(participant, onMessageReceived)
   })
 }
 
-// send
+/**
+ *  Get a Data Track Promise
+ * @param {Room} room - The Room you're listening to track publications on
+ * @param {DataTrack} dataTrack - The Data Track that you've published
+ */
 function getDataTrackPromise (room, dataTrack) {
   return new Promise(function (resolve, reject){
     room.localParticipant.on('trackPublished', function(publication) {
@@ -38,11 +49,20 @@ function getDataTrackPromise (room, dataTrack) {
   });
 }
 
+/**
+ * Send a message with the Data Track
+ * @param {DataTrack} dataTrack - Data Track to send a message on
+ * @param {string} message - Message to be sent
+ */
 function sendData(dataTrack, message) {
   dataTrack.send(message);
 }
 
-// receive
+/**
+ * Handle receiving a message from Remote Participants
+ * @param {RemoteParticipant} participant - RemoteParticipant that you're getting messages from
+ * @param {Function} onMessageReceived - Updates UI when a message is received
+ */
 function receiveData (participant, onMessageReceived) {
   participant.on('trackSubscribed', function(track) {
     if (track.kind === 'data') {
@@ -52,7 +72,6 @@ function receiveData (participant, onMessageReceived) {
     }
   });
 }
-
 
 exports.connectToRoomWithDataTrack = connectToRoomWithDataTrack;
 exports.subscribeDataTrack = subscribeDataTrack;
