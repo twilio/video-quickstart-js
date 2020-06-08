@@ -12,6 +12,8 @@ const p1ChatLog = document.getElementById('p1-chat-log');
 const p2ChatLog = document.getElementById('p2-chat-log');
 const p1MsgText = document.getElementById('p1-usermsg');
 const p2MsgText = document.getElementById('p2-usermsg');
+const p1Form = document.getElementById('p1-form');
+const p2Form = document.getElementById('p2-form');
 const P1Submit = document.getElementById('P1-msg-submit');
 const P2Submit = document.getElementById('P2-msg-submit');
 
@@ -111,9 +113,10 @@ function createMessages(fromName, message) {
 
     // P1 sends a text message over the Data Track
     P1Submit.addEventListener('click', event => {
-      console.log('P1 submit clicked')
       event.preventDefault();
       const msg = p1MsgText.value
+      p1Form.reset();
+
       p1ChatLog.appendChild(createMessages('P1', msg))
       dataTrackPromise.then(dataTrack => sendData(dataTrack, msg));
     });
@@ -152,6 +155,8 @@ function createMessages(fromName, message) {
     P2Submit.addEventListener('click', event => {
       event.preventDefault();
       const msg = p2MsgText.value
+      p2Form.reset()
+
       p2ChatLog.appendChild(createMessages('P2', msg));
       dataTrackPromise.then(dataTrack => sendData(dataTrack, msg));
     })
