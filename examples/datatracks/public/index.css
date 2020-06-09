@@ -31,13 +31,53 @@ body {
   max-width: fit-content;
 }
 
+.card-title {
+  margin-bottom: 0px;
+}
+
+.chat {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
 div#p1-chat-log,
 div#p2-chat-log {
+  border: 1px solid rgb(59, 59, 59);
   height:120px;
   overflow:scroll;
   overflow-x:hidden;
+  width: 100%;
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
+#p1-usermsg,
+#p2-usermsg {
+  width: 100%;
+}
+
+.btn {
+  display: block;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+button#P1-msg-submit,
+button#P2-msg-submit {
+  width:100%
+}
+
+.col-sm-12 {
+  padding-left: 0%;
+  padding-right: 0%;
+}
+
+form {
+  display: flex;
+  flex-wrap: wrap;
+}
 
 div.container-fluid {
   height: 100%;
@@ -83,33 +123,4 @@ pre.language-javascript a:hover {
   text-align: left;
   padding: 1.5em;
   overflow-y: scroll;
-}
-
-video#screenpreview {
-  margin: auto;
-  background-color: lightgrey !important;
-  background-image: url('https://static0.twilio.com/marketing/bundles/archetype/img/logo-wordmark.svg');
-  background-position: 50%;
-  background-repeat: no-repeat;
-  min-width: 100%;
-  max-width: 100%;
-}
-
-@media (max-width: 900px) {
-  div.col-sm-8, div.col-sm-4 {
-    max-width: 100%;
-    flex: 100%;
-  }
-
-  div.col-sm-8 {
-    height: 40%;
-  }
-
-  div.col-sm-4 {
-    height: 60%;
-  }
-
-  pre.language-javascript {
-    font-size: 12px;
-  }
 }
