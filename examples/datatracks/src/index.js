@@ -25,15 +25,15 @@ let roomP2 = null;
 /*
  * Connect to or disconnect the Participant with media from the Room.
  */
-async function connectToOrDisconnectFromRoom(event, id, room, dataTrack) {
+async function connectToOrDisconnectFromRoom(event, id, room, dataTrack, submitToggle) {
   event.preventDefault();
-  return room ? disconnectFromRoom(id, room) : await connectToRoom(id, dataTrack);
+  return room ? disconnectFromRoom(id, room, submitToggle) : await connectToRoom(id, dataTrack, submitToggle);
 }
 
 /**
  * Connect the Participant with localVideoDiv to the Room.
  */
-async function connectToRoom(id,dataTrack) {
+async function connectToRoom(id, dataTrack, submitToggle) {
   const creds = await getRoomCredentials();
 
   const room = await Video.connect(
@@ -43,6 +43,7 @@ async function connectToRoom(id,dataTrack) {
     }
   )
 
+  submitToggle.disabled = false;
   id.value = 'Disconnect from Room';
   return room;
 }
@@ -50,9 +51,10 @@ async function connectToRoom(id,dataTrack) {
 /**
  * Disconnect the Participant with media from the Room.
  */
-function disconnectFromRoom(id, room) {
+function disconnectFromRoom(id, room, submitToggle) {
   room.disconnect();
 
+  submitToggle.disabled = true;
   id.value = 'Connect to Room';
 }
 
@@ -74,6 +76,9 @@ function createMessages(fromName, message) {
 
   pre.innerHTML = Prism.highlight(snippet, Prism.languages.javascript);
 
+  p1ChatLog.scrollTop = p1ChatLog.scrollHeight;
+  p2ChatLog.scrollTop = p2ChatLog.scrollHeight;
+
   // Disabling Submit buttons until after a Participant connects to a room
   P1Submit.disabled = true;
   P2Submit.disabled = true;
@@ -81,7 +86,6 @@ function createMessages(fromName, message) {
   // Connect P1
   P1Connect.addEventListener('click', async event => {
     event.preventDefault();
-    P1Submit.disabled = false;
 
     // Appends text to DOM
     function appendText (text) {
@@ -92,7 +96,7 @@ function createMessages(fromName, message) {
     const newDataTrack = new Video.LocalDataTrack();
 
     // Connect P1 to Room
-    roomP1 = await connectToOrDisconnectFromRoom(event, P1Connect, roomP1, newDataTrack);
+    roomP1 = await connectToOrDisconnectFromRoom(event, P1Connect, roomP1, newDataTrack, P1Submit);
 
     if(roomP1) {
       // P1 Data Track Promise
@@ -126,7 +130,6 @@ function createMessages(fromName, message) {
   // Connect P2
   P2Connect.addEventListener('click', async event => {
     event.preventDefault();
-    P2Submit.disabled = false;
 
     // Appends text to DOM
     function appendText (text) {
@@ -136,7 +139,7 @@ function createMessages(fromName, message) {
     // Create new Data track.
     const newDataTrack = new Video.LocalDataTrack();
 
-    roomP2 = await connectToOrDisconnectFromRoom(event, P2Connect, roomP2, newDataTrack);
+    roomP2 = await connectToOrDisconnectFromRoom(event, P2Connect, roomP2, newDataTrack, P2Submit);
 
     if(roomP2) {
       // P2 Data Track Promise
