@@ -45,6 +45,7 @@ body {
 div#p1-chat-log,
 div#p2-chat-log {
   border: 1px solid rgb(59, 59, 59);
+  border-radius: 5px 5px 5px 5px;
   height:120px;
   overflow:scroll;
   overflow-x:hidden;
