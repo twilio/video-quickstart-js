@@ -76,9 +76,6 @@ function createMessages(fromName, message) {
 
   pre.innerHTML = Prism.highlight(snippet, Prism.languages.javascript);
 
-  p1ChatLog.scrollTop = p1ChatLog.scrollHeight;
-  p2ChatLog.scrollTop = p2ChatLog.scrollHeight;
-
   // Disabling Submit buttons until after a Participant connects to a room
   P1Submit.disabled = true;
   P2Submit.disabled = true;
@@ -89,7 +86,8 @@ function createMessages(fromName, message) {
 
     // Appends text to DOM
     function appendText (text) {
-      p1ChatLog.appendChild(createMessages('P2', text))
+      p1ChatLog.appendChild(createMessages('P2', text));
+      p1ChatLog.scrollTop = p1ChatLog.scrollHeight;
     }
 
     // Create new Data track.
@@ -118,6 +116,7 @@ function createMessages(fromName, message) {
 
         p1ChatLog.appendChild(createMessages('P1', msg))
         dataTrackPromise.then(dataTrack => sendData(dataTrack, msg));
+        p1ChatLog.scrollTop = p1ChatLog.scrollHeight;
       });
 
       // P1 to handle disconnected RemoteParticipants.
@@ -133,7 +132,8 @@ function createMessages(fromName, message) {
 
     // Appends text to DOM
     function appendText (text) {
-      p2ChatLog.appendChild(createMessages('P1', text))
+      p2ChatLog.appendChild(createMessages('P1', text));
+      p2ChatLog.scrollTop = p2ChatLog.scrollHeight;
     }
 
     // Create new Data track.
@@ -161,6 +161,7 @@ function createMessages(fromName, message) {
 
         p2ChatLog.appendChild(createMessages('P2', msg));
         dataTrackPromise.then(dataTrack => sendData(dataTrack, msg));
+        p2ChatLog.scrollTop = p2ChatLog.scrollHeight;
       })
 
       // P2 to handle disconnected RemoteParticipants.
