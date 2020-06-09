@@ -74,9 +74,14 @@ function createMessages(fromName, message) {
 
   pre.innerHTML = Prism.highlight(snippet, Prism.languages.javascript);
 
+  // Disabling Submit buttons until after a Participant connects to a room
+  P1Submit.disabled = true;
+  P2Submit.disabled = true;
+
   // Connect P1
   P1Connect.addEventListener('click', async event => {
     event.preventDefault();
+    P1Submit.disabled = false;
 
     // Appends text to DOM
     function appendText (text) {
@@ -121,6 +126,7 @@ function createMessages(fromName, message) {
   // Connect P2
   P2Connect.addEventListener('click', async event => {
     event.preventDefault();
+    P2Submit.disabled = false;
 
     // Appends text to DOM
     function appendText (text) {

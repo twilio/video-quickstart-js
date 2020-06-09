@@ -54,6 +54,10 @@ div#p2-chat-log {
   margin-bottom: 10px;
 }
 
+p {
+  margin: unset;
+}
+
 #p1-usermsg,
 #p2-usermsg {
   width: 100%;
