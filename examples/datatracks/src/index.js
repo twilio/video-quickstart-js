@@ -57,17 +57,6 @@ function disconnectFromRoom(id, room) {
 }
 
 /**
- * Get the Tracks of the given Participant.
- */
-function getTracks(participant) {
-  return Array.from(participant.tracks.values()).filter(function(publication) {
-    return publication.track;
-  }).map(function(publication) {
-    return publication.track;
-  });
-}
-
-/**
  * Creates messages for the chat log
  */
 function createMessages(fromName, message) {
@@ -85,10 +74,14 @@ function createMessages(fromName, message) {
 
   pre.innerHTML = Prism.highlight(snippet, Prism.languages.javascript);
 
-
   // Connect P1
   P1Connect.addEventListener('click', async event => {
     event.preventDefault();
+
+    // Appends text to DOM
+    function appendText (text) {
+      p1ChatLog.appendChild(createMessages('P2', text))
+    }
 
     // Create new Data track.
     const newDataTrack = new Video.LocalDataTrack();
@@ -96,75 +89,76 @@ function createMessages(fromName, message) {
     // Connect P1 to Room
     roomP1 = await connectToOrDisconnectFromRoom(event, P1Connect, roomP1, newDataTrack);
 
-    // P1 Data Track Promise
-    const dataTrackPromise = getDataTrackPromise(roomP1, newDataTrack);
+    if(roomP1) {
+      // P1 Data Track Promise
+      const dataTrackPromise = getDataTrackPromise(roomP1, newDataTrack);
 
-    // P1 Subscribe to tracks published by remoteParticipants and append them
-    function appendText (text) {
-      p1ChatLog.appendChild(createMessages('P2', text))
+      // P1 Subscribe to tracks published by remoteParticipants and append them
+      subscribeDataTrack(roomP1, appendText);
+
+      // P1 Subscribe to tracks published by remoteParticipants who join in the future
+      roomP1.on('participantConnected', participant => {
+        receiveData(participant, appendText);
+      });
+
+      // P1 sends a text message over the Data Track
+      P1Submit.addEventListener('click', event => {
+        event.preventDefault();
+        const msg = p1MsgText.value
+        p1Form.reset();
+
+        p1ChatLog.appendChild(createMessages('P1', msg))
+        dataTrackPromise.then(dataTrack => sendData(dataTrack, msg));
+      });
+
+      // P1 to handle disconnected RemoteParticipants.
+      roomP1.on('participantDisconnected', participant => {
+        appendText('has disconnected')
+      });
     }
-
-    subscribeDataTrack(roomP1, appendText);
-
-    // P1 Subscribe to tracks published by remoteParticipants who join in the future
-    roomP1.on('participantConnected', participant => {
-      receiveData(participant, appendText);
-    });
-
-    // P1 sends a text message over the Data Track
-    P1Submit.addEventListener('click', event => {
-      event.preventDefault();
-      const msg = p1MsgText.value
-      p1Form.reset();
-
-      p1ChatLog.appendChild(createMessages('P1', msg))
-      dataTrackPromise.then(dataTrack => sendData(dataTrack, msg));
-    });
-
-    // P1 to handle disconnected RemoteParticipants.
-    roomP1.on('participantDisconnected', participant => {
-      appendText('has disconnected')
-    });
   });
 
   // Connect P2
   P2Connect.addEventListener('click', async event => {
     event.preventDefault();
 
+    // Appends text to DOM
+    function appendText (text) {
+      p2ChatLog.appendChild(createMessages('P1', text))
+    }
+
     // Create new Data track.
     const newDataTrack = new Video.LocalDataTrack();
 
     roomP2 = await connectToOrDisconnectFromRoom(event, P2Connect, roomP2, newDataTrack);
 
-    // P2 Data Track Promise
-    const dataTrackPromise = getDataTrackPromise(roomP2, newDataTrack);
+    if(roomP2) {
+      // P2 Data Track Promise
+      const dataTrackPromise = getDataTrackPromise(roomP2, newDataTrack);
 
-    // P2 Subscribe to tracks published by remoteParticipants and append them
-    function appendText (text) {
-      p2ChatLog.appendChild(createMessages('P1', text))
+      // P2 Subscribe to tracks published by remoteParticipants and append them
+      subscribeDataTrack(roomP2, appendText);
+
+      // P2 Subscribe to tracks published by remoteParticipants who join in the future
+      roomP2.on('participantConnected', participant => {
+        receiveData(participant, appendText);
+      });
+
+      // P2 sends a text message over the Data Track
+      P2Submit.addEventListener('click', event => {
+        event.preventDefault();
+        const msg = p2MsgText.value
+        p2Form.reset()
+
+        p2ChatLog.appendChild(createMessages('P2', msg));
+        dataTrackPromise.then(dataTrack => sendData(dataTrack, msg));
+      })
+
+      // P2 to handle disconnected RemoteParticipants.
+      roomP2.on('participantDisconnected', participant => {
+        appendText('has disconnected')
+      });
     }
-
-    subscribeDataTrack(roomP2, appendText);
-
-    // P2 Subscribe to tracks published by remoteParticipants who join in the future
-    roomP2.on('participantConnected', participant => {
-      receiveData(participant, appendText);
-    });
-
-    // P2 sends a text message over the Data Track
-    P2Submit.addEventListener('click', event => {
-      event.preventDefault();
-      const msg = p2MsgText.value
-      p2Form.reset()
-
-      p2ChatLog.appendChild(createMessages('P2', msg));
-      dataTrackPromise.then(dataTrack => sendData(dataTrack, msg));
-    })
-
-    // P2 to handle disconnected RemoteParticipants.
-    roomP2.on('participantDisconnected', participant => {
-      appendText('has disconnected')
-    });
   });
 
   // Disconnect from the Room on page unload.
