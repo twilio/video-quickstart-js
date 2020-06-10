@@ -4,7 +4,7 @@ const Prism = require('prismjs');
 const Video = require('twilio-video');
 const getSnippet = require('../../util/getsnippet');
 const getRoomCredentials = require('../../util/getroomcredentials');
-const {subscribeDataTrack, getDataTrackPromise, sendData, receiveData} = require('./helpers');
+const {sendChatMessage, receiveChatMessages} = require('./helpers');
 
 const P1Connect = document.querySelector('input#p1-connectordisconnect');
 const P2Connect = document.querySelector('input#p2-connectordisconnect');
@@ -91,21 +91,20 @@ function createMessages(fromName, message) {
     }
 
     // Create new Data track.
-    const newDataTrack = new Video.LocalDataTrack();
+    const newDataTrack = new Video.LocalDataTrack({
+      name: 'chat'
+    });
 
     // Connect P1 to Room
     roomP1 = await connectToOrDisconnectFromRoom(event, P1Connect, roomP1, newDataTrack, P1Submit);
 
     if(roomP1) {
-      // P1 Data Track Promise
-      const dataTrackPromise = getDataTrackPromise(roomP1, newDataTrack);
-
       // P1 Subscribe to tracks published by remoteParticipants and append them
-      subscribeDataTrack(roomP1, appendText);
+      receiveChatMessages(roomP1, appendText)
 
       // P1 Subscribe to tracks published by remoteParticipants who join in the future
       roomP1.on('participantConnected', participant => {
-        receiveData(participant, appendText);
+        receiveChatMessages(roomP1, appendText)
       });
 
       // P1 sends a text message over the Data Track
@@ -115,7 +114,7 @@ function createMessages(fromName, message) {
         p1Form.reset();
 
         p1ChatLog.appendChild(createMessages('P1', msg))
-        dataTrackPromise.then(dataTrack => sendData(dataTrack, msg));
+        sendChatMessage(newDataTrack, msg);
         p1ChatLog.scrollTop = p1ChatLog.scrollHeight;
       });
 
@@ -137,20 +136,19 @@ function createMessages(fromName, message) {
     }
 
     // Create new Data track.
-    const newDataTrack = new Video.LocalDataTrack();
+    const newDataTrack = new Video.LocalDataTrack({
+      name: 'chat'
+    });
 
     roomP2 = await connectToOrDisconnectFromRoom(event, P2Connect, roomP2, newDataTrack, P2Submit);
 
     if(roomP2) {
-      // P2 Data Track Promise
-      const dataTrackPromise = getDataTrackPromise(roomP2, newDataTrack);
-
       // P2 Subscribe to tracks published by remoteParticipants and append them
-      subscribeDataTrack(roomP2, appendText);
+      receiveChatMessages(roomP2, appendText)
 
       // P2 Subscribe to tracks published by remoteParticipants who join in the future
       roomP2.on('participantConnected', participant => {
-        receiveData(participant, appendText);
+        receiveChatMessages(roomP2, appendText)
       });
 
       // P2 sends a text message over the Data Track
@@ -160,7 +158,7 @@ function createMessages(fromName, message) {
         p2Form.reset()
 
         p2ChatLog.appendChild(createMessages('P2', msg));
-        dataTrackPromise.then(dataTrack => sendData(dataTrack, msg));
+        sendChatMessage(newDataTrack, msg);
         p2ChatLog.scrollTop = p2ChatLog.scrollHeight;
       })
 

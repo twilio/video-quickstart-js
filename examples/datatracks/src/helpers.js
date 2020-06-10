@@ -3,14 +3,16 @@
 var Video = require('twilio-video');
 
 /**
- * Connect to a Room with Data Track
- * @param {string} token - Token for joining the Room
+ * Connect to the given Room with a LocalDataTrack.
+ * @param {string} token - AccessToken for joining the Room
  * @returns {CancelablePromise<Room>}
  */
-async function connectToRoomWithDataTrack (token) {
-  const localDataTrack = new Video.LocalDataTrack();
+function connectToRoomWithDataTrack (token) {
+  const localDataTrack = new Video.LocalDataTrack({
+    name: 'chat'
+  });
 
-  const room = await Video.connect(token, {
+  const room = Video.connect(token, {
     tracks: [localDataTrack]
   });
 
@@ -18,63 +20,39 @@ async function connectToRoomWithDataTrack (token) {
 }
 
 /**
- * Subscribing to the remote Data Tracks published to the Room
- * @param {Room} room - The Room's tracks you're subscribing to
- * @param {Function} onMessageReceived - Updates UI when a message has been received
+ * Send a chat message using the given LocalDataTrack.
+ * @param {LocalDataTrack} dataTrack - The {@link LocalDataTrack} to send a message on
+ * @param {string} message - The message to be sent
  */
-function subscribeDataTrack (room, onMessageReceived) {
-  room.participants.forEach(function(participant) {
-    receiveData(participant, onMessageReceived)
-  })
-}
-
-/**
- *  Get a Data Track Promise
- * @param {Room} room - The Room you're listening to track publications on
- * @param {DataTrack} dataTrack - The Data Track that you've published
- */
-function getDataTrackPromise (room, dataTrack) {
-  return new Promise(function (resolve, reject){
-    room.localParticipant.on('trackPublished', function(publication) {
-      if (publication.track === dataTrack) {
-        resolve(publication.track);
-      }
-    });
-
-    room.localParticipant.on('trackPublicationFailed', function(error, track) {
-      if (track === dataTrack){
-        reject(error);
-      }
-    });
-  });
-}
-
-/**
- * Send a message with the Data Track
- * @param {DataTrack} dataTrack - Data Track to send a message on
- * @param {string} message - Message to be sent
- */
-function sendData(dataTrack, message) {
+function sendChatMessage(dataTrack, message) {
   dataTrack.send(message);
 }
 
 /**
- * Handle receiving a message from Remote Participants
- * @param {RemoteParticipant} participant - RemoteParticipant that you're getting messages from
+ * Receive chat messages from RemoteParticipants in the given Room.
+ * @param {Room} room - The Room you are currently in
  * @param {Function} onMessageReceived - Updates UI when a message is received
  */
-function receiveData (participant, onMessageReceived) {
-  participant.on('trackSubscribed', function(track) {
-    if (track.kind === 'data') {
-      track.on('message', function(data) {
-        onMessageReceived(data)
-      });
-    }
+function receiveChatMessages(room, onMessageReceived) {
+  room.participants.forEach(function(participant) {
+    participant.dataTracks.forEach(function (publication) {
+      if (publication.isSubscribed && publication.trackName === 'chat') {
+        publication.track.on('message', function(msg) {
+          onMessageReceived(msg, participant);
+        });
+      }
+    });
+
+    participant.on('trackSubscribed', function(track) {
+      if (track.kind === 'data' && track.name === 'chat') {
+        track.on('message', function(msg) {
+          onMessageReceived(msg, participant);
+        });
+      }
+    });
   });
 }
 
 exports.connectToRoomWithDataTrack = connectToRoomWithDataTrack;
-exports.subscribeDataTrack = subscribeDataTrack;
-exports.sendData = sendData;
-exports.receiveData = receiveData;
-exports.getDataTrackPromise = getDataTrackPromise;
+exports.sendChatMessage = sendChatMessage;
+exports.receiveChatMessages = receiveChatMessages;
