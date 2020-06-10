@@ -23,6 +23,11 @@ body {
   overflow-y: auto;
 }
 
+.btn:focus, .btn:active {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
 .align {
   align-content: flex-start;
 }
