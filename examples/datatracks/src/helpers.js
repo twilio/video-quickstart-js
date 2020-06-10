@@ -7,7 +7,7 @@ var Video = require('twilio-video');
  * @param {string} token - AccessToken for joining the Room
  * @returns {CancelablePromise<Room>}
  */
-function connectToRoomWithDataTrack (token) {
+function connectToRoomWithDataTrack(token) {
   const localDataTrack = new Video.LocalDataTrack({
     name: 'chat'
   });

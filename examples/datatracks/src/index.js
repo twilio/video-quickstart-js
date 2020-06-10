@@ -4,7 +4,7 @@ const Prism = require('prismjs');
 const Video = require('twilio-video');
 const getSnippet = require('../../util/getsnippet');
 const getRoomCredentials = require('../../util/getroomcredentials');
-const {sendChatMessage, receiveChatMessages} = require('./helpers');
+const {sendChatMessage, receiveChatMessages, connectToRoomWithDataTrack} = require('./helpers');
 
 const P1Connect = document.querySelector('input#p1-connectordisconnect');
 const P2Connect = document.querySelector('input#p2-connectordisconnect');
@@ -18,7 +18,7 @@ const P1Submit = document.getElementById('P1-msg-submit');
 const P2Submit = document.getElementById('P2-msg-submit');
 
 
-const roomName = "room1"
+const roomName = "room1";
 let roomP1 = null;
 let roomP2 = null;
 
@@ -36,6 +36,7 @@ async function connectToOrDisconnectFromRoom(event, id, room, dataTrack, submitT
 async function connectToRoom(id, dataTrack, submitToggle) {
   const creds = await getRoomCredentials();
 
+  // const room = connectToRoomWithDataTrack(creds.token)
   const room = await Video.connect(
     creds.token,
     { name: roomName,
@@ -53,7 +54,6 @@ async function connectToRoom(id, dataTrack, submitToggle) {
  */
 function disconnectFromRoom(id, room, submitToggle) {
   room.disconnect();
-
   submitToggle.disabled = true;
   id.value = 'Connect to Room';
 }
@@ -63,10 +63,9 @@ function disconnectFromRoom(id, room, submitToggle) {
  */
 function createMessages(fromName, message) {
   const pElement = document.createElement("p");
-  pElement.className = 'text'
+  pElement.className = 'text';
   pElement.innerText = `${fromName}: ${message}`;
-
-  return pElement
+  return pElement;
 }
 
 (async function() {
@@ -85,7 +84,7 @@ function createMessages(fromName, message) {
     event.preventDefault();
 
     // Appends text to DOM
-    function appendText (text) {
+    function appendText(text) {
       p1ChatLog.appendChild(createMessages('P2', text));
       p1ChatLog.scrollTop = p1ChatLog.scrollHeight;
     }
@@ -100,7 +99,7 @@ function createMessages(fromName, message) {
 
     if(roomP1) {
       // P1 Subscribe to tracks published by remoteParticipants and append them
-      receiveChatMessages(roomP1, appendText)
+      receiveChatMessages(roomP1, appendText);
 
       // P1 Subscribe to tracks published by remoteParticipants who join in the future
       roomP1.on('participantConnected', participant => {
@@ -110,9 +109,8 @@ function createMessages(fromName, message) {
       // P1 sends a text message over the Data Track
       P1Submit.addEventListener('click', event => {
         event.preventDefault();
-        const msg = p1MsgText.value
+        const msg = p1MsgText.value;
         p1Form.reset();
-
         p1ChatLog.appendChild(createMessages('P1', msg))
         sendChatMessage(newDataTrack, msg);
         p1ChatLog.scrollTop = p1ChatLog.scrollHeight;
@@ -120,7 +118,7 @@ function createMessages(fromName, message) {
 
       // P1 to handle disconnected RemoteParticipants.
       roomP1.on('participantDisconnected', participant => {
-        appendText('has disconnected')
+        appendText('has disconnected');
       });
     }
   });
@@ -130,7 +128,7 @@ function createMessages(fromName, message) {
     event.preventDefault();
 
     // Appends text to DOM
-    function appendText (text) {
+    function appendText(text) {
       p2ChatLog.appendChild(createMessages('P1', text));
       p2ChatLog.scrollTop = p2ChatLog.scrollHeight;
     }
@@ -144,7 +142,7 @@ function createMessages(fromName, message) {
 
     if(roomP2) {
       // P2 Subscribe to tracks published by remoteParticipants and append them
-      receiveChatMessages(roomP2, appendText)
+      receiveChatMessages(roomP2, appendText);
 
       // P2 Subscribe to tracks published by remoteParticipants who join in the future
       roomP2.on('participantConnected', participant => {
@@ -154,9 +152,8 @@ function createMessages(fromName, message) {
       // P2 sends a text message over the Data Track
       P2Submit.addEventListener('click', event => {
         event.preventDefault();
-        const msg = p2MsgText.value
-        p2Form.reset()
-
+        const msg = p2MsgText.value;
+        p2Form.reset();
         p2ChatLog.appendChild(createMessages('P2', msg));
         sendChatMessage(newDataTrack, msg);
         p2ChatLog.scrollTop = p2ChatLog.scrollHeight;
@@ -164,7 +161,7 @@ function createMessages(fromName, message) {
 
       // P2 to handle disconnected RemoteParticipants.
       roomP2.on('participantDisconnected', participant => {
-        appendText('has disconnected')
+        appendText('has disconnected');
       });
     }
   });
