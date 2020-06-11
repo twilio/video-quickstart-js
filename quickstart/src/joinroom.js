@@ -1,13 +1,16 @@
 'use strict';
 
 const { connect, createLocalVideoTrack } = require('twilio-video');
-const { isMobile } = require('./browser');
+const { getUrlParams, isMobile } = require('./browser');
 
 const $leave = $('#leave-room');
 const $room = $('#room');
 const $activeParticipant = $('div#active-participant > div.participant.main', $room);
 const $activeVideo = $('video', $activeParticipant);
 const $participants = $('div#participants', $room);
+
+// Get audio video playback option.
+const { avPlaybackOption = 'separate' } = getUrlParams();
 
 // The current active Participant in the Room.
 let activeParticipant = null;
@@ -72,11 +75,14 @@ function setCurrentActiveParticipant(room) {
 function setupParticipantContainer(participant, room) {
   const { identity, sid } = participant;
 
+  const mediaElements = {
+    combined: `<video autoplay ${participant === room.localParticipant ? 'muted' : ''} playsinline style="opacity: 0"></video>`,
+    separate: `<audio autoplay ${participant === room.localParticipant ? 'muted' : ''} style="opacity: 0"></audio>
+<video autoplay muted playsinline style="opacity: 0"></video>`
+  }[avPlaybackOption];
+
   // Add a container for the Participant's media.
-  const $container = $(`<div class="participant" data-identity="${identity}" id="${sid}">
-    <audio autoplay ${participant === room.localParticipant ? 'muted' : ''} style="opacity: 0"></audio>
-    <video autoplay muted playsinline style="opacity: 0"></video>
-  </div>`);
+  const $container = $(`<div class="participant" data-identity="${identity}" id="${sid}">${mediaElements}</div>`);
 
   // Toggle the pinning of the active Participant's video.
   $container.on('click', () => {
@@ -121,8 +127,13 @@ function setVideoPriority(participant, priority) {
  * @param participant - the Participant which published the Track
  */
 function attachTrack(track, participant) {
+  const tagName = {
+    combined: 'video',
+    separate: track.kind
+  }[avPlaybackOption];
+
   // Attach the Participant's Track to the thumbnail.
-  const $media = $(`div#${participant.sid} > ${track.kind}`, $participants);
+  const $media = $(`div#${participant.sid} > ${tagName}`, $participants);
   $media.css('opacity', '');
   track.attach($media.get(0));
 
@@ -140,8 +151,13 @@ function attachTrack(track, participant) {
  * @param participant - the Participant that is publishing the Track
  */
 function detachTrack(track, participant) {
+  const tagName = {
+    combined: 'video',
+    separate: track.kind
+  }[avPlaybackOption];
+
   // Detach the Participant's Track from the thumbnail.
-  const $media = $(`div#${participant.sid} > ${track.kind}`, $participants);
+  const $media = $(`div#${participant.sid} > ${tagName}`, $participants);
   $media.css('opacity', '0');
   track.detach($media.get(0));
 
