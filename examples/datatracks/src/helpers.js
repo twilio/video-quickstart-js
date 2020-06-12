@@ -7,16 +7,17 @@ var Video = require('twilio-video');
  * @param {string} token - AccessToken for joining the Room
  * @returns {CancelablePromise<Room>}
  */
-function connectToRoomWithDataTrack(token) {
+async function connectToRoomWithDataTrack(token, roomName) {
   const localDataTrack = new Video.LocalDataTrack({
     name: 'chat'
   });
 
-  const room = Video.connect(token, {
+  const room = await Video.connect(token, {
+    name: roomName,
     tracks: [localDataTrack]
   });
 
-  return room;
+  return {localDataTrack, room}
 }
 
 /**
@@ -42,14 +43,14 @@ function receiveChatMessages(room, onMessageReceived) {
         });
       }
     });
+  });
 
-    participant.on('trackSubscribed', function(track) {
-      if (track.kind === 'data' && track.name === 'chat') {
-        track.on('message', function(msg) {
-          onMessageReceived(msg, participant);
-        });
-      }
-    });
+  room.on('trackSubscribed', function(track, publication, participant) {
+    if (track.kind === 'data' && track.name === 'chat') {
+      track.on('message', function(msg) {
+        onMessageReceived(msg, participant);
+      });
+    }
   });
 }
 

@@ -17,32 +17,24 @@ const p2Form = document.getElementById('p2-form');
 const P1Submit = document.getElementById('P1-msg-submit');
 const P2Submit = document.getElementById('P2-msg-submit');
 
-
-const roomName = "room1";
+let roomName = undefined;
 let roomP1 = null;
 let roomP2 = null;
 
 /*
  * Connect to or disconnect the Participant with media from the Room.
  */
-async function connectToOrDisconnectFromRoom(event, id, room, dataTrack, submitToggle) {
+async function connectToOrDisconnectFromRoom(event, id, room, submitToggle) {
   event.preventDefault();
-  return room ? disconnectFromRoom(id, room, submitToggle) : await connectToRoom(id, dataTrack, submitToggle);
+  return room ? disconnectFromRoom(id, room, submitToggle) : await connectToRoom(id, submitToggle);
 }
 
 /**
  * Connect the Participant with localVideoDiv to the Room.
  */
-async function connectToRoom(id, dataTrack, submitToggle) {
+async function connectToRoom(id, submitToggle) {
   const creds = await getRoomCredentials();
-
-  // const room = connectToRoomWithDataTrack(creds.token)
-  const room = await Video.connect(
-    creds.token,
-    { name: roomName,
-      tracks: [dataTrack],
-    }
-  )
+  const room = connectToRoomWithDataTrack(creds.token, roomName);
 
   submitToggle.disabled = false;
   id.value = 'Disconnect from Room';
@@ -64,6 +56,7 @@ function disconnectFromRoom(id, room, submitToggle) {
 function createMessages(fromName, message) {
   const pElement = document.createElement("p");
   pElement.className = 'text';
+  pElement.classList.add(`${fromName}`)
   pElement.innerText = `${fromName}: ${message}`;
   return pElement;
 }
@@ -89,22 +82,21 @@ function createMessages(fromName, message) {
       p1ChatLog.scrollTop = p1ChatLog.scrollHeight;
     }
 
-    // Create new Data track.
-    const newDataTrack = new Video.LocalDataTrack({
-      name: 'chat'
-    });
-
     // Connect P1 to Room
-    roomP1 = await connectToOrDisconnectFromRoom(event, P1Connect, roomP1, newDataTrack, P1Submit);
+    const room = await connectToOrDisconnectFromRoom(event, P1Connect, roomP1, P1Submit);
+
+    // Store Data track for future use.
+    const { localDataTrack } = room;
+    roomP1 = room.room;
+
+    if(!roomName) {
+      roomName = roomP1.name;
+      console.log('p1 joined first, roomName', roomName, ' should match ', roomP1.name)
+    }
 
     if(roomP1) {
       // P1 Subscribe to tracks published by remoteParticipants and append them
       receiveChatMessages(roomP1, appendText);
-
-      // P1 Subscribe to tracks published by remoteParticipants who join in the future
-      roomP1.on('participantConnected', participant => {
-        receiveChatMessages(roomP1, appendText)
-      });
 
       // P1 sends a text message over the Data Track
       P1Submit.addEventListener('click', event => {
@@ -112,7 +104,7 @@ function createMessages(fromName, message) {
         const msg = p1MsgText.value;
         p1Form.reset();
         p1ChatLog.appendChild(createMessages('P1', msg))
-        sendChatMessage(newDataTrack, msg);
+        sendChatMessage(localDataTrack, msg);
         p1ChatLog.scrollTop = p1ChatLog.scrollHeight;
       });
 
@@ -133,21 +125,21 @@ function createMessages(fromName, message) {
       p2ChatLog.scrollTop = p2ChatLog.scrollHeight;
     }
 
-    // Create new Data track.
-    const newDataTrack = new Video.LocalDataTrack({
-      name: 'chat'
-    });
+    const room = await connectToOrDisconnectFromRoom(event, P2Connect, roomP2, P2Submit);
 
-    roomP2 = await connectToOrDisconnectFromRoom(event, P2Connect, roomP2, newDataTrack, P2Submit);
+    // Store Data track for future use.
+    const { localDataTrack } = room;
+    roomP2 = room.room;
+
+    if(!roomName) {
+      roomName = roomP2.name;
+      console.log('p2 joined first, roomName', roomName, ' should match ', roomP2.name)
+    }
+    console.log('p2 joined second, roomName', roomName, ' should match ', roomP2.name)
 
     if(roomP2) {
       // P2 Subscribe to tracks published by remoteParticipants and append them
       receiveChatMessages(roomP2, appendText);
-
-      // P2 Subscribe to tracks published by remoteParticipants who join in the future
-      roomP2.on('participantConnected', participant => {
-        receiveChatMessages(roomP2, appendText)
-      });
 
       // P2 sends a text message over the Data Track
       P2Submit.addEventListener('click', event => {
@@ -155,7 +147,7 @@ function createMessages(fromName, message) {
         const msg = p2MsgText.value;
         p2Form.reset();
         p2ChatLog.appendChild(createMessages('P2', msg));
-        sendChatMessage(newDataTrack, msg);
+        sendChatMessage(localDataTrack, msg);
         p2ChatLog.scrollTop = p2ChatLog.scrollHeight;
       })
 
