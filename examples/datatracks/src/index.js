@@ -24,15 +24,15 @@ let roomP2 = null;
 /*
  * Connect to or disconnect the Participant with media from the Room.
  */
-async function connectToOrDisconnectFromRoom(event, id, room, submitToggle) {
+async function connectToOrDisconnectFromRoom(event, id, room, submitToggle, roomName) {
   event.preventDefault();
-  return room ? disconnectFromRoom(id, room, submitToggle) : await connectToRoom(id, submitToggle);
+  return room ? disconnectFromRoom(id, room, submitToggle) : await connectToRoom(id, submitToggle, roomName);
 }
 
 /**
  * Connect the Participant with localVideoDiv to the Room.
  */
-async function connectToRoom(id, submitToggle) {
+async function connectToRoom(id, submitToggle, roomName) {
   const creds = await getRoomCredentials();
   const room = connectToRoomWithDataTrack(creds.token, roomName);
 
@@ -46,8 +46,12 @@ async function connectToRoom(id, submitToggle) {
  */
 function disconnectFromRoom(id, room, submitToggle) {
   room.disconnect();
+
   submitToggle.disabled = true;
+
   id.value = 'Connect to Room';
+  room = null;
+  return room;
 }
 
 /**
@@ -83,15 +87,21 @@ function createMessages(fromName, message) {
     }
 
     // Connect P1 to Room
-    const room = await connectToOrDisconnectFromRoom(event, P1Connect, roomP1, P1Submit);
+    let room = await connectToOrDisconnectFromRoom(event, P1Connect, roomP1, P1Submit, roomName);
+    let localDataTrack = null;
 
-    // Store Data track for future use.
-    const { localDataTrack } = room;
-    roomP1 = room.room;
+    if(room) {
+      roomP1 = room.room;
+      // Store Data track for future use.
+      localDataTrack  = room.localDataTrack;
+    } else {
+      // If no room, remove localDataTrack
+      localDataTrack = null;
+      roomP1 = null;
+    }
 
     if(!roomName) {
-      roomName = roomP1.name;
-      console.log('p1 joined first, roomName', roomName, ' should match ', roomP1.name)
+      roomName = room.room.name;
     }
 
     if(roomP1) {
@@ -119,37 +129,46 @@ function createMessages(fromName, message) {
   P2Connect.addEventListener('click', async event => {
     event.preventDefault();
 
+    // Click Handler
+    function submit(event) {
+      event.preventDefault();
+      const msg = p2MsgText.value;
+      p2Form.reset();
+      p2ChatLog.appendChild(createMessages('P2', msg));
+      sendChatMessage(localDataTrack, msg);
+      p2ChatLog.scrollTop = p2ChatLog.scrollHeight;
+    }
+
     // Appends text to DOM
     function appendText(text) {
       p2ChatLog.appendChild(createMessages('P1', text));
       p2ChatLog.scrollTop = p2ChatLog.scrollHeight;
     }
 
-    const room = await connectToOrDisconnectFromRoom(event, P2Connect, roomP2, P2Submit);
+    let room = await connectToOrDisconnectFromRoom(event, P2Connect, roomP2, P2Submit, roomName);
+    let localDataTrack;
 
-    // Store Data track for future use.
-    const { localDataTrack } = room;
-    roomP2 = room.room;
+    if(room) {
+      roomP2 = room.room;
+      // Store Data track for future use.
+      localDataTrack  = room.localDataTrack;
+    } else {
+      // If no room, remove localDataTrack
+      localDataTrack = null;
+      roomP2 = null;
+      P2Submit.removeEventListener('click', submit);
+    }
 
     if(!roomName) {
-      roomName = roomP2.name;
-      console.log('p2 joined first, roomName', roomName, ' should match ', roomP2.name)
+      roomName = room.room.name;
     }
-    console.log('p2 joined second, roomName', roomName, ' should match ', roomP2.name)
 
     if(roomP2) {
       // P2 Subscribe to tracks published by remoteParticipants and append them
       receiveChatMessages(roomP2, appendText);
 
       // P2 sends a text message over the Data Track
-      P2Submit.addEventListener('click', event => {
-        event.preventDefault();
-        const msg = p2MsgText.value;
-        p2Form.reset();
-        p2ChatLog.appendChild(createMessages('P2', msg));
-        sendChatMessage(localDataTrack, msg);
-        p2ChatLog.scrollTop = p2ChatLog.scrollHeight;
-      })
+      P2Submit.addEventListener('click', submit);
 
       // P2 to handle disconnected RemoteParticipants.
       roomP2.on('participantDisconnected', participant => {
