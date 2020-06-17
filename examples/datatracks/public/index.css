@@ -9,11 +9,11 @@ body {
   height: 100%;
 }
 
-[data-toggle="collapse"].collapsed .if-not-collapsed {
+[data-toggle='collapse'].collapsed .if-not-collapsed {
   display: none;
 }
 
-[data-toggle="collapse"]:not(.collapsed) .if-collapsed {
+[data-toggle='collapse']:not(.collapsed) .if-collapsed {
   display: none;
 }
 
@@ -23,7 +23,8 @@ body {
   overflow-y: auto;
 }
 
-.btn:focus, .btn:active {
+.btn:focus,
+.btn:active {
   outline: none !important;
   box-shadow: none !important;
 }
@@ -52,9 +53,9 @@ div#p1-chat-log,
 div#p2-chat-log {
   border: 1px solid rgb(59, 59, 59);
   border-radius: 5px 5px 5px 5px;
-  height:120px;
-  overflow-y:scroll;
-  overflow-x:hidden;
+  height: 120px;
+  overflow-y: scroll;
+  overflow-x: hidden;
   width: 100%;
   margin-top: 10px;
   margin-bottom: 10px;
@@ -62,6 +63,14 @@ div#p2-chat-log {
 
 p {
   margin: unset;
+}
+
+.P1 {
+  background-color: darkgray;
+}
+
+.P2 {
+  background-color: lightgray;
 }
 
 #p1-usermsg,
@@ -77,7 +86,7 @@ p {
 
 button#P1-msg-submit,
 button#P2-msg-submit {
-  width:100%
+  width: 100%;
 }
 
 .col-sm-12 {
@@ -103,11 +112,12 @@ div.row.thin-gutters {
 }
 
 div.row.thin-gutters > .col,
-div.row.thin-gutters > [class*="col-"] {
+div.row.thin-gutters > [class*='col-'] {
   padding: 8px 8px;
 }
 
-div.col-sm-6, div.col-sm-6 {
+div.col-sm-6,
+div.col-sm-6 {
   max-height: fit-content;
 }
 
