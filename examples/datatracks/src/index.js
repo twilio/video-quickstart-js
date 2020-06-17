@@ -129,10 +129,15 @@ function createMessages(fromName, message) {
         }
       });
 
+      // P1 to announce connected RemoteParticipants
+      roomP1.on('participantConnected', (participant) => {
+        appendText('has connected');
+      });
+
       // P1 Subscribe to tracks published by remoteParticipants and append them
       receiveChatMessages(roomP1, appendText);
 
-      // P1 to handle disconnected RemoteParticipants.
+      // P1 to announce disconnected RemoteParticipants.
       roomP1.on('participantDisconnected', (participant) => {
         appendText('has disconnected');
       });
@@ -186,6 +191,11 @@ function createMessages(fromName, message) {
           P2localDataTrack = publication.track;
           P2Submit.disabled = false;
         }
+      });
+
+      // P2 to announce connected RemoteParticipants
+      roomP2.on('participantConnected', (participant) => {
+        appendText('has connected');
       });
 
       // P2 Subscribe to tracks published by remoteParticipants and append them
