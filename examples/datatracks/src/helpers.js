@@ -35,19 +35,19 @@ function sendChatMessage(dataTrack, message) {
  * @param {Function} onMessageReceived - Updates UI when a message is received
  */
 function receiveChatMessages(room, onMessageReceived) {
-  room.participants.forEach(function (participant) {
-    participant.dataTracks.forEach(function (publication) {
+  room.participants.forEach(function(participant) {
+    participant.dataTracks.forEach(function(publication) {
       if (publication.isSubscribed && publication.trackName === 'chat') {
-        publication.track.on('message', function (msg) {
+        publication.track.on('message', function(msg) {
           onMessageReceived(msg, participant);
         });
       }
     });
   });
 
-  room.on('trackSubscribed', function (track, publication, participant) {
+  room.on('trackSubscribed', function(track, publication, participant) {
     if (track.kind === 'data' && track.name === 'chat') {
-      track.on('message', function (msg) {
+      track.on('message', function(msg) {
         onMessageReceived(msg, participant);
       });
     }

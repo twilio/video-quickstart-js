@@ -4,6 +4,7 @@ const Prism = require('prismjs');
 const Video = require('twilio-video');
 const getSnippet = require('../../util/getsnippet');
 const getRoomCredentials = require('../../util/getroomcredentials');
+
 const {
   sendChatMessage,
   receiveChatMessages,
@@ -41,7 +42,6 @@ async function connectToOrDisconnectFromRoom(event, id, room, roomName) {
 async function connectToRoom(id, roomName) {
   const creds = await getRoomCredentials();
   const room = await connectToRoomWithDataTrack(creds.token, roomName);
-
   id.value = 'Disconnect from Room';
   return room;
 }
@@ -51,7 +51,6 @@ async function connectToRoom(id, roomName) {
  */
 function disconnectFromRoom(id, room) {
   room.disconnect();
-
   id.value = 'Connect to Room';
   room = null;
   return room;
@@ -68,7 +67,7 @@ function createMessages(fromName, message) {
   return pElement;
 }
 
-(async function () {
+(async function() {
   // Load the code snippet.
   const snippet = await getSnippet('./helpers.js');
   const pre = document.querySelector('pre.language-javascript');
@@ -95,7 +94,7 @@ function createMessages(fromName, message) {
   P1Submit.addEventListener('click', P1SubmitHandler);
 
   // Connect P1
-  P1Connect.addEventListener('click', async (event) => {
+  P1Connect.addEventListener('click', async event => {
     event.preventDefault();
 
     // Appends text to DOM
@@ -122,7 +121,7 @@ function createMessages(fromName, message) {
 
     if (roomP1) {
       // Once the Data Track has been published, set the P1localDataTrack for use
-      roomP1.localParticipant.on('trackPublished', (publication) => {
+      roomP1.localParticipant.on('trackPublished', publication => {
         if (publication.track.kind === 'data') {
           P1localDataTrack = publication.track;
           P1Submit.disabled = false;
@@ -130,7 +129,7 @@ function createMessages(fromName, message) {
       });
 
       // P1 to announce connected RemoteParticipants
-      roomP1.on('participantConnected', (participant) => {
+      roomP1.on('participantConnected', participant => {
         appendText('has connected');
       });
 
@@ -138,7 +137,7 @@ function createMessages(fromName, message) {
       receiveChatMessages(roomP1, appendText);
 
       // P1 to announce disconnected RemoteParticipants.
-      roomP1.on('participantDisconnected', (participant) => {
+      roomP1.on('participantDisconnected', participant => {
         appendText('has disconnected');
       });
     }
@@ -160,7 +159,7 @@ function createMessages(fromName, message) {
   P2Submit.addEventListener('click', P2SubmitHandler);
 
   // Connect P2
-  P2Connect.addEventListener('click', async (event) => {
+  P2Connect.addEventListener('click', async event => {
     event.preventDefault();
 
     // Appends text to DOM
@@ -186,7 +185,7 @@ function createMessages(fromName, message) {
 
     if (roomP2) {
       // Once the Data Track has been published, set the P2localDataTrack for use
-      roomP2.localParticipant.on('trackPublished', (publication) => {
+      roomP2.localParticipant.on('trackPublished', publication => {
         if (publication.track.kind === 'data') {
           P2localDataTrack = publication.track;
           P2Submit.disabled = false;
@@ -194,7 +193,7 @@ function createMessages(fromName, message) {
       });
 
       // P2 to announce connected RemoteParticipants
-      roomP2.on('participantConnected', (participant) => {
+      roomP2.on('participantConnected', participant => {
         appendText('has connected');
       });
 
@@ -202,14 +201,14 @@ function createMessages(fromName, message) {
       receiveChatMessages(roomP2, appendText);
 
       // P2 to handle disconnected RemoteParticipants.
-      roomP2.on('participantDisconnected', (participant) => {
+      roomP2.on('participantDisconnected', participant => {
         appendText('has disconnected');
       });
     }
   });
 
   // Disconnect from the Room on page unload.
-  window.onbeforeunload = function () {
+  window.onbeforeunload = function() {
     if (roomP1) {
       roomP1.disconnect();
       roomP1 = null;
