@@ -95,7 +95,7 @@ function applyVideoInputDeviceSelection(deviceId, video, room) {
 function ensureMediaPermissions() {
   return navigator.mediaDevices.enumerateDevices().then(function(devices) {
     return devices.every(function(device) {
-      return !(device.id && device.label);
+      return !(device.deviceId && device.label);
     });
   }).then(function(shouldAskForMediaPermissions) {
     if (shouldAskForMediaPermissions) {
