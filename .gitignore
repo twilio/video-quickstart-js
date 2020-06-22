@@ -59,6 +59,7 @@ examples/reconnection/public/index.js
 examples/screenshare/public/index.js
 examples/localmediacontrols/public/index.js
 examples/remotereconnection/public/index.js
+examples/datatracks/public/index.js
 
 # The generated helpers.js
 examples/bandwidthconstraints/public/helpers.js
@@ -72,3 +73,4 @@ examples/reconnection/public/helpers.js
 examples/screenshare/public/helpers.js
 examples/localmediacontrols/public/helpers.js
 examples/remotereconnection/public/helpers.js
+examples/datatracks/public/helpers.js

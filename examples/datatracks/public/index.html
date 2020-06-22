@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <title>Enabling and Disabling Tracks</title>
+  <title>Data Tracks</title>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
   <link rel="stylesheet" href="prism.css">
   <link rel="stylesheet" href="index.css">
@@ -15,7 +15,7 @@
         <div class="card">
           <div class="card-block">
             <h4 class="card-title">
-              Enabling and Disabling Tracks
+              Data Tracks
             </h4>
             <button class="btn btn-primary collapsed d-md-none" type="button" data-toggle="collapse" data-target="#collapseSnippet" aria-expanded="false" aria-controls="collapseSnippet">
               <span class="if-collapsed">Show Code</span>
@@ -28,36 +28,40 @@
         </div>
       </div>
       <div class="col-sm-6">
-        <div class="card">
-          <div class="card-block">
-            <h4 class="card-title">Local Media Controls</h4>
-            <div id="userControls">
-              <button id="muteAudioBtn" class="btn btn-primary btn-block" >Disable Audio</button>
-              <button id="muteVideoBtn" class="btn btn-primary btn-block" >Disable Video</button>
+        <div class="row">
+          <div class="col-sm-6">
+            <div class="card">
+              <div class="chat card-block">
+                <h4 class="card-title">P1</h4>
+                <input id="p1-connectordisconnect" type="submit" class="btn btn-primary btn-block" value="Connect to Room">
+                <div id="p1-chat-log" class="card-block">
+
+                </div>
+                <form name="message" class="col-sm-12" id="p1-form">
+                  <input name="p1-text" type="text" id="p1-usermsg" placeholder="Message" value=""/>
+                  <button id="P1-msg-submit" type="submit" class="btn btn-primary">Submit</button>
+              </form>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="card">
+              <div class="chat card-block">
+                <h4 class="card-title">P2</h4>
+                <input id="p2-connectordisconnect" type="submit" class="btn btn-primary btn-block" value="Connect to Room">
+                <div id="p2-chat-log" class="card-block">
+
+                </div>
+                <form name="message" class="col-sm-12" id="p2-form">
+                  <input  name="p2-text" type="text" id="p2-usermsg" placeholder="Message" value=""/>
+                  <button id="P2-msg-submit" type="submit" class="btn btn-primary">Submit</button>
+              </form>
+              </div>
             </div>
           </div>
         </div>
-            <div class="card">
-              <div class="card-block">
-                <h4 class="card-title">RemoteParticipant View</h4>
-                <div id="media-container">
-                  <div id="videopreview">
-                  </div>
-                  <div id="audiopreview">
-                    <span>
-                      <i id="activeIcon" class="fas fa-volume-up"></i>
-                    </span>
-                    <span>
-                      <i id="inactiveIcon" class="fas fa-volume-mute"></i>
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-        </div>
       </div>
     </div>
-  </div>
   <script src="index.js"></script>
   <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>

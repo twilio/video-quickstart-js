@@ -1,0 +1,147 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto+Mono:300');
+
+html {
+  height: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  height: 100%;
+}
+
+[data-toggle='collapse'].collapsed .if-not-collapsed {
+  display: none;
+}
+
+[data-toggle='collapse']:not(.collapsed) .if-collapsed {
+  display: none;
+}
+
+.card {
+  border: none;
+  max-height: fit-content;
+  overflow-y: auto;
+}
+
+.btn:focus,
+.btn:active {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.align {
+  align-content: flex-start;
+}
+
+.card-body {
+  width: 640px;
+  max-width: fit-content;
+}
+
+.card-title {
+  margin-bottom: 0px;
+}
+
+.chat {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+div#p1-chat-log,
+div#p2-chat-log {
+  border: 1px solid rgb(59, 59, 59);
+  border-radius: 5px 5px 5px 5px;
+  height: 120px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  width: 100%;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+p {
+  margin: unset;
+}
+
+.P1 {
+  background-color: grey;
+}
+
+.P2 {
+  background-color: lightgrey;
+}
+
+#p1-usermsg,
+#p2-usermsg {
+  width: 100%;
+}
+
+.btn {
+  display: block;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+button#P1-msg-submit,
+button#P2-msg-submit {
+  width: 100%;
+}
+
+.col-sm-12 {
+  padding-left: 0%;
+  padding-right: 0%;
+}
+
+form {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+div.container-fluid {
+  height: 100%;
+}
+
+div.row {
+  height: 100%;
+}
+
+div.row.thin-gutters {
+  margin: 0 2px 0 2px;
+}
+
+div.row.thin-gutters > .col,
+div.row.thin-gutters > [class*='col-'] {
+  padding: 8px 8px;
+}
+
+div.col-sm-6,
+div.col-sm-6 {
+  max-height: fit-content;
+}
+
+pre.language-javascript {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 13px;
+}
+
+pre.language-javascript a {
+  color: aquamarine;
+  text-decoration: underline;
+}
+
+pre.language-javascript a:hover {
+  text-decoration: none;
+}
+
+#chat-log {
+  width: 25em;
+  height: 15em;
+  min-height: 100%;
+  max-height: 100%;
+  margin-top: 3.125em;
+  text-align: left;
+  padding: 1.5em;
+  overflow-y: scroll;
+}

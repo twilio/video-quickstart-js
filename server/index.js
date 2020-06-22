@@ -34,7 +34,8 @@ const app = express();
   'reconnection',
   'screenshare',
   'localmediacontrols',
-  'remotereconnection'
+  'remotereconnection',
+  'datatracks',
 
 ].forEach(example => {
   const examplePath = path.join(__dirname, `../examples/${example}/public`);

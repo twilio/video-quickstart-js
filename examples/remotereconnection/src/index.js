@@ -44,8 +44,8 @@ function getTracks(participant) {
   const credsP1 = await getRoomCredentials();
   const credsP2 = await getRoomCredentials();
 
-    // Create Local Tracks
-    const localTracks = await Video.createLocalTracks();
+  // Create Local Tracks
+  const localTracks = await Video.createLocalTracks();
 
   // Create room instance and name for participants to join.
   const roomP1 = await Video.connect(credsP1.token, {
