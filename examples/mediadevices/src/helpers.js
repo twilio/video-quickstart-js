@@ -51,19 +51,27 @@ function applyAudioOutputDeviceSelection(deviceId, audio) {
  * @param {Room} [room] - The Room, if you have already joined one
  * @returns {Promise<void>}
  */
-function applyAudioInputDeviceSelection(deviceId, audio, room) {
-  return Video.createLocalAudioTrack({
-    deviceId: {
-      exact: deviceId // NOTE: on ios safari - it respects the deviceId only if its exact.
-    }
-  }).then(function(localTrack) {
-    localTrack.attach(audio);
-    if (room) {
-      switchLocalTracks(room, localTrack);
-    }
-  }).catch(function(error) {
-    console.log('applyAudioInputDeviceSelection failed:', error);
-  });
+// function applyAudioInputDeviceSelection(deviceId, audio, room) {
+//   return Video.createLocalAudioTrack({
+//     deviceId: {
+//       exact: deviceId // NOTE: on ios safari - it respects the deviceId only if its exact.
+//     }
+//   }).then(function(localTrack) {
+//     localTrack.attach(audio);
+//     if (room) {
+//       switchLocalTracks(room, localTrack);
+//     }
+//   }).catch(function(error) {
+//     console.log('applyAudioInputDeviceSelection failed:', error);
+//   });
+// }
+
+function applyAudioInputDeviceSelection(localAudioTrack, audio, room) {
+  localAudioTrack.attach(audio);
+  if (room) {
+    switchLocalTracks(room, localTrack);
+  }
+  return;
 }
 
 /**
