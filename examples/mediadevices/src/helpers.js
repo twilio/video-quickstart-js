@@ -69,7 +69,7 @@ function applyAudioOutputDeviceSelection(deviceId, audio) {
 function applyAudioInputDeviceSelection(localAudioTrack, audio, room) {
   localAudioTrack.attach(audio);
   if (room) {
-    switchLocalTracks(room, localTrack);
+    switchLocalTracks(room, localAudioTrack);
   }
   return;
 }

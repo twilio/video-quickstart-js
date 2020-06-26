@@ -1,6 +1,7 @@
 'use strict';
 
 var Prism = require('prismjs');
+const { createLocalAudioTrack } = require('twilio-video');
 var getSnippet = require('../../util/getsnippet');
 var helpers = require('./helpers');
 var waveform = require('../../util/waveform');
@@ -119,8 +120,10 @@ function participantDisconnected(participant) {
   participantDiv.parentNode.removeChild(participantDiv);
 }
 
+let audioTrack;
+
 // reads selected audio input, and updates preview and room to use the device.
-function applyAudioInputDeviceChange(event) {
+async function applyAudioInputDeviceChange(event) {
   var audio = document.querySelector('audio#audioinputpreview');
   var waveformContainer = document.querySelector('div#audioinputwaveform');
   var deviceId = deviceSelections.audioinput.value;
@@ -129,34 +132,63 @@ function applyAudioInputDeviceChange(event) {
     event.stopPropagation();
   }
 
-  someRoom.localParticipant.audioTracks.forEach(publication => {
-    if(!publication.track.isStopped) {
-      console.log('should be false', publication.track.isStopped)
-      publication.track.stop();
-    }
-    console.log('publication.track.isStopped', publication.track.isStopped)
-    publication.track.on('stopped', async () => {
-      const newAudioTrack = await Video.createLocalAudioTrack({
-        deviceId: {
-          exact: deviceId // NOTE: on ios safari - it respects the deviceId only if its exact.
-        }
+  if(audioTrack && !audioTrack.isStopped) {
+    const stopPromise = new Promise(resolve => {
+      audioTrack.on('stopped', () => {
+        resolve();
       });
+    });
+    audioTrack.stop();
 
-      applyAudioInputDeviceSelection(newAudioTrack, audio, someRoom);
-      console.log('some element', audio.srcObject)
-      if (audio.srcObject) {
-        console.log('theennnnn we add waveform garbage');
-        var canvas = waveformContainer.querySelector('canvas');
-        waveform.setStream(audio.srcObject);
-        if (!canvas) {
-          waveformContainer.appendChild(waveform.element);
-        }
+    someRoom.localParticipant.audioTracks.forEach(publication => {
+      console.log('PUBLICATIONTRACK', publication.track)
+      console.log('AUDIOTRACK', audioTrack)
+      if(publication.track === audioTrack) {
+        console.log('yolo swag')
+        publication.unpublish();
       }
-    })
+    });
+
+    await stopPromise;
+  }
+
+  audioTrack =  await createLocalAudioTrack({
+    deviceId: {
+      exact: deviceId // NOTE: on ios safari - it respects the deviceId only if its exact.
+    }
   });
+
+  // applyAudioInputDeviceSelection()
+
+  // someRoom.localParticipant.audioTracks.forEach(publication => {
+  //   if(!publication.track.isStopped) {
+  //     publication.track.stop();
+  //   }
+  //   console.log('publication.track.isStopped', publication.track.isStopped)
+
+  //   publication.track.on('stopped', () => {
+  //     const newAudioTrack =  createLocalAudioTrack({
+  //       deviceId: {
+  //         exact: deviceId // NOTE: on ios safari - it respects the deviceId only if its exact.
+  //       }
+  //     })
+
+  //     applyAudioInputDeviceSelection(newAudioTrack, audio, someRoom);
+  //   })
+
+  //   console.log('some element', audio.srcObject)
+  //   if (audio.srcObject) {
+  //     var canvas = waveformContainer.querySelector('canvas');
+  //     waveform.setStream(audio.srcObject);
+  //     if (!canvas) {
+  //       waveformContainer.appendChild(waveform.element);
+  //     }
+  //   }
+  // });
 
   // return applyAudioInputDeviceSelection(deviceSelections.audioinput.value, audio, someRoom).then(function() {
   //   if (audio.srcObject) {
+  //     console.log('then audio src object', audio.srcObject);
   //     var canvas = waveformContainer.querySelector('canvas');
   //     waveform.setStream(audio.srcObject);
   //     if (!canvas) {
