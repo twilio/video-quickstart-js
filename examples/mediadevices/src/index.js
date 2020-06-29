@@ -141,12 +141,7 @@ async function applyAudioInputDeviceChange(event) {
     audioTrack.stop();
 
     someRoom.localParticipant.audioTracks.forEach(publication => {
-      console.log('PUBLICATIONTRACK', publication.track)
-      console.log('AUDIOTRACK', audioTrack)
-      if(publication.track === audioTrack) {
-        console.log('yolo swag')
-        publication.unpublish();
-      }
+      publication.unpublish();
     });
 
     await stopPromise;
@@ -158,44 +153,15 @@ async function applyAudioInputDeviceChange(event) {
     }
   });
 
-  // applyAudioInputDeviceSelection()
+  applyAudioInputDeviceSelection(audioTrack, audio, someRoom);
 
-  // someRoom.localParticipant.audioTracks.forEach(publication => {
-  //   if(!publication.track.isStopped) {
-  //     publication.track.stop();
-  //   }
-  //   console.log('publication.track.isStopped', publication.track.isStopped)
-
-  //   publication.track.on('stopped', () => {
-  //     const newAudioTrack =  createLocalAudioTrack({
-  //       deviceId: {
-  //         exact: deviceId // NOTE: on ios safari - it respects the deviceId only if its exact.
-  //       }
-  //     })
-
-  //     applyAudioInputDeviceSelection(newAudioTrack, audio, someRoom);
-  //   })
-
-  //   console.log('some element', audio.srcObject)
-  //   if (audio.srcObject) {
-  //     var canvas = waveformContainer.querySelector('canvas');
-  //     waveform.setStream(audio.srcObject);
-  //     if (!canvas) {
-  //       waveformContainer.appendChild(waveform.element);
-  //     }
-  //   }
-  // });
-
-  // return applyAudioInputDeviceSelection(deviceSelections.audioinput.value, audio, someRoom).then(function() {
-  //   if (audio.srcObject) {
-  //     console.log('then audio src object', audio.srcObject);
-  //     var canvas = waveformContainer.querySelector('canvas');
-  //     waveform.setStream(audio.srcObject);
-  //     if (!canvas) {
-  //       waveformContainer.appendChild(waveform.element);
-  //     }
-  //   }
-  // });
+  if (audio.srcObject) {
+    var canvas = waveformContainer.querySelector('canvas');
+    waveform.setStream(audio.srcObject);
+    if (!canvas) {
+      waveformContainer.appendChild(waveform.element);
+    }
+  }
 }
 
 // reads selected video input, and updates preview and room to use the device.
@@ -236,6 +202,10 @@ async function connectOrDisconnectRoom(event) {
 
     const creds = await getRoomCredentials();
     someRoom = await connectWithSelectedDevices(creds.token, deviceSelections.audioinput.value, deviceSelections.videoinput.value);
+    someRoom.localParticipant.audioTracks.forEach(publication => {
+      audioTrack = publication.track;
+    });
+    console.log('audiotrack in connect', audioTrack);
 
     // sync the preview with connected tracks.
     applyVideoInputDeviceChange();
