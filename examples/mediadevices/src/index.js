@@ -140,17 +140,18 @@ async function applyAudioInputDeviceChange(event) {
     });
     audioTrack.stop();
 
-    someRoom.localParticipant.audioTracks.forEach(publication => {
-      publication.unpublish();
-    });
-
     await stopPromise;
   }
+
 
   audioTrack =  await createLocalAudioTrack({
     deviceId: {
       exact: deviceId // NOTE: on ios safari - it respects the deviceId only if its exact.
     }
+  });
+
+  someRoom.localParticipant.audioTracks.forEach(publication => {
+    publication.unpublish();
   });
 
   applyAudioInputDeviceSelection(audioTrack, audio, someRoom);
@@ -205,7 +206,6 @@ async function connectOrDisconnectRoom(event) {
     someRoom.localParticipant.audioTracks.forEach(publication => {
       audioTrack = publication.track;
     });
-    console.log('audiotrack in connect', audioTrack);
 
     // sync the preview with connected tracks.
     applyVideoInputDeviceChange();
