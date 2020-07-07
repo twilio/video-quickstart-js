@@ -2,13 +2,13 @@
 
 const USER_FRIENDLY_ERRORS = {
   NotAllowedError: () => {
-    return 'The user did not give permission to access your media.';
+    return 'The user did not give permission to access to your input device by clicking the "deny" button on the permission dialog, or dismissing the permission dialog, or by going to the browser settings. Please allow the app to access the input device on the browser settings and reload the app.';
   },
   NotFoundError: () => {
-    return 'None of the available media types satisfied the given constraints.';
+    return 'The user has disabled the input device for the browser in the system settings or the user\'s machine does not have such input device connected to it. The user should enable the input device for the browser in the system settings, or have atleast one input device connected.';
   },
   NotReadableError: () => {
-    return 'Could not access your media due to a hardware error.';
+    return 'The browser could not start media capture with the input device. Please close other apps and windows that have reserved the input device and reload the app or restart the browser.';
   },
   OverconstrainedError: error => {
     return error.constraint === 'deviceId'
@@ -18,8 +18,8 @@ const USER_FRIENDLY_ERRORS = {
   },
   TypeError: () => {
     return '<code>navigator.mediaDevices</code> does not exist. If you\'re'
-     + ' sure that your browser supports it, make sure your app is being served'
-     + 'either from <code>localhost</code> or an <code>https</code> domain.';
+     + ' sure that your browser supports it, make sure your app is being served from a secure context, '
+     + 'either <code>localhost</code> or an <code>https</code> domain.';
   }
 };
 
