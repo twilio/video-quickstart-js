@@ -120,7 +120,7 @@ function participantDisconnected(participant) {
 }
 
 // reads selected audio input, and updates preview and room to use the device.
-function applyAudioInputDeviceChange(event) {
+async function applyAudioInputDeviceChange(event) {
   var audio = document.querySelector('audio#audioinputpreview');
   var waveformContainer = document.querySelector('div#audioinputwaveform');
   if (event) {
@@ -128,15 +128,15 @@ function applyAudioInputDeviceChange(event) {
     event.stopPropagation();
   }
 
-  return applyAudioInputDeviceSelection(deviceSelections.audioinput.value, audio, someRoom).then(function() {
-    if (audio.srcObject) {
-      var canvas = waveformContainer.querySelector('canvas');
-      waveform.setStream(audio.srcObject);
-      if (!canvas) {
-        waveformContainer.appendChild(waveform.element);
-      }
+  await applyAudioInputDeviceSelection(deviceSelections.audioinput.value, audio, someRoom);
+
+  if (audio.srcObject) {
+    var canvas = waveformContainer.querySelector('canvas');
+    waveform.setStream(audio.srcObject);
+    if (!canvas) {
+      waveformContainer.appendChild(waveform.element);
     }
-  });
+  }
 }
 
 // reads selected video input, and updates preview and room to use the device.
@@ -224,5 +224,3 @@ window.onbeforeunload = function() {
     someRoom = null;
   }
 };
-
-

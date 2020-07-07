@@ -16,23 +16,6 @@ function getDevicesOfKind(deviceInfos, kind) {
 }
 
 /**
- * Replace the existing LocalAudioTrack or LocalVideoTrack with
- * a new one in the Room.
- * @param {Room} room - The Room you have joined
- * @param {LocalAudioTrack|LocalVideoTrack} track - The LocalTrack you want to switch to
- * @returns {void}
- */
-function switchLocalTracks(room, track) {
-  room.localParticipant.tracks.forEach(function(trackPublication) {
-    if (trackPublication.kind === track.kind) {
-      trackPublication.track.stop();
-      room.localParticipant.unpublishTrack(trackPublication.track);
-    }
-  });
-  room.localParticipant.publishTrack(track);
-}
-
-/**
  * Apply the selected audio output device.
  * @param {string} deviceId
  * @param {HTMLAudioElement} audio
@@ -52,6 +35,14 @@ function applyAudioOutputDeviceSelection(deviceId, audio) {
  * @returns {Promise<void>}
  */
 function applyAudioInputDeviceSelection(deviceId, audio, room) {
+  // Stop and unpublish the existing LocalAudioTrack.
+  if (room) {
+    room.localParticipant.audioTracks.forEach(function(publication) {
+      publication.track.stop();
+      publication.unpublish();
+    });
+  }
+  // Create the new LocalAudioTrack and publish it to the Room.
   return Video.createLocalAudioTrack({
     deviceId: {
       exact: deviceId // NOTE: on ios safari - it respects the deviceId only if its exact.
@@ -59,7 +50,7 @@ function applyAudioInputDeviceSelection(deviceId, audio, room) {
   }).then(function(localTrack) {
     localTrack.attach(audio);
     if (room) {
-      switchLocalTracks(room, localTrack);
+      return room.localParticipant.publishTrack(localTrack);
     }
   }).catch(function(error) {
     console.log('applyAudioInputDeviceSelection failed:', error);
@@ -74,6 +65,14 @@ function applyAudioInputDeviceSelection(deviceId, audio, room) {
  * @returns {Promise<void>}
  */
 function applyVideoInputDeviceSelection(deviceId, video, room) {
+  // Stop and unpublish the existing LocalVideoTrack.
+  if (room) {
+    room.localParticipant.videoTracks.forEach(function(publication) {
+      publication.track.stop();
+      publication.unpublish();
+    });
+  }
+  // Create the new LocalVideoTrack and publish it to the Room.
   return Video.createLocalVideoTrack({
     deviceId: {
       exact: deviceId
@@ -81,7 +80,7 @@ function applyVideoInputDeviceSelection(deviceId, video, room) {
   }).then(function(localTrack) {
     localTrack.attach(video);
     if (room) {
-      switchLocalTracks(room, localTrack);
+      return room.localParticipant.publishTrack(localTrack);
     }
   }).catch(function(error) {
     console.log('applyVideoInputDeviceSelection failed:', error);
