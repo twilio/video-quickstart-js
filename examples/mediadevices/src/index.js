@@ -1,7 +1,6 @@
 'use strict';
 
 var Prism = require('prismjs');
-const { createLocalAudioTrack } = require('twilio-video');
 var getSnippet = require('../../util/getsnippet');
 var helpers = require('./helpers');
 var waveform = require('../../util/waveform');
@@ -120,8 +119,6 @@ function participantDisconnected(participant) {
   participantDiv.parentNode.removeChild(participantDiv);
 }
 
-let audioTrack;
-
 // reads selected audio input, and updates preview and room to use the device.
 async function applyAudioInputDeviceChange(event) {
   var audio = document.querySelector('audio#audioinputpreview');
@@ -132,29 +129,7 @@ async function applyAudioInputDeviceChange(event) {
     event.stopPropagation();
   }
 
-  if(audioTrack && !audioTrack.isStopped) {
-    const stopPromise = new Promise(resolve => {
-      audioTrack.on('stopped', () => {
-        resolve();
-      });
-    });
-    audioTrack.stop();
-
-    await stopPromise;
-  }
-
-
-  audioTrack =  await createLocalAudioTrack({
-    deviceId: {
-      exact: deviceId // NOTE: on ios safari - it respects the deviceId only if its exact.
-    }
-  });
-
-  someRoom.localParticipant.audioTracks.forEach(publication => {
-    publication.unpublish();
-  });
-
-  applyAudioInputDeviceSelection(audioTrack, audio, someRoom);
+  await applyAudioInputDeviceSelection(deviceId, audio, someRoom);
 
   if (audio.srcObject) {
     var canvas = waveformContainer.querySelector('canvas');
@@ -203,9 +178,6 @@ async function connectOrDisconnectRoom(event) {
 
     const creds = await getRoomCredentials();
     someRoom = await connectWithSelectedDevices(creds.token, deviceSelections.audioinput.value, deviceSelections.videoinput.value);
-    someRoom.localParticipant.audioTracks.forEach(publication => {
-      audioTrack = publication.track;
-    });
 
     // sync the preview with connected tracks.
     applyVideoInputDeviceChange();
