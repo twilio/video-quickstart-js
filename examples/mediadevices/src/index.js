@@ -123,13 +123,12 @@ function participantDisconnected(participant) {
 async function applyAudioInputDeviceChange(event) {
   var audio = document.querySelector('audio#audioinputpreview');
   var waveformContainer = document.querySelector('div#audioinputwaveform');
-  var deviceId = deviceSelections.audioinput.value;
   if (event) {
     event.preventDefault();
     event.stopPropagation();
   }
 
-  await applyAudioInputDeviceSelection(deviceId, audio, someRoom);
+  await applyAudioInputDeviceSelection(deviceSelections.audioinput.value, audio, someRoom);
 
   if (audio.srcObject) {
     var canvas = waveformContainer.querySelector('canvas');

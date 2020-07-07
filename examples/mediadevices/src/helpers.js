@@ -72,6 +72,7 @@ function applyVideoInputDeviceSelection(deviceId, video, room) {
       publication.unpublish();
     });
   }
+  // Create the new LocalVideoTrack and publish it to the Room.
   return Video.createLocalVideoTrack({
     deviceId: {
       exact: deviceId
