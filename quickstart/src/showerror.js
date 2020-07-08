@@ -16,6 +16,8 @@ function showError($modal, error) {
     keyboard: false,
     show: true
   });
+
+  $('#show-error-label').html(`${error}`);
 }
 
 module.exports = showError;
