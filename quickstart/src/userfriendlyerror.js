@@ -11,11 +11,11 @@ const USER_FRIENDLY_ERRORS = {
   },
   NotReadableError: () => {
     return '<b>Cause: </b><br>The browser could not start media capture with the input device.<br>'
-    +'<b>Solution: </b><br>Please close other apps and windows that have reserved the input device and reload the app or restart the browser.';
+    +'<br><b>Solution: </b><br>Please close other apps and windows that have reserved the input device and reload the app or restart the browser.';
   },
   OverconstrainedError: error => {
     return error.constraint === 'deviceId'
-      ? '<b>Cause: </b>Your saved microphone or camera is no longer available.<br><b>Solution: </b><br>Please make sure the input device is connected to the machine.'
+      ? '<b>Cause: </b>Your saved microphone or camera is no longer available.<br><br><b>Solution: </b><br>Please make sure the input device is connected to the machine.'
       : 'Could not satisfy the requested media constraints. One of the reasons '
         + 'could be that your saved microphone or camera is no longer available.';
   },
