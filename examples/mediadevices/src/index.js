@@ -10,9 +10,11 @@ var applyVideoInputDeviceSelection = helpers.applyVideoInputDeviceSelection;
 const connectWithSelectedDevices = helpers.connectWithSelectedDevices;
 const connectOrDisconnect = document.querySelector('input#connectordisconnect');
 const getRoomCredentials = require('../../util/getroomcredentials');
+const waveformContainer = document.querySelector('div#audioinputwaveform');
 const mediaContainer = document.getElementById('remote-media');
 const joinRoomBlock = document.querySelector('#joinRoom');
 const roomNameText = document.querySelector('#roomName');
+const canvas = waveformContainer.querySelector('canvas');
 let someRoom = null;
 
 var getDeviceSelectionOptions = helpers.getDeviceSelectionOptions;
@@ -119,20 +121,17 @@ function participantDisconnected(participant) {
   participantDiv.parentNode.removeChild(participantDiv);
 }
 
-// reads selected audio input, and updates preview and room to use the device.
+// // reads selected audio input, and updates preview and room to use the device.
 async function applyAudioInputDeviceChange(event) {
-  var audio = document.querySelector('audio#audioinputpreview');
-  var waveformContainer = document.querySelector('div#audioinputwaveform');
   if (event) {
     event.preventDefault();
     event.stopPropagation();
   }
-
-  await applyAudioInputDeviceSelection(deviceSelections.audioinput.value, audio, someRoom);
-
-  if (audio.srcObject) {
-    var canvas = waveformContainer.querySelector('canvas');
-    waveform.setStream(audio.srcObject);
+  const [localAudioTrackPublication] = Array.from(someRoom.localParticipant.audioTracks.values());
+  if (localAudioTrackPublication) {
+    const localAudioTrack = localAudioTrackPublication.track;
+    await applyAudioInputDeviceSelection(deviceSelections.audioinput.value, localAudioTrack).catch(err => (console.error(err)));
+    waveform.setStream(new MediaStream([localAudioTrack.mediaStreamTrack]));
     if (!canvas) {
       waveformContainer.appendChild(waveform.element);
     }

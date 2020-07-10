@@ -30,30 +30,12 @@ function applyAudioOutputDeviceSelection(deviceId, audio) {
 /**
  * Apply the selected audio input device.
  * @param {string} deviceId
- * @param {HTMLAudioElement} audio
- * @param {Room} [room] - The Room, if you have already joined one
+ * @param {LocalAudioTrack} audioTrack - LocalAudioTrack
  * @returns {Promise<void>}
  */
-function applyAudioInputDeviceSelection(deviceId, audio, room) {
-  // Stop and unpublish the existing LocalAudioTrack.
-  if (room) {
-    room.localParticipant.audioTracks.forEach(function(publication) {
-      publication.track.stop();
-      publication.unpublish();
-    });
-  }
-  // Create the new LocalAudioTrack and publish it to the Room.
-  return Video.createLocalAudioTrack({
-    deviceId: {
-      exact: deviceId // NOTE: on ios safari - it respects the deviceId only if its exact.
-    }
-  }).then(function(localTrack) {
-    localTrack.attach(audio);
-    if (room) {
-      return room.localParticipant.publishTrack(localTrack);
-    }
-  }).catch(function(error) {
-    console.log('applyAudioInputDeviceSelection failed:', error);
+function applyAudioInputDeviceSelection(deviceId, audioTrack) {
+  return audioTrack.restart({ deviceId: deviceId }).catch(function(error) {
+    'LocalAudioTrack restart failed: ', error
   });
 }
 
