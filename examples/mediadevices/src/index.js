@@ -121,16 +121,19 @@ function participantDisconnected(participant) {
 
 // // reads selected audio input, and updates preview and room to use the device.
 async function applyAudioInputDeviceChange(event) {
-  var waveformContainer = document.querySelector('div#audioinputwaveform');
+  const waveformContainer = document.querySelector('div#audioinputwaveform');
+  let localAudioTrackPublication = null;
   if (event) {
     event.preventDefault();
     event.stopPropagation();
   }
-  const [localAudioTrackPublication] = Array.from(someRoom.localParticipant.audioTracks.values());
+  if(someRoom) {
+    [localAudioTrackPublication] = Array.from(someRoom.localParticipant.audioTracks.values());
+  }
   if (localAudioTrackPublication) {
     const localAudioTrack = localAudioTrackPublication.track;
     await applyAudioInputDeviceSelection(deviceSelections.audioinput.value, localAudioTrack).catch(err => (console.error(err)));
-    var canvas = waveformContainer.querySelector('canvas');
+    const canvas = waveformContainer.querySelector('canvas');
     waveform.setStream(new MediaStream([localAudioTrack.mediaStreamTrack]));
     if (!canvas) {
       waveformContainer.appendChild(waveform.element);
@@ -140,9 +143,16 @@ async function applyAudioInputDeviceChange(event) {
 
 // reads selected video input, and updates preview and room to use the device.
 function applyVideoInputDeviceChange(event) {
-  const [localVideoTrackPublication] = Array.from(someRoom.localParticipant.videoTracks.values());
+  let localVideoTrackPublication = null;
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+  if(someRoom) {
+    [localVideoTrackPublication] = Array.from(someRoom.localParticipant.videoTracks.values());
+  }
   try {
-    var video = document.querySelector('video#videoinputpreview');
+    const video = document.querySelector('video#videoinputpreview');
     applyVideoInputDeviceSelection(deviceSelections.videoinput.value, localVideoTrackPublication.track)
       .then(()=> {
         localVideoTrackPublication.track.attach(video)
