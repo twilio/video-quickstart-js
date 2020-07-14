@@ -28,7 +28,7 @@ function selectRoom($modal, error) {
   }
 
   if (error) {
-    $alert.html(getUserFriendlyError(error));
+    $alert.html(`<h6><b>${error.name}</b></h6>${getUserFriendlyError(error)}`);
     $alert.css('display', '');
   } else {
     $alert.css('display', 'none');

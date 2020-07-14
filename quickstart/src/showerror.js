@@ -17,7 +17,9 @@ function showError($modal, error) {
     show: true
   });
 
-  $('#show-error-label').html(`${error}`);
+  $('#show-error-label', $modal).text(`${error.name}${error.message
+    ? `: ${error.message}`
+    : ''}`);
 }
 
 module.exports = showError;
