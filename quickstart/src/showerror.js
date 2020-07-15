@@ -16,6 +16,10 @@ function showError($modal, error) {
     keyboard: false,
     show: true
   });
+
+  $('#show-error-label', $modal).text(`${error.name}${error.message
+    ? `: ${error.message}`
+    : ''}`);
 }
 
 module.exports = showError;
