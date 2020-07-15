@@ -35,7 +35,7 @@ function applyAudioOutputDeviceSelection(deviceId, audio) {
  */
 function applyAudioInputDeviceSelection(deviceId, audioTrack) {
   return audioTrack.restart({ deviceId: deviceId }).catch(function(error) {
-    console.log('LocalAudioTrack restart failed: ', error);
+    console.log('applyAudioInputDeviceSelection failed: ', error);
   });
 }
 
@@ -47,7 +47,7 @@ function applyAudioInputDeviceSelection(deviceId, audioTrack) {
  */
 function applyVideoInputDeviceSelection(deviceId, videoTrack) {
   return videoTrack.restart({ deviceId: deviceId }).catch(function(error) {
-    console.log('LocalVideoTrack restart failed: ', error);
+    console.log('applyVideoInputDeviceSelection failed: ', error);
   });
 }
 
