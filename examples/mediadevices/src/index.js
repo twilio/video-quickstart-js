@@ -13,7 +13,11 @@ const getRoomCredentials = require('../../util/getroomcredentials');
 const mediaContainer = document.getElementById('remote-media');
 const joinRoomBlock = document.querySelector('#joinRoom');
 const roomNameText = document.querySelector('#roomName');
+let audioInputApply = document.getElementById('audioinputapply');
+let videoInputApply = document.getElementById('videoinputapply');
 let someRoom = null;
+let localAudioTrackPublication = null;
+let localVideoTrackPublication = null;
 
 var getDeviceSelectionOptions = helpers.getDeviceSelectionOptions;
 
@@ -122,7 +126,6 @@ function participantDisconnected(participant) {
 // // reads selected audio input, and updates preview and room to use the device.
 async function applyAudioInputDeviceChange(event) {
   const waveformContainer = document.querySelector('div#audioinputwaveform');
-  let localAudioTrackPublication = null;
   if (event) {
     event.preventDefault();
     event.stopPropagation();
@@ -132,24 +135,26 @@ async function applyAudioInputDeviceChange(event) {
   }
   if (localAudioTrackPublication) {
     const localAudioTrack = localAudioTrackPublication.track;
-    await applyAudioInputDeviceSelection(deviceSelections.audioinput.value, localAudioTrack).catch(err => (console.error(err)));
+    audioInputApply.disabled = false;
+    await applyAudioInputDeviceSelection(deviceSelections.audioinput.value, localAudioTrackPublication.track);
     const canvas = waveformContainer.querySelector('canvas');
     waveform.setStream(new MediaStream([localAudioTrack.mediaStreamTrack]));
     if (!canvas) {
       waveformContainer.appendChild(waveform.element);
     }
+    return [localAudioTrackPublication] = Array.from(someRoom.localParticipant.audioTracks.values());
   }
 }
 
 // reads selected video input, and updates preview and room to use the device.
 function applyVideoInputDeviceChange(event) {
-  let localVideoTrackPublication = null;
   if (event) {
     event.preventDefault();
     event.stopPropagation();
   }
   if(someRoom) {
     [localVideoTrackPublication] = Array.from(someRoom.localParticipant.videoTracks.values());
+    videoInputApply.disabled = false;
   }
   try {
     const video = document.querySelector('video#videoinputpreview');
@@ -214,6 +219,10 @@ getSnippet('./helpers.js').then(function(snippet) {
 
 // setup device selections
 updateDeviceSelectionOptions();
+
+// Disable apply buttons if there are no tracks
+audioInputApply.disabled = true;
+videoInputApply.disabled = true;
 
 // Whenever a media device is added or removed, update the list.
 navigator.mediaDevices.ondevicechange = updateDeviceSelectionOptions;
