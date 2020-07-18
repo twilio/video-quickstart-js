@@ -30,25 +30,25 @@ function applyAudioOutputDeviceSelection(deviceId, audio) {
 /**
  * Apply the selected audio input device.
  * @param {string} deviceId
- * @param {LocalAudioTrack} audioTrack - LocalAudioTrack
+ * @param {LocalTrack} Track - LocalAudioTrack or LocalVideoTrack
+ * @param {string} kind - kind of Track
  * @returns {Promise<void>}
  */
-function applyAudioInputDeviceSelection(deviceId, audioTrack) {
-  return audioTrack.restart({ deviceId: deviceId }).catch(function(error) {
-    console.log('applyAudioInputDeviceSelection failed: ', error);
-  });
-}
+function applyInputDeviceSelection(deviceId, localTrack, kind) {
+  if (localTrack) {
+    localTrack.restart({ deviceId:  deviceId })
+    .then(function() {
+      console.log('local track in the promise', localTrack);
+      return localTrack;
+    }).catch(function(error) {
+      console.log('applyInputDeviceSelection failed:', error);
+    });
 
-/**
- * Apply the selected video input device.
- * @param {string} deviceId
- * @param {HTMLVideoElement} videoTrack - LocalVideoTrack
- * @returns {Promise<void>}
- */
-function applyVideoInputDeviceSelection(deviceId, videoTrack) {
-  return videoTrack.restart({ deviceId: deviceId }).catch(function(error) {
-    console.log('applyVideoInputDeviceSelection failed: ', error);
-  });
+    } else {
+    return kind === 'audio'
+      ? Video.createLocalAudioTrack({ deviceId: { exact: deviceId } })
+      : Video.createLocalVideoTrack({ deviceId: { exact: deviceId } });
+  }
 }
 
 /**
@@ -93,22 +93,6 @@ function getDeviceSelectionOptions() {
   });
 }
 
-/**
- * Connects to room using specified input devices
- * @param {string} token
- * @param {string} audioDeviceId
- * @param {string} videoDeviceId
- * @returns {Promise<Room>}
- */
-function connectWithSelectedDevices(token, audioDeviceId, videoDeviceId) {
-  return Video.connect(token, {
-    audio: { deviceId: { exact: audioDeviceId } },
-    video: { deviceId: { exact: videoDeviceId } }
-  });
-}
-
-module.exports.applyAudioInputDeviceSelection = applyAudioInputDeviceSelection;
+module.exports.applyInputDeviceSelection = applyInputDeviceSelection;
 module.exports.applyAudioOutputDeviceSelection = applyAudioOutputDeviceSelection;
-module.exports.applyVideoInputDeviceSelection = applyVideoInputDeviceSelection;
-module.exports.connectWithSelectedDevices = connectWithSelectedDevices;
 module.exports.getDeviceSelectionOptions = getDeviceSelectionOptions;
