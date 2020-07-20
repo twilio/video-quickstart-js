@@ -120,7 +120,7 @@ function participantDisconnected(participant) {
   participantDiv.parentNode.removeChild(participantDiv);
 }
 
-// Reads selected audio input, and updates preview and room to use the device.
+// reads selected audio input, and updates preview and room to use the device.
 async function applyAudioInputDeviceChange(event) {
   const waveformContainer = document.querySelector('div#audioinputwaveform');
   if (event) {
@@ -143,16 +143,12 @@ async function applyVideoInputDeviceChange(event) {
     event.preventDefault();
     event.stopPropagation();
   }
-  try {
-    const video = document.querySelector('video#videoinputpreview');
-    localVideoTrack = await applyInputDeviceSelection(deviceSelections.videoinput.value, localVideoTrack, 'video');
-    localVideoTrack.attach(video);
-    if (event) {
-      event.preventDefault();
-      event.stopPropagation();
-    }
-  } catch (error) {
-    console.log('videoInput apply failed:', error);
+  const video = document.querySelector('video#videoinputpreview');
+  localVideoTrack = await applyInputDeviceSelection(deviceSelections.videoinput.value, localVideoTrack, 'video');
+  localVideoTrack.attach(video);
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
   }
   maybeEnableConnectButton();
   return localVideoTrack;
