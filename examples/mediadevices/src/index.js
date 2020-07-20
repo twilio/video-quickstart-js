@@ -1,16 +1,14 @@
 'use strict';
 
-// var Video = require('twilio-video');
+var Video = require('twilio-video');
 var Prism = require('prismjs');
 var getSnippet = require('../../util/getsnippet');
 var helpers = require('./helpers');
 var waveform = require('../../util/waveform');
 var applyInputDeviceSelection = helpers.applyInputDeviceSelection;
 var applyAudioOutputDeviceSelection = helpers.applyAudioOutputDeviceSelection;
-const connectWithSelectedDevices = helpers.connectWithSelectedDevices;
 const connectOrDisconnect = document.querySelector('input#connectordisconnect');
 const getRoomCredentials = require('../../util/getroomcredentials');
-const Video = require('twilio/lib/rest/Video');
 const mediaContainer = document.getElementById('remote-media');
 const joinRoomBlock = document.querySelector('#joinRoom');
 const roomNameText = document.querySelector('#roomName');
@@ -122,27 +120,18 @@ function participantDisconnected(participant) {
   participantDiv.parentNode.removeChild(participantDiv);
 }
 
-// // reads selected audio input, and updates preview and room to use the device.
+// Reads selected audio input, and updates preview and room to use the device.
 async function applyAudioInputDeviceChange(event) {
   const waveformContainer = document.querySelector('div#audioinputwaveform');
   if (event) {
     event.preventDefault();
     event.stopPropagation();
   }
-  try {
-    if(!localAudioTrack) {
-      localAudioTrack = await applyInputDeviceSelection(deviceSelections.audioinput.value, localAudioTrack, 'audio');
-      console.log('localAudioTrack after apply', localAudioTrack);
-    }
-    await applyInputDeviceSelection(deviceSelections.audioinput.value, localAudioTrack, 'audio');
-    console.log('localAudioTrack exists',localAudioTrack);
-    const canvas = waveformContainer.querySelector('canvas');
-    waveform.setStream(new MediaStream([localAudioTrack.mediaStreamTrack]));
-    if (!canvas) {
-      waveformContainer.appendChild(waveform.element);
-    }
-  } catch (error) {
-    console.log('audioInput apply failed:', error);
+  localAudioTrack = await applyInputDeviceSelection(deviceSelections.audioinput.value, localAudioTrack, 'audio');
+  const canvas = waveformContainer.querySelector('canvas');
+  waveform.setStream(new MediaStream([localAudioTrack.mediaStreamTrack]));
+  if (!canvas) {
+    waveformContainer.appendChild(waveform.element);
   }
   maybeEnableConnectButton();
   return localAudioTrack;
@@ -156,8 +145,8 @@ async function applyVideoInputDeviceChange(event) {
   }
   try {
     const video = document.querySelector('video#videoinputpreview');
-    localVideoTrack = await applyInputDeviceSelection(deviceSelections.videoinput.value, localVideoTrack, 'video').catch(err => (console.error(err)));
-    localVideoTrack.attach(video)
+    localVideoTrack = await applyInputDeviceSelection(deviceSelections.videoinput.value, localVideoTrack, 'video');
+    localVideoTrack.attach(video);
     if (event) {
       event.preventDefault();
       event.stopPropagation();
@@ -165,6 +154,8 @@ async function applyVideoInputDeviceChange(event) {
   } catch (error) {
     console.log('videoInput apply failed:', error);
   }
+  maybeEnableConnectButton();
+  return localVideoTrack;
 }
 
 // reads selected audio output, and updates preview to use the device.
@@ -191,9 +182,10 @@ async function connectOrDisconnectRoom(event) {
     someRoom.disconnect();
     someRoom = null;
   } else {
-
     const creds = await getRoomCredentials();
-    // someRoom = await Video.connect(creds.token, {tracks: [localVideoTrack, Video.LocalAudioTrack]});
+    someRoom = await Video.connect(creds.token, {
+      tracks: [localVideoTrack, localAudioTrack]
+    });
 
     // sync the preview with connected tracks.
     applyVideoInputDeviceChange();

@@ -28,27 +28,22 @@ function applyAudioOutputDeviceSelection(deviceId, audio) {
 }
 
 /**
- * Apply the selected audio input device.
+ * Apply the selected input device.
  * @param {string} deviceId
- * @param {LocalTrack} Track - LocalAudioTrack or LocalVideoTrack
- * @param {string} kind - kind of Track
- * @returns {Promise<void>}
+ * @param {LocalTrack} LocalTrack - LocalAudioTrack or LocalVideoTrack
+ * @param {'audio' | 'video' } kind
+ * @returns {Promise<LocalTrack>} - The created or restarted LocalTrack
  */
 function applyInputDeviceSelection(deviceId, localTrack, kind) {
+  var constraints = { deviceId: { exact: deviceId } };
   if (localTrack) {
-    localTrack.restart({ deviceId:  deviceId })
-    .then(function() {
-      console.log('local track in the promise', localTrack);
+    return localTrack.restart(constraints).then(function() {
       return localTrack;
-    }).catch(function(error) {
-      console.log('applyInputDeviceSelection failed:', error);
     });
-
-    } else {
-    return kind === 'audio'
-      ? Video.createLocalAudioTrack({ deviceId: { exact: deviceId } })
-      : Video.createLocalVideoTrack({ deviceId: { exact: deviceId } });
   }
+  return kind === 'audio'
+    ? Video.createLocalAudioTrack(constraints)
+    : Video.createLocalVideoTrack(constraints);
 }
 
 /**
