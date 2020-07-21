@@ -1,19 +1,20 @@
 'use strict';
 
+var Video = require('twilio-video');
 var Prism = require('prismjs');
 var getSnippet = require('../../util/getsnippet');
 var helpers = require('./helpers');
 var waveform = require('../../util/waveform');
-var applyAudioInputDeviceSelection = helpers.applyAudioInputDeviceSelection;
+var applyInputDeviceSelection = helpers.applyInputDeviceSelection;
 var applyAudioOutputDeviceSelection = helpers.applyAudioOutputDeviceSelection;
-var applyVideoInputDeviceSelection = helpers.applyVideoInputDeviceSelection;
-const connectWithSelectedDevices = helpers.connectWithSelectedDevices;
 const connectOrDisconnect = document.querySelector('input#connectordisconnect');
 const getRoomCredentials = require('../../util/getroomcredentials');
 const mediaContainer = document.getElementById('remote-media');
 const joinRoomBlock = document.querySelector('#joinRoom');
 const roomNameText = document.querySelector('#roomName');
 let someRoom = null;
+let localAudioTrack = null;
+let localVideoTrack = null;
 
 var getDeviceSelectionOptions = helpers.getDeviceSelectionOptions;
 
@@ -121,36 +122,32 @@ function participantDisconnected(participant) {
 
 // reads selected audio input, and updates preview and room to use the device.
 async function applyAudioInputDeviceChange(event) {
-  var audio = document.querySelector('audio#audioinputpreview');
-  var waveformContainer = document.querySelector('div#audioinputwaveform');
+  const waveformContainer = document.querySelector('div#audioinputwaveform');
   if (event) {
     event.preventDefault();
     event.stopPropagation();
   }
-
-  await applyAudioInputDeviceSelection(deviceSelections.audioinput.value, audio, someRoom);
-
-  if (audio.srcObject) {
-    var canvas = waveformContainer.querySelector('canvas');
-    waveform.setStream(audio.srcObject);
-    if (!canvas) {
-      waveformContainer.appendChild(waveform.element);
-    }
+  localAudioTrack = await applyInputDeviceSelection(deviceSelections.audioinput.value, localAudioTrack, 'audio');
+  const canvas = waveformContainer.querySelector('canvas');
+  waveform.setStream(new MediaStream([localAudioTrack.mediaStreamTrack]));
+  if (!canvas) {
+    waveformContainer.appendChild(waveform.element);
   }
+  maybeEnableConnectButton();
+  return localAudioTrack;
 }
 
 // reads selected video input, and updates preview and room to use the device.
-function applyVideoInputDeviceChange(event) {
-  try {
-    var video = document.querySelector('video#videoinputpreview');
-    applyVideoInputDeviceSelection(deviceSelections.videoinput.value, video, someRoom);
-    if (event) {
-      event.preventDefault();
-      event.stopPropagation();
-    }
-  } catch (error) {
-    console.log('videoInput apply failed:', error);
+async function applyVideoInputDeviceChange(event) {
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
   }
+  const video = document.querySelector('video#videoinputpreview');
+  localVideoTrack = await applyInputDeviceSelection(deviceSelections.videoinput.value, localVideoTrack, 'video');
+  localVideoTrack.attach(video);
+  maybeEnableConnectButton();
+  return localVideoTrack;
 }
 
 // reads selected audio output, and updates preview to use the device.
@@ -166,17 +163,21 @@ function applyAudioOutputDeviceChange(event) {
   event.stopPropagation();
 }
 
+function maybeEnableConnectButton() {
+  connectOrDisconnect.disabled = !(localAudioTrack && localVideoTrack);
+}
+
 async function connectOrDisconnectRoom(event) {
-  connectOrDisconnect.disabled = true;
   event.preventDefault();
   event.stopPropagation();
   if (someRoom) {
     someRoom.disconnect();
     someRoom = null;
   } else {
-
     const creds = await getRoomCredentials();
-    someRoom = await connectWithSelectedDevices(creds.token, deviceSelections.audioinput.value, deviceSelections.videoinput.value);
+    someRoom = await Video.connect(creds.token, {
+      tracks: [localVideoTrack, localAudioTrack]
+    });
 
     // sync the preview with connected tracks.
     applyVideoInputDeviceChange();
@@ -200,6 +201,9 @@ getSnippet('./helpers.js').then(function(snippet) {
 
 // setup device selections
 updateDeviceSelectionOptions();
+
+// Check if there are Tracks
+maybeEnableConnectButton();
 
 // Whenever a media device is added or removed, update the list.
 navigator.mediaDevices.ondevicechange = updateDeviceSelectionOptions;

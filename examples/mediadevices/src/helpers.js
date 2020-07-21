@@ -28,63 +28,22 @@ function applyAudioOutputDeviceSelection(deviceId, audio) {
 }
 
 /**
- * Apply the selected audio input device.
+ * Apply the selected input device.
  * @param {string} deviceId
- * @param {HTMLAudioElement} audio
- * @param {Room} [room] - The Room, if you have already joined one
- * @returns {Promise<void>}
+ * @param {?LocalTrack} localTrack - LocalAudioTrack or LocalVideoTrack; if null, a new LocalTrack will be created.
+ * @param {'audio' | 'video'} kind
+ * @returns {Promise<LocalTrack>} - The created or restarted LocalTrack
  */
-function applyAudioInputDeviceSelection(deviceId, audio, room) {
-  // Stop and unpublish the existing LocalAudioTrack.
-  if (room) {
-    room.localParticipant.audioTracks.forEach(function(publication) {
-      publication.track.stop();
-      publication.unpublish();
+function applyInputDeviceSelection(deviceId, localTrack, kind) {
+  var constraints = { deviceId: { exact: deviceId } };
+  if (localTrack) {
+    return localTrack.restart(constraints).then(function() {
+      return localTrack;
     });
   }
-  // Create the new LocalAudioTrack and publish it to the Room.
-  return Video.createLocalAudioTrack({
-    deviceId: {
-      exact: deviceId // NOTE: on ios safari - it respects the deviceId only if its exact.
-    }
-  }).then(function(localTrack) {
-    localTrack.attach(audio);
-    if (room) {
-      return room.localParticipant.publishTrack(localTrack);
-    }
-  }).catch(function(error) {
-    console.log('applyAudioInputDeviceSelection failed:', error);
-  });
-}
-
-/**
- * Apply the selected video input device.
- * @param {string} deviceId
- * @param {HTMLVideoElement} video
- * @param {Room} [room] - The Room, if you have already joined one
- * @returns {Promise<void>}
- */
-function applyVideoInputDeviceSelection(deviceId, video, room) {
-  // Stop and unpublish the existing LocalVideoTrack.
-  if (room) {
-    room.localParticipant.videoTracks.forEach(function(publication) {
-      publication.track.stop();
-      publication.unpublish();
-    });
-  }
-  // Create the new LocalVideoTrack and publish it to the Room.
-  return Video.createLocalVideoTrack({
-    deviceId: {
-      exact: deviceId
-    }
-  }).then(function(localTrack) {
-    localTrack.attach(video);
-    if (room) {
-      return room.localParticipant.publishTrack(localTrack);
-    }
-  }).catch(function(error) {
-    console.log('applyVideoInputDeviceSelection failed:', error);
-  });
+  return kind === 'audio'
+    ? Video.createLocalAudioTrack(constraints)
+    : Video.createLocalVideoTrack(constraints);
 }
 
 /**
@@ -129,22 +88,6 @@ function getDeviceSelectionOptions() {
   });
 }
 
-/**
- * Connects to room using specified input devices
- * @param {string} token
- * @param {string} audioDeviceId
- * @param {string} videoDeviceId
- * @returns {Promise<Room>}
- */
-function connectWithSelectedDevices(token, audioDeviceId, videoDeviceId) {
-  return Video.connect(token, {
-    audio: { deviceId: { exact: audioDeviceId } },
-    video: { deviceId: { exact: videoDeviceId } }
-  });
-}
-
-module.exports.applyAudioInputDeviceSelection = applyAudioInputDeviceSelection;
+module.exports.applyInputDeviceSelection = applyInputDeviceSelection;
 module.exports.applyAudioOutputDeviceSelection = applyAudioOutputDeviceSelection;
-module.exports.applyVideoInputDeviceSelection = applyVideoInputDeviceSelection;
-module.exports.connectWithSelectedDevices = connectWithSelectedDevices;
 module.exports.getDeviceSelectionOptions = getDeviceSelectionOptions;
