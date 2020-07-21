@@ -30,8 +30,8 @@ function applyAudioOutputDeviceSelection(deviceId, audio) {
 /**
  * Apply the selected input device.
  * @param {string} deviceId
- * @param {LocalTrack} LocalTrack - LocalAudioTrack or LocalVideoTrack
- * @param {'audio' | 'video' } kind
+ * @param {?LocalTrack} localTrack - LocalAudioTrack or LocalVideoTrack; if null, a new LocalTrack will be created.
+ * @param {'audio' | 'video'} kind
  * @returns {Promise<LocalTrack>} - The created or restarted LocalTrack
  */
 function applyInputDeviceSelection(deviceId, localTrack, kind) {

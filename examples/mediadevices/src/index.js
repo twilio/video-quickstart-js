@@ -146,10 +146,6 @@ async function applyVideoInputDeviceChange(event) {
   const video = document.querySelector('video#videoinputpreview');
   localVideoTrack = await applyInputDeviceSelection(deviceSelections.videoinput.value, localVideoTrack, 'video');
   localVideoTrack.attach(video);
-  if (event) {
-    event.preventDefault();
-    event.stopPropagation();
-  }
   maybeEnableConnectButton();
   return localVideoTrack;
 }
