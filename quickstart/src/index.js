@@ -36,9 +36,6 @@ const connectOptions = {
   // https://www.twilio.com/console/video/configure
   dominantSpeaker: true,
 
-  // Comment this line to disable verbose logging.
-  logLevel: 'debug',
-
   // Comment this line if you are playing music.
   maxAudioBitrate: 16000,
 
