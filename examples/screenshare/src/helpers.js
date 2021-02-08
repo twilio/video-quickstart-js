@@ -3,13 +3,13 @@
 const Video = require('twilio-video');
 
 /**
- * Create a LocalVideoTrack for your screen. You can then share it
- * with other Participants in the Room.
+ * Create a screen track for your screen. You can then publish it
+ * to other Participants in the Room.
  * @param {number} height - Desired vertical resolution in pixels
  * @param {number} width - Desired horizontal resolution in pixels
- * @returns {Promise<LocalVideoTrack>}
+ * @returns {MediaStream}
  */
-function createScreenTrack(height, width) {
+function createScreenStream(height, width) {
   if (typeof navigator === 'undefined'
     || !navigator.mediaDevices
     || !navigator.mediaDevices.getDisplayMedia) {
@@ -20,9 +20,7 @@ function createScreenTrack(height, width) {
       height: height,
       width: width
     }
-  }).then(function(stream) {
-    return new Video.LocalVideoTrack(stream.getVideoTracks()[0]);
-  });
+  })
 }
 
-exports.createScreenTrack = createScreenTrack;
+exports.createScreenStream = createScreenStream;

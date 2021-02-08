@@ -1,12 +1,15 @@
 'use strict';
 
 const Prism = require('prismjs');
+const Video = require('twilio-video');
 const getSnippet = require('../../util/getsnippet');
+const getRoomCredentials = require('../../util/getroomcredentials');
 const helpers = require('./helpers');
-const createScreenTrack = helpers.createScreenTrack;
+const createScreenStream = helpers.createScreenStream;
 const captureScreen = document.querySelector('button#capturescreen');
 const screenPreview = document.querySelector('video#screenpreview');
 const stopScreenCapture = document.querySelector('button#stopscreencapture');
+const remoteScreenPreview = document.querySelector('video.remote-screenpreview');
 
 (async function() {
   // Load the code snippet.
@@ -14,19 +17,51 @@ const stopScreenCapture = document.querySelector('button#stopscreencapture');
   const pre = document.querySelector('pre.language-javascript');
   pre.innerHTML = Prism.highlight(snippet, Prism.languages.javascript);
 
+  const logger = Video.Logger.getLogger('twilio-video');
+  logger.setLevel('silent');
+
+  // Connect Local Participant (screen-sharer) to a room
+  const localCreds = await getRoomCredentials();
+  const roomLocal = await Video.connect(localCreds.token, {
+    tracks: []
+  });
+
+  // Connect Remote Participant (screen-viewer) to the room
+  const remoteCreds = await getRoomCredentials();
+  const roomRemote = await Video.connect(remoteCreds.token, {
+    name: roomLocal.name,
+    tracks: []
+  });
+
   // Hide the "Stop Capture Screen" button.
   stopScreenCapture.style.display = 'none';
 
   // The LocalVideoTrack for your screen.
+  let screenStream;
   let screenTrack;
+  let localScreenTrack;
 
   captureScreen.onclick = async function() {
     try {
       // Create and preview your local screen.
-      screenTrack = await createScreenTrack(720, 1280);
-      screenTrack.attach(screenPreview);
+      screenStream = await createScreenStream(720, 1280);
+      screenTrack = await screenStream.getTracks()[0];
+
+      // Publish screen track to room
+      await roomLocal.localParticipant.publishTrack(screenTrack, {
+        priority: 'low',
+      }).then (trackPublication => {
+        localScreenTrack = trackPublication.track;
+        trackPublication.track.attach(screenPreview);
+      });
+
       // Show the "Capture Screen" button after screen capture stops.
-      screenTrack.on('stopped', toggleButtons);
+      localScreenTrack.on('stopped', () => {
+        stopScreenSharing
+      });
+
+      screenTrack.onended = stopScreenSharing;
+
       // Show the "Stop Capture Screen" button.
       toggleButtons();
     } catch (e) {
@@ -34,13 +69,60 @@ const stopScreenCapture = document.querySelector('button#stopscreencapture');
     }
   };
 
-  stopScreenCapture.onclick = function() {
-    // Stop capturing your screen.
+  // Stop capturing your screen.
+  const stopScreenSharing = () => {
+    roomLocal.localParticipant.unpublishTrack(screenTrack);
     screenTrack.stop();
+    toggleButtons();
+  };
+
+  stopScreenCapture.onclick = stopScreenSharing;
+
+  // Remote Participant handles screen share track
+  if(roomRemote) {
+    roomRemote.on('trackPublished', publication => {
+      trackPublish('publish', publication, remoteScreenPreview);
+    });
+
+    roomRemote.on('trackUnpublished', publication => {
+      trackPublish('unpublish', publication, remoteScreenPreview);
+    });
   }
+
+  // Disconnect from the Room on page unload.
+  window.onbeforeunload = function() {
+    if (roomLocal) {
+      roomLocal.disconnect();
+      roomLocal = null;
+    }
+    if (roomRemote) {
+      roomRemote.disconnect();
+      roomRemote = null;
+    }
+  };
 }());
 
 function toggleButtons() {
   captureScreen.style.display = captureScreen.style.display === 'none' ? '' : 'none';
   stopScreenCapture.style.display = stopScreenCapture.style.display === 'none' ? '' : 'none';
+}
+
+function trackPublish(publishType, publication, view) {
+  if (publishType === 'publish') {
+    if (publication.track) {
+      publication.track.attach(view);
+    }
+
+    publication.on('subscribed', track => {
+      track.attach(view);
+    });
+  } else if (publishType === 'unpublish') {
+    if (publication.track) {
+      publication.track.detach(view);
+    }
+
+    publication.on('subscribed', track => {
+      track.detach(view);
+    });
+  }
 }
