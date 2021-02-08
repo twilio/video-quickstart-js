@@ -5,7 +5,7 @@ const Video = require('twilio-video');
 const getSnippet = require('../../util/getsnippet');
 const getRoomCredentials = require('../../util/getroomcredentials');
 const helpers = require('./helpers');
-const createScreenStream = helpers.createScreenStream;
+const createScreenTrack = helpers.createScreenTrack;
 const captureScreen = document.querySelector('button#capturescreen');
 const screenPreview = document.querySelector('video#screenpreview');
 const stopScreenCapture = document.querySelector('button#stopscreencapture');
@@ -37,15 +37,13 @@ const remoteScreenPreview = document.querySelector('video.remote-screenpreview')
   stopScreenCapture.style.display = 'none';
 
   // The LocalVideoTrack for your screen.
-  let screenStream;
   let screenTrack;
   let localScreenTrack;
 
   captureScreen.onclick = async function() {
     try {
       // Create and preview your local screen.
-      screenStream = await createScreenStream(720, 1280);
-      screenTrack = await screenStream.getTracks()[0];
+      screenTrack = await createScreenTrack(720, 1280);
 
       // Publish screen track to room
       await roomLocal.localParticipant.publishTrack(screenTrack, {
@@ -60,7 +58,8 @@ const remoteScreenPreview = document.querySelector('video.remote-screenpreview')
         stopScreenSharing
       });
 
-      screenTrack.onended = stopScreenSharing;
+      // Listening to on ended event on the MediaStreamTrack.
+      screenTrack.mediaStreamTrack.onended = stopScreenSharing;
 
       // Show the "Stop Capture Screen" button.
       toggleButtons();
@@ -81,11 +80,11 @@ const remoteScreenPreview = document.querySelector('video.remote-screenpreview')
   // Remote Participant handles screen share track
   if(roomRemote) {
     roomRemote.on('trackPublished', publication => {
-      trackPublishedHandler('publish', publication, remoteScreenPreview);
+      onTrackPublished('publish', publication, remoteScreenPreview);
     });
 
     roomRemote.on('trackUnpublished', publication => {
-      trackPublishedHandler('unpublish', publication, remoteScreenPreview);
+      onTrackPublished('unpublish', publication, remoteScreenPreview);
     });
   }
 
@@ -107,7 +106,7 @@ function toggleButtons() {
   stopScreenCapture.style.display = stopScreenCapture.style.display === 'none' ? '' : 'none';
 }
 
-function trackPublishedHandler(publishType, publication, view) {
+function onTrackPublished(publishType, publication, view) {
   if (publishType === 'publish') {
     if (publication.track) {
       publication.track.attach(view);

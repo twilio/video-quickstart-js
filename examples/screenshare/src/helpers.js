@@ -7,9 +7,9 @@ const Video = require('twilio-video');
  * to other Participants in the Room.
  * @param {number} height - Desired vertical resolution in pixels
  * @param {number} width - Desired horizontal resolution in pixels
- * @returns {MediaStream}
+ * @returns {Promise<LocalVideoTrack>}
  */
-function createScreenStream(height, width) {
+function createScreenTrack(height, width) {
   if (typeof navigator === 'undefined'
     || !navigator.mediaDevices
     || !navigator.mediaDevices.getDisplayMedia) {
@@ -20,7 +20,9 @@ function createScreenStream(height, width) {
       height: height,
       width: width
     }
-  })
+  }).then(function(stream) {
+    return new Video.LocalVideoTrack(stream.getVideoTracks()[0]);
+  });
 }
 
-exports.createScreenStream = createScreenStream;
+exports.createScreenTrack = createScreenTrack;
