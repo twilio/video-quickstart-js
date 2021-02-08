@@ -81,11 +81,11 @@ const remoteScreenPreview = document.querySelector('video.remote-screenpreview')
   // Remote Participant handles screen share track
   if(roomRemote) {
     roomRemote.on('trackPublished', publication => {
-      trackPublish('publish', publication, remoteScreenPreview);
+      trackPublishedHandler('publish', publication, remoteScreenPreview);
     });
 
     roomRemote.on('trackUnpublished', publication => {
-      trackPublish('unpublish', publication, remoteScreenPreview);
+      trackPublishedHandler('unpublish', publication, remoteScreenPreview);
     });
   }
 
@@ -107,7 +107,7 @@ function toggleButtons() {
   stopScreenCapture.style.display = stopScreenCapture.style.display === 'none' ? '' : 'none';
 }
 
-function trackPublish(publishType, publication, view) {
+function trackPublishedHandler(publishType, publication, view) {
   if (publishType === 'publish') {
     if (publication.track) {
       publication.track.attach(view);
