@@ -21,12 +21,30 @@ function rootMeanSquare(samples) {
  */
 module.exports = audioContext ? function micLevel(stream, maxLevel, onLevel) {
   audioContext.resume().then(() => {
-    const analyser = audioContext.createAnalyser();
-    analyser.fftSize = 1024;
-    analyser.smoothingTimeConstant = 0.5;
+    let analyser;
 
-    const source = audioContext.createMediaStreamSource(stream);
-    source.connect(analyser);
+    const initializeAnalyser = () => {
+      console.log('initializeAnalyser')
+
+      analyser = audioContext.createAnalyser();
+      analyser.fftSize = 1024;
+      analyser.smoothingTimeConstant = 0.5;
+
+      if(stream) {
+        stream = new MediaStream(stream.clone());
+      }
+
+      const audioSource = audioContext.createMediaStreamSource(stream);
+
+      audioSource.connect(analyser);
+    }
+
+    initializeAnalyser();
+
+    // Add eventlistener on visibility change to reinitialize the analyser node
+    // for iOS safari.
+    window.addEventListener('visibilitychange', initializeAnalyser);
+
     const samples = new Uint8Array(analyser.frequencyBinCount);
 
     const track = stream.getTracks()[0];
