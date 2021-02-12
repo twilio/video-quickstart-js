@@ -25,7 +25,7 @@ async function applyInputDevice(kind, deviceId, render) {
 
   // Render the current LocalTrack.
   localTracks[kind] = track;
-  render(new MediaStream([track.mediaStreamTrack]));
+  render(track);
 }
 
 /**

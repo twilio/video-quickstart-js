@@ -117,9 +117,9 @@ async function selectAndJoinRoom(error = null) {
 async function selectCamera() {
   if (deviceIds.video === null) {
     try {
-      deviceIds.video = await selectMedia('video', $selectCameraModal, stream => {
+      deviceIds.video = await selectMedia('video', $selectCameraModal, videoTrack => {
         const $video = $('video', $selectCameraModal);
-        $video.get(0).srcObject = stream;
+        videoTrack.attach($video.get(0))
       });
     } catch (error) {
       showError($showErrorModal, error);
@@ -135,10 +135,10 @@ async function selectCamera() {
 async function selectMicrophone() {
   if (deviceIds.audio === null) {
     try {
-      deviceIds.audio = await selectMedia('audio', $selectMicModal, stream => {
+      deviceIds.audio = await selectMedia('audio', $selectMicModal, audioTrack => {
         const $levelIndicator = $('svg rect', $selectMicModal);
         const maxLevel = Number($levelIndicator.attr('height'));
-        micLevel(stream, maxLevel, level => $levelIndicator.attr('y', maxLevel - level));
+        micLevel(audioTrack, maxLevel, level => $levelIndicator.attr('y', maxLevel - level));
       });
     } catch (error) {
       showError($showErrorModal, error);

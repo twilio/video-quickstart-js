@@ -15,21 +15,27 @@ function rootMeanSquare(samples) {
 
 /**
  * Poll the microphone's input level.
- * @param stream - the MediaStream representing the microphone
+ * @param audioTrack - the AudioTrack representing the microphone
  * @param maxLevel - the calculated level should be in the range [0 - maxLevel]
  * @param onLevel - called when the input level changes
  */
-module.exports = audioContext ? function micLevel(stream, maxLevel, onLevel) {
+module.exports = audioContext ? function micLevel(audioTrack, maxLevel, onLevel) {
   audioContext.resume().then(() => {
     const analyser = audioContext.createAnalyser();
     analyser.fftSize = 1024;
     analyser.smoothingTimeConstant = 0.5;
 
-    const source = audioContext.createMediaStreamSource(stream);
-    source.connect(analyser);
+
+    const initializeAnalyser = () => {
+      const stream = new MediaStream([audioTrack.mediaStreamTrack]);
+      const audioSource = audioContext.createMediaStreamSource(stream);
+      audioSource.connect(analyser);
+    }
+
+    audioTrack.on('started', initializeAnalyser);
+
     const samples = new Uint8Array(analyser.frequencyBinCount);
 
-    const track = stream.getTracks()[0];
     let level = null;
 
     requestAnimationFrame(function checkLevel() {
@@ -43,9 +49,9 @@ module.exports = audioContext ? function micLevel(stream, maxLevel, onLevel) {
         onLevel(level);
       }
 
-      requestAnimationFrame(track.readyState === 'ended'
-        ? () => onLevel(0)
-        : checkLevel);
+      requestAnimationFrame(audioTrack.readyState === 'ended'
+      ? () => onLevel(0)
+      : checkLevel);
     });
   });
 } : function notSupported() {
