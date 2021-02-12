@@ -3,8 +3,8 @@
 const Video = require('twilio-video');
 
 /**
- * Create a screen track for your screen. You can then publish it
- * to other Participants in the Room.
+ * Create a LocalVideoTrack for your screen. You can then share it
+ * with other Participants in the Room.
  * @param {number} height - Desired vertical resolution in pixels
  * @param {number} width - Desired horizontal resolution in pixels
  * @returns {Promise<LocalVideoTrack>}

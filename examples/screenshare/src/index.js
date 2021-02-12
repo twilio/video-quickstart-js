@@ -38,28 +38,25 @@ const remoteScreenPreview = document.querySelector('video.remote-screenpreview')
 
   // The LocalVideoTrack for your screen.
   let screenTrack;
-  let localScreenTrack;
+  // let localScreenTrack;
 
   captureScreen.onclick = async function() {
     try {
       // Create and preview your local screen.
       screenTrack = await createScreenTrack(720, 1280);
+      screenTrack.attach(screenPreview);
+
 
       // Publish screen track to room
-      await roomLocal.localParticipant.publishTrack(screenTrack, {
-        priority: 'low',
-      }).then (trackPublication => {
-        localScreenTrack = trackPublication.track;
-        trackPublication.track.attach(screenPreview);
-      });
+      await roomLocal.localParticipant.publishTrack(screenTrack);
 
-      // Show the "Capture Screen" button after screen capture stops.
-      localScreenTrack.on('stopped', () => {
-        stopScreenSharing
+      // When screen sharing is stopped, unpublish the screen track.
+      screenTrack.on('stopped', () => {
+        if (roomLocal) {
+          roomLocal.localParticipant.unpublishTrack(screenTrack);
+        }
+        toggleButtons();
       });
-
-      // Listening to on ended event on the MediaStreamTrack.
-      screenTrack.mediaStreamTrack.onended = stopScreenSharing;
 
       // Show the "Stop Capture Screen" button.
       toggleButtons();
@@ -70,9 +67,7 @@ const remoteScreenPreview = document.querySelector('video.remote-screenpreview')
 
   // Stop capturing your screen.
   const stopScreenSharing = () => {
-    roomLocal.localParticipant.unpublishTrack(screenTrack);
     screenTrack.stop();
-    toggleButtons();
   };
 
   stopScreenCapture.onclick = stopScreenSharing;
