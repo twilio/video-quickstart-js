@@ -46,7 +46,6 @@ const remoteScreenPreview = document.querySelector('video.remote-screenpreview')
       screenTrack = await createScreenTrack(720, 1280);
       screenTrack.attach(screenPreview);
 
-
       // Publish screen track to room
       await roomLocal.localParticipant.publishTrack(screenTrack);
 
