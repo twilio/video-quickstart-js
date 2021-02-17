@@ -38,7 +38,6 @@ const remoteScreenPreview = document.querySelector('video.remote-screenpreview')
 
   // The LocalVideoTrack for your screen.
   let screenTrack;
-  // let localScreenTrack;
 
   captureScreen.onclick = async function() {
     try {
@@ -65,9 +64,7 @@ const remoteScreenPreview = document.querySelector('video.remote-screenpreview')
   };
 
   // Stop capturing your screen.
-  const stopScreenSharing = () => {
-    screenTrack.stop();
-  };
+  const stopScreenSharing = () => screenTrack.stop();
 
   stopScreenCapture.onclick = stopScreenSharing;
 
