@@ -1,5 +1,4 @@
-**NEW:** Please check out our [Best Practices Guide](https://www.twilio.com/docs/video/build-js-video-application-recommendations-and-best-practices)
-for building video applications with twilio-video.js.
+**NEW:** The [Local Video Filter](examples/localvideofilter) example has been updated to use the recently released [Video Processor API](https://github.com/twilio/twilio-video.js/releases/tag/2.13.0) for Chrome.
 
 # Twilio Video Quickstart for JavaScript
 
