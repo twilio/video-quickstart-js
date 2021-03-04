@@ -26,7 +26,7 @@ function grayscale(imageData) {
     var r = data[i];
     var g = data[i + 1];
     var b = data[i + 2];
-    var gs = ((0.2126 * r) + (0.7152 * g) + (0.0722 * b)) / 3;
+    var gs = (r + g + b) / 3;
     data[i] = data[i + 1] = data[i + 2] = gs;
   }
   return imageData;

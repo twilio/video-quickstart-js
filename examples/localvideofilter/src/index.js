@@ -2,7 +2,11 @@
 
 var Prism = require('prismjs');
 var getSnippet = require('../../util/getsnippet');
-var helpers = require('./helpers');
+
+var helpers = typeof OffscreenCanvas === 'undefined'
+  ? require('./helpers')
+  : require('./helpers-video-processor');
+
 var displayLocalVideo = helpers.displayLocalVideo;
 var filterLocalVideo = helpers.filterLocalVideo;
 
@@ -11,7 +15,11 @@ var video = document.querySelector('video#videoinputpreview');
 var filtered = document.querySelector('video#videoinputfiltered');
 
 // Load the code snippet.
-getSnippet('./helpers.js').then(function(snippet) {
+getSnippet(
+  typeof OffscreenCanvas === 'undefined'
+    ? './helpers.js'
+    : './helpers-video-processor.js'
+).then(function(snippet) {
   var pre = document.querySelector('pre.language-javascript');
   pre.innerHTML = Prism.highlight(snippet, Prism.languages.javascript);
 });
