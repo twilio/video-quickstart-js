@@ -6,14 +6,13 @@ var Video = require('twilio-video');
  * Apply a filter to the frames of a LocalVideoTrack.
  * @param {number} width - Width in pixels of the video frames
  * @param {number} height - Height in pixels of the video frames
- * @param {'blur' | 'grayscale' | 'sepia'} name - Filter name
- * @param {string} settingValue - Filter setting value
+ * @param {string} filterCSS - Filter CSS string
  * @constructor
  */
-function FilterVideoProcessor(width, height, name, settingValue) {
+function FilterVideoProcessor(width, height, filterCSS) {
   this._outputFrame = new OffscreenCanvas(width, height);
   this._outputContext = this._outputFrame.getContext('2d');
-  this._outputContext.filter = name + '(' + settingValue + ')';
+  this._outputContext.filter = filterCSS;
 }
 
 /**
@@ -64,11 +63,11 @@ function filterLocalVideo(video, filtered, name) {
   }
 
   if (name !== 'none') {
-    var value = name === 'blur' ? '5px' : '100%';
+    var filterCSS = name + '(' + (name === 'blur' ? '5px' : '100%') + ')';
     var settings = filteredLocalTrack.mediaStreamTrack.getSettings();
     var height = settings.height;
     var width = settings.width;
-    processor = new FilterVideoProcessor(width, height, name, value);
+    processor = new FilterVideoProcessor(width, height, filterCSS);
     filteredLocalTrack.addProcessor(processor);
   }
 }
