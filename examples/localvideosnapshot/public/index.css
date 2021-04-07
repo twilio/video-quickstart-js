@@ -64,7 +64,12 @@ div.card {
   overflow-y: auto;
 }
 
-canvas#snapshot,
+.hidden {
+  display: none;
+}
+
+canvas.snapshot-canvas,
+img.snapshot-img,
 video#videoinputpreview {
   width: 100%;
   background-color: lightgrey !important;
