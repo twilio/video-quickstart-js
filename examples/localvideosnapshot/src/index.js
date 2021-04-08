@@ -26,7 +26,6 @@ window.onload = function() {
 
 // Set the canvas size to the video size.
 function setSnapshotSizeToVideo(snapshot, video) {
-  console.log(video.dimensions.height,video.dimensions.width);
   snapshot.width = video.dimensions.height;
   snapshot.height = video.dimensions.width;
 }
