@@ -19,15 +19,14 @@ window.onload = function() {
   el = window.ImageCapture ? img : canvas;
   el.classList.remove('hidden');
   if(videoTrack) {
-    el.height = videoTrack.dimensions.height;
-    el.width = videoTrack.dimensions.width
+    setSnapshotSizeToVideo(el, videoTrack);
   }
 }
 
 // Set the canvas size to the video size.
 function setSnapshotSizeToVideo(snapshot, video) {
-  snapshot.width = video.dimensions.height;
-  snapshot.height = video.dimensions.width;
+  snapshot.width = video.dimensions.width;
+  snapshot.height = video.dimensions.height;
 }
 
 // Load the code snippet.
