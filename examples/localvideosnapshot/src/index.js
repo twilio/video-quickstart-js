@@ -11,19 +11,24 @@ var img = document.querySelector('.snapshot-img');
 var takeSnapshot = document.querySelector('button#takesnapshot');
 var video = document.querySelector('video#videoinputpreview');
 
+let videoTrack;
+let el;
+
 // Show image or canvas
 window.onload = function() {
-  if(window.ImageCapture) {
-    img.classList.remove('hidden');
-  } else {
-    canvas.classList.remove('hidden');
+  el = window.ImageCapture ? img : canvas;
+  el.classList.remove('hidden');
+  if(videoTrack) {
+    el.height = videoTrack.dimensions.height;
+    el.width = videoTrack.dimensions.width
   }
 }
 
 // Set the canvas size to the video size.
 function setSnapshotSizeToVideo(snapshot, video) {
-  snapshot.width = video.clientWidth;
-  snapshot.height = video.clientHeight;
+  console.log(video.dimensions.height,video.dimensions.width);
+  snapshot.width = video.dimensions.height;
+  snapshot.height = video.dimensions.width;
 }
 
 // Load the code snippet.
@@ -35,18 +40,14 @@ getSnippet('./helpers.js').then(function(snippet) {
 // Request the default LocalVideoTrack and display it.
 displayLocalVideo(video).then(function(localVideoTrack) {
   // Display a snapshot of the LocalVideoTrack on the canvas.
+  videoTrack = localVideoTrack;
   takeSnapshot.onclick = function() {
-    if(window.ImageCapture) {
-      setSnapshotSizeToVideo(img, video);
-      takeLocalVideoSnapshot(video, localVideoTrack, img);
-    } else {
-      setSnapshotSizeToVideo(canvas, video);
-      takeLocalVideoSnapshot(video, localVideoTrack, canvas);
-    }
+    setSnapshotSizeToVideo(el, localVideoTrack);
+    takeLocalVideoSnapshot(video, localVideoTrack, el);
   };
 });
 
 // Resize the canvas to the video size whenever window is resized.
 window.onresize = function() {
-  window.ImageCapture ? setSnapshotSizeToVideo(img, video) : setSnapshotSizeToVideo(canvas, video);
+  setSnapshotSizeToVideo(el, videoTrack);
 };

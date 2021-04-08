@@ -72,6 +72,7 @@ canvas.snapshot-canvas,
 img.snapshot-img,
 video#videoinputpreview {
   width: 100%;
+  height: 100%;
   background-color: lightgrey !important;
   background-image: url('https://static0.twilio.com/marketing/bundles/archetype/img/logo-wordmark.svg');
   background-position: 50%;
