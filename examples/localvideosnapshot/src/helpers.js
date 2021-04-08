@@ -10,6 +10,7 @@ var Video = require('twilio-video');
 function displayLocalVideo(video) {
   return Video.createLocalVideoTrack().then(function(localTrack) {
     localTrack.attach(video);
+    return localTrack;
   });
 }
 
@@ -17,12 +18,18 @@ function displayLocalVideo(video) {
  * Take snapshot of the local video from the HTMLVideoElement and render it
  * in the HTMLCanvasElement.
  * @param {HTMLVideoElement} video
- * @param {HTMLCanvasElement} canvas
+ * @param {LocalVideoTrack} localVideoTrack
+ * @param {HTMLCanvasElement|HTMLImageElement} snapshot
  */
-function takeLocalVideoSnapshot(video, canvas) {
-  var context = canvas.getContext('2d');
-  context.clearRect(0, 0, canvas.width, canvas.height);
-  context.drawImage(video, 0, 0, canvas.width, canvas.height);
+ function takeLocalVideoSnapshot(video, localVideoTrack, snapshot) {
+  if (window.ImageCapture) {
+    const imageCapture = new ImageCapture(localVideoTrack.mediaStreamTrack);
+    imageCapture.takePhoto().then(function(blob) {
+      snapshot.src = URL.createObjectURL(blob);
+    });
+  } else {
+    snapshot.getContext('2d').drawImage(video, 0, 0);
+  }
 }
 
 module.exports.displayLocalVideo = displayLocalVideo;
