@@ -21,8 +21,9 @@ window.onload = function() {
 }
 
 // Set the canvas size to the video size.
-function setCanvasSizeToVideo(canvas, video) {
-  canvas.style.height = video.clientHeight + 'px';
+function setSnapshotSizeToVideo(snapshot, video) {
+  snapshot.width = video.clientWidth;
+  snapshot.height = video.clientHeight;
 }
 
 // Load the code snippet.
@@ -36,15 +37,16 @@ displayLocalVideo(video).then(function(localVideoTrack) {
   // Display a snapshot of the LocalVideoTrack on the canvas.
   takeSnapshot.onclick = function() {
     if(window.ImageCapture) {
+      setSnapshotSizeToVideo(img, video);
       takeLocalVideoSnapshot(video, localVideoTrack, img);
     } else {
+      setSnapshotSizeToVideo(canvas, video);
       takeLocalVideoSnapshot(video, localVideoTrack, canvas);
     }
-    setCanvasSizeToVideo(canvas, video);
   };
 });
 
 // Resize the canvas to the video size whenever window is resized.
 window.onresize = function() {
-  setCanvasSizeToVideo(canvas, video);
+  window.ImageCapture ? setSnapshotSizeToVideo(img, video) : setSnapshotSizeToVideo(canvas, video);
 };
