@@ -1,10 +1,10 @@
 'use strict';
 
 const ADJECTIVES = [
-  'Abrasive', 'Brash', 'Callous', 'Daft', 'Eccentric', 'Fiesty', 'Golden',
-  'Holy', 'Ignominious', 'Joltin', 'Killer', 'Luscious', 'Mushy', 'Nasty',
-  'OldSchool', 'Pompous', 'Quiet', 'Rowdy', 'Sneaky', 'Tawdry',
-  'Unique', 'Vivacious', 'Wicked', 'Xenophobic', 'Yawning', 'Zesty'
+  'Awesome', 'Bold', 'Creative', 'Dapper', 'Eccentric', 'Fiesty', 'Golden',
+  'Holy', 'Ignominious', 'Jolly', 'Kindly', 'Lucky', 'Mushy', 'Natural',
+  'Oaken', 'Precise', 'Quiet', 'Rowdy', 'Sunny', 'Tall',
+  'Unique', 'Vivid', 'Wonderful', 'Xtra', 'Yawning', 'Zesty'
 ];
 
 const FIRST_NAMES = [
