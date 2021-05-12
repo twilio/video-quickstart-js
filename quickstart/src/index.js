@@ -24,10 +24,8 @@ const connectOptions = {
     video: {
       dominantSpeakerPriority: 'high',
       mode: 'collaboration',
-      renderDimensions: {
-        high: { height: 720, width: 1280 },
-        standard: { height: 90, width: 160 }
-      }
+      clientTrackSwitchOffControl: 'auto',
+      contentPreferencesMode: 'auto'
     }
   },
 
