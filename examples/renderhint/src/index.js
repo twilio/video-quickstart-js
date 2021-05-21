@@ -5,9 +5,11 @@ const Video = require('twilio-video');
 const getSnippet = require('../../util/getsnippet');
 const getRoomCredentials = require('../../util/getroomcredentials');
 const helpers = require('./helpers');
+const switchOnOff = helpers.switchOnOff;
+const setRenderDimensions = helpers.setRenderDimensions;
 const switchOnOffBtn = document.querySelector('button#switchOnOff');
+const renderDimensionsOption = document.querySelector('button#renderDimensionsOption');
 const videoEl = document.querySelector('video#remotevideo');
-
 
 (async function(){
   // Load the code snippet.
@@ -16,11 +18,15 @@ const videoEl = document.querySelector('video#remotevideo');
 
   pre.innerHTML = Prism.highlight(snippet, Prism.languages.javascript);
 
+  const logger = Video.Logger.getLogger('twilio-video');
+  logger.setLevel('silent');
+
   // Get the credentials to connect to the Room.
   const credsP1 = await getRoomCredentials();
   const credsP2 = await getRoomCredentials();
 
-  const connectOptions = {
+  // Create room instance and name for participants to join.
+  const roomP1 = await Video.connect(credsP1.token, {
     name: 'my-cool-room',
     bandwidthProfile: {
       video: {
@@ -28,21 +34,36 @@ const videoEl = document.querySelector('video#remotevideo');
         clientTrackSwitchOffControl: 'manual'
       }
     }
-  }
+  });
 
-  // Create room instance and name for participants to join.
-  const roomP1 = await Video.connect(credsP1.token, connectOptions);
-
-  // Create and attach the video track for the Remote Participant
-  const remoteVideoTrack = await Video.createLocalVideoTrack();
-  remoteVideoTrack.attach(videoEl);
+  // Create the video track for the Remote Participant
+  const videoTrack = await Video.createLocalVideoTrack();
 
   // Connecting remote participant.
   const roomP2 = await Video.connect(credsP2.token, {
-    connectOptions,
-    track: [ remoteVideoTrack ]
+    name: 'my-cool-room',
+    bandwidthProfile: {
+      video: {
+        contentPreferencesMode: 'manual',
+        clientTrackSwitchOffControl: 'manual'
+      }
+    },
+    tracks: [ videoTrack ]
   });
 
+  // Attach RemoteVideoTrack
+  let remoteVideoTrack;
+  roomP1.on('trackSubscribed', track => {
+    if(track.kind === 'video') {
+      track.attach(videoEl);
+      remoteVideoTrack = track;
+    }
+  });
 
-  console.log('connected to room', roomP1, roomP2)
+  // Remote Track Switch On/Off
+  switchOnOffBtn.onclick = event => {
+    event.preventDefault();
+    switchOnOff(remoteVideoTrack, remoteVideoTrack.isSwitchedOff);
+    remoteVideoTrack.isSwitchedOff ? switchOnOffBtn.textContent = 'Switch Off' : switchOnOffBtn.textContent = 'Switch On';
+  }
 }());

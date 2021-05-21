@@ -3,11 +3,11 @@
 /**
  *
  */
-function switchOnOff(track, state) {
-  if(state === 'on') {
-    track.switchOn();
+function switchOnOff(track, isSwitchedOff) {
+  if(isSwitchedOff) {
+    return track.switchOn();
   } else {
-    track.switchOff();
+    return track.switchOff();
   }
 }
 
