@@ -8,7 +8,7 @@ const helpers = require('./helpers');
 const switchOnOff = helpers.switchOnOff;
 const setRenderDimensions = helpers.setRenderDimensions;
 const switchOnOffBtn = document.querySelector('button#switchOnOff');
-const renderDimensionsOption = document.querySelector('button#renderDimensionsOption');
+const renderDimensionsOption = document.querySelector('select#renderDimensionsOption');
 const videoEl = document.querySelector('video#remotevideo');
 
 (async function(){
@@ -36,7 +36,7 @@ const videoEl = document.querySelector('video#remotevideo');
     }
   });
 
-  // Create the video track for the Remote Participant
+  // Create the video track for the Remote Participant.
   const videoTrack = await Video.createLocalVideoTrack();
 
   // Connecting remote participant.
@@ -57,13 +57,28 @@ const videoEl = document.querySelector('video#remotevideo');
     if(track.kind === 'video') {
       track.attach(videoEl);
       remoteVideoTrack = track;
+      switchOnOffBtn.classList.remove('disabled');
+      renderDimensionsOption.classList.remove('disabled');
     }
   });
 
-  // Remote Track Switch On/Off
+  // Remote Track Switch On/Off.
   switchOnOffBtn.onclick = event => {
     event.preventDefault();
     switchOnOff(remoteVideoTrack, remoteVideoTrack.isSwitchedOff);
     remoteVideoTrack.isSwitchedOff ? switchOnOffBtn.textContent = 'Switch Off' : switchOnOffBtn.textContent = 'Switch On';
   }
+
+  const renderDimensionsObj = {
+    HD: { width: 1280, height: 720 },
+    qHD: { width: 960, height: 540 },
+    VGA: { width: 640, height: 480}
+  }
+
+  // Set Render Dimensions.
+  renderDimensionsOption.addEventListener('change', () => {
+    const renderDimensions = renderDimensionsObj[renderDimensionsOption.value];
+    setRenderDimensions(remoteVideoTrack, { renderDimensions });
+    remoteVideoTrack.isSwitchedOff ? switchOnOffBtn.textContent = 'Switch Off' : switchOnOffBtn.textContent = 'Switch On';
+  });
 }());
