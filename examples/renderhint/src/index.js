@@ -59,14 +59,18 @@ const videoEl = document.querySelector('video#remotevideo');
       remoteVideoTrack = track;
       switchOnOffBtn.classList.remove('disabled');
       renderDimensionsOption.classList.remove('disabled');
+      remoteVideoTrack.on('switchedOff', track => {
+        switchOnOffBtn.textContent = 'Switch On';
+      });
+      remoteVideoTrack.on('switchedOn', track => {
+        switchOnOffBtn.textContent = 'Switch Off';
+      });
     }
   });
 
   // Remote Track Switch On/Off.
   switchOnOffBtn.onclick = event => {
-    event.preventDefault();
     switchOnOff(remoteVideoTrack, remoteVideoTrack.isSwitchedOff);
-    remoteVideoTrack.isSwitchedOff ? switchOnOffBtn.textContent = 'Switch Off' : switchOnOffBtn.textContent = 'Switch On';
   }
 
   const renderDimensionsObj = {
@@ -79,6 +83,11 @@ const videoEl = document.querySelector('video#remotevideo');
   renderDimensionsOption.addEventListener('change', () => {
     const renderDimensions = renderDimensionsObj[renderDimensionsOption.value];
     setRenderDimensions(remoteVideoTrack, { renderDimensions });
-    remoteVideoTrack.isSwitchedOff ? switchOnOffBtn.textContent = 'Switch Off' : switchOnOffBtn.textContent = 'Switch On';
   });
+
+  // Disconnect from the Room
+  window.onbeforeunload = () => {
+    roomP1.disconnect();
+    roomP2.disconnect();
+  }
 }());
