@@ -5,11 +5,18 @@ const Video = require('twilio-video');
 const getSnippet = require('../../util/getsnippet');
 const getRoomCredentials = require('../../util/getroomcredentials');
 const helpers = require('./helpers');
-const switchOnOff = helpers.switchOnOff;
+const switchOn = helpers.switchOn;
+const switchOff = helpers.switchOff;
 const setRenderDimensions = helpers.setRenderDimensions;
-const switchOnOffBtn = document.querySelector('button#switchOnOff');
 const renderDimensionsOption = document.querySelector('select#renderDimensionsOption');
+const switchOnBtn = document.querySelector('button#switchOn');
+const switchOffBtn = document.querySelector('button#switchOff');
 const videoEl = document.querySelector('video#remotevideo');
+const trackIsSwitchedOff = document.querySelector('span.trackIsSwitchedOff');
+
+const handleIsSwitchedOff = (trackState) => {
+  trackIsSwitchedOff.textContent = trackState;
+}
 
 (async function(){
   // Load the code snippet.
@@ -57,26 +64,34 @@ const videoEl = document.querySelector('video#remotevideo');
     if(track.kind === 'video') {
       track.attach(videoEl);
       remoteVideoTrack = track;
-      switchOnOffBtn.classList.remove('disabled');
+      handleIsSwitchedOff(track.isSwitchedOff);
+      switchOnBtn.classList.remove('disabled');
+      switchOffBtn.classList.remove('disabled');
       renderDimensionsOption.classList.remove('disabled');
+
       remoteVideoTrack.on('switchedOff', track => {
-        switchOnOffBtn.textContent = 'Switch On';
+        handleIsSwitchedOff(track.isSwitchedOff);
       });
       remoteVideoTrack.on('switchedOn', track => {
-        switchOnOffBtn.textContent = 'Switch Off';
+        handleIsSwitchedOff(track.isSwitchedOff);
       });
     }
   });
 
-  // Remote Track Switch On/Off.
-  switchOnOffBtn.onclick = event => {
-    switchOnOff(remoteVideoTrack, remoteVideoTrack.isSwitchedOff);
+  // Remote Track Switch On
+  switchOnBtn.onclick = event => {
+    switchOn(remoteVideoTrack);
+  }
+
+  // Remote Track Switch Off
+  switchOffBtn.onclick = event => {
+    switchOff(remoteVideoTrack);
   }
 
   const renderDimensionsObj = {
-    HD: { width: 1280, height: 720 },
-    qHD: { width: 960, height: 540 },
-    VGA: { width: 640, height: 480}
+    1: { width: 1280, height: 720 },
+    2: { width: 640, height: 480 },
+    3: { width: 176, height: 144}
   }
 
   // Set Render Dimensions.

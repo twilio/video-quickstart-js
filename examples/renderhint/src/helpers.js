@@ -1,17 +1,21 @@
 'use strict';
 
 /**
- * Switch the RemoteVideoTrack on or off.
+ * Switch the RemoteVideoTrack on.
  * @param {RemoteVideoTrack} track - The RemoteVideoTrack you want to switch on/off.
- * @param {boolean} isSwitchedOff - Boolean value of RemoteVideoTrack.isSwitchedOff.
  * @returns {RemoteVideoTrack}
  */
-function switchOnOff(track, isSwitchedOff) {
-  if(isSwitchedOff) {
-    return track.switchOn();
-  } else {
-    return track.switchOff();
-  }
+function switchOn(track) {
+  return track.switchOn();
+}
+
+/**
+ * Switch the RemoteVideoTrack off.
+ * @param {RemoteVideoTrack} track - The RemoteVideoTrack you want to switch on/off.
+ * @returns {RemoteVideoTrack}
+ */
+ function switchOff(track) {
+  return track.switchOff();
 }
 
 /**
@@ -21,11 +25,9 @@ function switchOnOff(track, isSwitchedOff) {
  * @returns {RemoteVideoTrack}
  */
 function setRenderDimensions(track, renderDimensions) {
-  if(track.isSwitchedOff) {
-    track.switchOn();
-  }
   return track.setContentPreferences(renderDimensions);
 }
 
-module.exports.switchOnOff = switchOnOff;
+module.exports.switchOn = switchOn;
+module.exports.switchOff = switchOff;
 module.exports.setRenderDimensions = setRenderDimensions;
