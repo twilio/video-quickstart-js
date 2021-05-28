@@ -43,9 +43,9 @@
                 contentPreferencesMode:
                 <select id= "renderDimensionsOption" class="btn btn-primary dropdown-toggle disabled">
                   <option value="" disabled selected hidden>Render Dimensions</option>
-                  <option value="1">1280x720</option>
-                  <option value="2">640x480</option>
-                  <option value="3">176x144</option>
+                  <option value="HD">1280x720</option>
+                  <option value="VGA">640x480</option>
+                  <option value="QCIF">176x144</option>
                 </select>
               </div>
             </div>
@@ -54,6 +54,9 @@
               <div id="media-container">
                 <video id="remotevideo"></video>
               </div>
+            </div>
+            <div id="videobitrategraph" class="bitrategraph">
+              <canvas id="videobitratecanvas"></canvas>
             </div>
           </div>
         </div>

@@ -2,17 +2,64 @@
 
 const Prism = require('prismjs');
 const Video = require('twilio-video');
+const DataSeries = require('../../util/timelinegraph').DataSeries;
+const GraphView = require('../../util/timelinegraph').GraphView;
 const getSnippet = require('../../util/getsnippet');
 const getRoomCredentials = require('../../util/getroomcredentials');
 const helpers = require('./helpers');
 const switchOn = helpers.switchOn;
 const switchOff = helpers.switchOff;
 const setRenderDimensions = helpers.setRenderDimensions;
+
 const renderDimensionsOption = document.querySelector('select#renderDimensionsOption');
 const switchOnBtn = document.querySelector('button#switchOn');
 const switchOffBtn = document.querySelector('button#switchOff');
 const videoEl = document.querySelector('video#remotevideo');
 const trackIsSwitchedOff = document.querySelector('span.trackIsSwitchedOff');
+let roomP1 = null;
+let remoteVideoTrack = null;
+let startVideoBitrateGraph = null;
+let stopVideoBitrateGraph = null;
+
+/**
+ * Set up the bitrate graph for audio or video media.
+ */
+ function setupBitrateGraph(kind, containerId, canvasId) {
+  const bitrateSeries = new DataSeries();
+  const bitrateGraph = new GraphView(containerId, canvasId);
+
+  bitrateGraph.graphDiv_.style.display = 'none';
+  return async function startBitrateGraph(room, intervalMs) {
+    let bytesReceivedPrev = 0;
+    let timestampPrev = Date.now();
+    console.log(room)
+    const interval = setInterval(async function() {
+      if (!room) {
+        clearInterval(interval);
+        return;
+      }
+      const stats = await room.getStats();
+      const remoteTrackStats = kind === 'audio'
+        ? stats[0].remoteAudioTrackStats[0]
+        : stats[0].remoteVideoTrackStats[0]
+      const bytesReceived = remoteTrackStats.bytesReceived;
+      const timestamp = remoteTrackStats.timestamp;
+      const bitrate = Math.round((bytesReceivedPrev - bytesReceived) * 8 / (timestampPrev - timestamp));
+
+      bitrateSeries.addPoint(timestamp, bitrate);
+      bitrateGraph.setDataSeries([bitrateSeries]);
+      bitrateGraph.updateEndDate();
+      bytesReceivedPrev = bytesReceived;
+      timestampPrev = timestamp;
+    }, intervalMs);
+
+    bitrateGraph.graphDiv_.style.display = '';
+    return function stop() {
+      clearInterval(interval);
+      bitrateGraph.graphDiv_.style.display = 'none';
+    };
+  };
+}
 
 const handleIsSwitchedOff = (trackState) => {
   trackIsSwitchedOff.textContent = trackState;
@@ -33,7 +80,7 @@ const handleIsSwitchedOff = (trackState) => {
   const credsP2 = await getRoomCredentials();
 
   // Create room instance and name for participants to join.
-  const roomP1 = await Video.connect(credsP1.token, {
+  roomP1 = await Video.connect(credsP1.token, {
     name: 'my-cool-room',
     bandwidthProfile: {
       video: {
@@ -58,13 +105,17 @@ const handleIsSwitchedOff = (trackState) => {
     tracks: [ videoTrack ]
   });
 
+  // Set video bitrate graph.
+  startVideoBitrateGraph = setupBitrateGraph('video', 'videobitrategraph', 'videobitratecanvas');
+
   // Attach RemoteVideoTrack
-  let remoteVideoTrack;
   roomP1.on('trackSubscribed', track => {
     if(track.kind === 'video') {
       track.attach(videoEl);
       remoteVideoTrack = track;
       handleIsSwitchedOff(track.isSwitchedOff);
+      stopVideoBitrateGraph = startVideoBitrateGraph(roomP1, 1000);
+
       switchOnBtn.classList.remove('disabled');
       switchOffBtn.classList.remove('disabled');
       renderDimensionsOption.classList.remove('disabled');
@@ -89,9 +140,9 @@ const handleIsSwitchedOff = (trackState) => {
   }
 
   const renderDimensionsObj = {
-    1: { width: 1280, height: 720 },
-    2: { width: 640, height: 480 },
-    3: { width: 176, height: 144}
+    HD: { width: 1280, height: 720 },
+    VGA: { width: 640, height: 480 },
+    QCIF: { width: 176, height: 144}
   }
 
   // Set Render Dimensions.
@@ -102,6 +153,7 @@ const handleIsSwitchedOff = (trackState) => {
 
   // Disconnect from the Room
   window.onbeforeunload = () => {
+    stopVideoBitrateGraph();
     roomP1.disconnect();
     roomP2.disconnect();
   }
