@@ -15,7 +15,7 @@ const renderDimensionsOption = document.querySelector('select#renderDimensionsOp
 const switchOnBtn = document.querySelector('button#switchOn');
 const switchOffBtn = document.querySelector('button#switchOff');
 const videoEl = document.querySelector('video#remotevideo');
-const trackIsSwitchedOff = document.querySelector('span.trackIsSwitchedOff');
+const trackIsSwitchedOff = document.querySelector('span#trackIsSwitchedOff');
 let roomP1 = null;
 let remoteVideoTrack = null;
 let startVideoBitrateGraph = null;
@@ -32,7 +32,6 @@ let stopVideoBitrateGraph = null;
   return async function startBitrateGraph(room, intervalMs) {
     let bytesReceivedPrev = 0;
     let timestampPrev = Date.now();
-    console.log(room)
     const interval = setInterval(async function() {
       if (!room) {
         clearInterval(interval);
@@ -62,7 +61,15 @@ let stopVideoBitrateGraph = null;
 }
 
 const handleIsSwitchedOff = (trackState) => {
-  trackIsSwitchedOff.textContent = trackState;
+  if(trackState) {
+    trackIsSwitchedOff.textContent = 'Off';
+    trackIsSwitchedOff.classList.remove('badge-success');
+    trackIsSwitchedOff.classList.add('badge-danger');
+  } else {
+    trackIsSwitchedOff.textContent = 'On';
+    trackIsSwitchedOff.classList.remove('badge-danger');
+    trackIsSwitchedOff.classList.add('badge-success');
+  }
 }
 
 (async function(){

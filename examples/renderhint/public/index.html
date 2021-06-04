@@ -32,15 +32,14 @@
         <div class="card">
           <div class="card-block">
             <h4 class="card-title">Remote Video Controls</h4>
-            <h5 class="card-title">Track is switched off: <span class="trackIsSwitchedOff"></span></h5>
             <div id="userControls">
               <div class="card-block">
-                clientTrackSwitchOffControl:
+                Switch Off Control:
                 <button id="switchOn" type="button" class="btn btn-primary disabled">Switch On</button>
                 <button id="switchOff" type="button" class="btn btn-primary disabled">Switch Off</button>
               </div>
               <div class="card-block">
-                contentPreferencesMode:
+                Content Preferences:
                 <select id= "renderDimensionsOption" class="btn btn-primary dropdown-toggle disabled">
                   <option value="" disabled selected hidden>Render Dimensions</option>
                   <option value="HD">1280x720</option>
@@ -53,8 +52,10 @@
               <h4 class="card-title">Remote Video Track</h4>
               <div id="media-container">
                 <video id="remotevideo"></video>
+                <span id="trackIsSwitchedOff" class="badge badge-success"></span>
               </div>
             </div>
+            <h4 class="card-title">Video Bitrate</h4>
             <div id="videobitrategraph" class="bitrategraph">
               <canvas id="videobitratecanvas"></canvas>
             </div>

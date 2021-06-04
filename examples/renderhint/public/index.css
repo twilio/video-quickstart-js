@@ -66,9 +66,21 @@ pre.language-javascript a:hover {
 }
 
 div#media-container {
+  position: relative;
   display: grid;
   grid-template-areas: 'content';
   max-width: 100%;
+}
+
+span#trackIsSwitchedOff {
+  position: absolute;
+  z-index: 3;
+  width: 67px;
+  font-size: .9em;
+  right: 1%;
+  top: 1%;
+  align-items: center;
+  max-width: max-content;
 }
 
 video {
