@@ -12,8 +12,7 @@ const switchOff = helpers.switchOff;
 const setRenderDimensions = helpers.setRenderDimensions;
 
 const renderDimensionsOption = document.querySelector('select#renderDimensionsOption');
-const switchOnBtn = document.querySelector('button#switchOn');
-const switchOffBtn = document.querySelector('button#switchOff');
+const switchOnOffBtn = document.querySelector('button#switchOnOff');
 const videoEl = document.querySelector('video#remotevideo');
 const trackIsSwitchedOff = document.querySelector('span#trackIsSwitchedOff');
 let roomP1 = null;
@@ -123,8 +122,7 @@ const handleIsSwitchedOff = (trackState) => {
       handleIsSwitchedOff(track.isSwitchedOff);
       stopVideoBitrateGraph = startVideoBitrateGraph(roomP1, 1000);
 
-      switchOnBtn.classList.remove('disabled');
-      switchOffBtn.classList.remove('disabled');
+      switchOnOffBtn.classList.remove('disabled');
       renderDimensionsOption.classList.remove('disabled');
 
       remoteVideoTrack.on('switchedOff', track => {
@@ -136,14 +134,16 @@ const handleIsSwitchedOff = (trackState) => {
     }
   });
 
-  // Remote Track Switch On
-  switchOnBtn.onclick = event => {
-    switchOn(remoteVideoTrack);
-  }
-
-  // Remote Track Switch Off
-  switchOffBtn.onclick = event => {
-    switchOff(remoteVideoTrack);
+  // Remote Track Switch On/Off
+  switchOnOffBtn.onclick = event => {
+    event.preventDefault();
+    if(remoteVideoTrack.isSwitchedOff) {
+      switchOnOffBtn.textContent = 'Switch Off';
+      switchOn(remoteVideoTrack);
+    } else {
+      switchOnOffBtn.textContent = 'Switch On';
+      switchOff(remoteVideoTrack);
+    }
   }
 
   const renderDimensionsObj = {
