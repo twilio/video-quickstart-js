@@ -7,6 +7,7 @@ const GraphView = require('../../util/timelinegraph').GraphView;
 const getSnippet = require('../../util/getsnippet');
 const getRoomCredentials = require('../../util/getroomcredentials');
 const helpers = require('./helpers');
+const joinRoom = helpers.joinRoom;
 const switchOn = helpers.switchOn;
 const switchOff = helpers.switchOff;
 const setRenderDimensions = helpers.setRenderDimensions;
@@ -86,15 +87,7 @@ const handleIsSwitchedOff = (trackState) => {
   const credsP2 = await getRoomCredentials();
 
   // Create room instance and name for participants to join.
-  roomP1 = await Video.connect(credsP1.token, {
-    name: 'my-cool-room',
-    bandwidthProfile: {
-      video: {
-        contentPreferencesMode: 'manual',
-        clientTrackSwitchOffControl: 'manual'
-      }
-    }
-  });
+  roomP1 = await joinRoom(credsP1.token);
 
   // Create the video track for the Remote Participant.
   const videoTrack = await Video.createLocalVideoTrack();
