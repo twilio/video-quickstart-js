@@ -36,7 +36,7 @@ const app = express();
   'localmediacontrols',
   'remotereconnection',
   'datatracks',
-
+  'renderhint'
 ].forEach(example => {
   const examplePath = path.join(__dirname, `../examples/${example}/public`);
   app.use(`/${example}`, express.static(examplePath));
