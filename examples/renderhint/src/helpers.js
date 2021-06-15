@@ -3,7 +3,7 @@
 var Video = require('twilio-video');
 
 /**
- * Connect to a Room with manual mode.
+ * Connect to a Room with 'manual' mode. The default mode is 'auto'.
  * @param {string} token - AccessToken for joining the Room
  * @returns {Room}
  */
