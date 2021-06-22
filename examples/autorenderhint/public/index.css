@@ -84,23 +84,19 @@ span#trackIsSwitchedOff {
 }
 
 video {
-  width: 100% !important;
-  height: auto !important;
+  width: 100%;
+  height: auto;
   border: none;
 }
 
 div#video-container {
   width: 100% !important;
-  min-height: 100%;
+  height: 300px;
   background-color: lightgrey !important;
   background-image: url('https://static0.twilio.com/marketing/bundles/archetype/img/logo-wordmark.svg');
   background-position: 50%;
   background-repeat: no-repeat;
   box-sizing: content-box;
-}
-
-.is-invisible {
-  display: none;
 }
 
 div.bitrategraph {
