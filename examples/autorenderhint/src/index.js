@@ -15,8 +15,6 @@ const videoEl = document.querySelector('video#remotevideo');
 const visibilityToggleButton = document.querySelector('button#visibilityToggleButton');
 const trackIsSwitchedOff = document.querySelector('span#trackIsSwitchedOff');
 let roomP1 = null;
-let remoteVideoTrack = null;
-let startVideoBitrateGraph = null;
 let stopVideoBitrateGraph = null;
 
 /**
@@ -103,23 +101,22 @@ const handleIsSwitchedOff = (trackState) => {
   });
 
   // Set video bitrate graph.
-  startVideoBitrateGraph = setupBitrateGraph('video', 'videobitrategraph', 'videobitratecanvas');
+  let startVideoBitrateGraph = setupBitrateGraph('video', 'videobitrategraph', 'videobitratecanvas');
 
   // Attach RemoteVideoTrack
   roomP1.on('trackSubscribed', track => {
     if(track.kind === 'video') {
       track.attach(videoEl);
-      remoteVideoTrack = track;
       handleIsSwitchedOff(track.isSwitchedOff);
       stopVideoBitrateGraph = startVideoBitrateGraph(roomP1, 1000);
 
       visibilityToggleButton.classList.remove('disabled');
       renderDimensionsOption.classList.remove('disabled');
 
-      remoteVideoTrack.on('switchedOff', track => {
+      track.on('switchedOff', track => {
         handleIsSwitchedOff(track.isSwitchedOff);
       });
-      remoteVideoTrack.on('switchedOn', track => {
+      track.on('switchedOn', track => {
         handleIsSwitchedOff(track.isSwitchedOff);
       });
     }
@@ -147,7 +144,9 @@ const handleIsSwitchedOff = (trackState) => {
 
   // Disconnect from the Room
   window.onbeforeunload = () => {
-    stopVideoBitrateGraph();
+    if (stopVideoBitrateGraph) {
+      stopVideoBitrateGraph();
+    }
     roomP1.disconnect();
     roomP2.disconnect();
   }
