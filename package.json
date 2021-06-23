@@ -38,8 +38,7 @@
     "clean:examples:manualrenderhint": "rimraf examples/manualrenderhint/public/index.js examples/manualrenderhint/public/helpers.js",
     "clean:examples:autorenderhint": "rimraf examples/autorenderhint/public/index.js examples/autorenderhint/public/helpers.js",
     "clean:quickstart": "rimraf quickstart/public/index.js",
-    "start": "npm run clean && npm run build && node server",
-    "autorenderhint": "npm run clean:examples:autorenderhint && npm run build:examples:autorenderhint && node server"
+    "start": "npm run clean && npm run build && node server"
   },
   "repository": {
     "type": "git",
