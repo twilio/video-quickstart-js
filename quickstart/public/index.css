@@ -84,3 +84,7 @@ div.participant.main::before {
     height: 270px;
   }
 }
+
+#complete-room{
+  margin-left: 1vw;
+}
