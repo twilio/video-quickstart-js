@@ -92,7 +92,37 @@ app.get('/token', function(request, response) {
  * Change status of a room to be completed.
  */
 app.put('/completeroom', async function(request, response){
-  const roomSid = request.query.roomSid;
+  const { roomSid, composition } = request.query;
+  if(composition === 'true'){
+    
+    await client.video.compositions
+                .create({
+                  roomSid: roomSid,
+                  audioSources: '*',
+                  videoLayout: {
+                  main: {
+                      z_pos: 1,
+                      video_sources: ['teacher-screen-video']
+                  },
+                  row: {
+                  z_pos: 2,
+                  x_pos: 10,
+                  y_pos: 530,
+                  width: 1260,
+                  height: 160,
+                  max_rows: 1,
+                  video_sources: ['*'],
+                  video_sources_excluded: ['teacher-screen-video']
+                }
+              },
+              statusCallback: 'https://zp64v9i591.execute-api.us-east-1.amazonaws.com/dev',
+              resolution: '1280x720',
+              format: 'mp4'
+            })
+            .then(composition =>{
+              console.log('Created Composition with SID=' + composition.sid);
+            });
+  }
 
   // update status of the room
   await client.video.rooms(roomSid) 
