@@ -2,10 +2,9 @@
 
 const Prism = require('prismjs');
 const Video = require('twilio-video');
-const DataSeries = require('../../util/timelinegraph').DataSeries;
-const GraphView = require('../../util/timelinegraph').GraphView;
 const getSnippet = require('../../util/getsnippet');
 const getRoomCredentials = require('../../util/getroomcredentials');
+const setupBitrateGraph = require('../../util/setupbitrategraph');
 const helpers = require('./helpers');
 const joinRoom = helpers.joinRoom;
 const switchOn = helpers.switchOn;
@@ -19,50 +18,10 @@ const videoEl = document.querySelector('video#remotevideo');
 const trackIsSwitchedOff = document.querySelector('span#trackIsSwitchedOff');
 let roomP1 = null;
 let remoteVideoTrack = null;
-let startVideoBitrateGraph = null;
 let stopVideoBitrateGraph = null;
 
-/**
- * Set up the bitrate graph for audio or video media.
- */
- function setupBitrateGraph(kind, containerId, canvasId) {
-  const bitrateSeries = new DataSeries();
-  const bitrateGraph = new GraphView(containerId, canvasId);
-
-  bitrateGraph.graphDiv_.style.display = 'none';
-  return async function startBitrateGraph(room, intervalMs) {
-    let bytesReceivedPrev = 0;
-    let timestampPrev = Date.now();
-    const interval = setInterval(async function() {
-      if (!room) {
-        clearInterval(interval);
-        return;
-      }
-      const stats = await room.getStats();
-      const remoteTrackStats = kind === 'audio'
-        ? stats[0].remoteAudioTrackStats[0]
-        : stats[0].remoteVideoTrackStats[0]
-      const bytesReceived = remoteTrackStats.bytesReceived;
-      const timestamp = remoteTrackStats.timestamp;
-      const bitrate = Math.round((bytesReceivedPrev - bytesReceived) * 8 / (timestampPrev - timestamp));
-
-      bitrateSeries.addPoint(timestamp, bitrate);
-      bitrateGraph.setDataSeries([bitrateSeries]);
-      bitrateGraph.updateEndDate();
-      bytesReceivedPrev = bytesReceived;
-      timestampPrev = timestamp;
-    }, intervalMs);
-
-    bitrateGraph.graphDiv_.style.display = '';
-    return function stop() {
-      clearInterval(interval);
-      bitrateGraph.graphDiv_.style.display = 'none';
-    };
-  };
-}
-
-const handleIsSwitchedOff = (trackState) => {
-  if(trackState) {
+const handleIsSwitchedOff = (isTrackSwitchedOff) => {
+  if(isTrackSwitchedOff) {
     trackIsSwitchedOff.textContent = 'Off';
     trackIsSwitchedOff.classList.remove('badge-success');
     trackIsSwitchedOff.classList.add('badge-danger');
@@ -106,13 +65,12 @@ const handleIsSwitchedOff = (trackState) => {
   });
 
   // Set video bitrate graph.
-  startVideoBitrateGraph = setupBitrateGraph('video', 'videobitrategraph', 'videobitratecanvas');
+  let startVideoBitrateGraph = setupBitrateGraph('video', 'videobitrategraph', 'videobitratecanvas');
 
   // Attach RemoteVideoTrack
   roomP1.on('trackSubscribed', track => {
     if(track.kind === 'video') {
       track.attach(videoEl);
-      remoteVideoTrack = track;
       handleIsSwitchedOff(track.isSwitchedOff);
       stopVideoBitrateGraph = startVideoBitrateGraph(roomP1, 1000);
 
@@ -120,10 +78,10 @@ const handleIsSwitchedOff = (trackState) => {
       switchOffBtn.classList.remove('disabled');
       renderDimensionsOption.classList.remove('disabled');
 
-      remoteVideoTrack.on('switchedOff', track => {
+      track.on('switchedOff', track => {
         handleIsSwitchedOff(track.isSwitchedOff);
       });
-      remoteVideoTrack.on('switchedOn', track => {
+      track.on('switchedOn', track => {
         handleIsSwitchedOff(track.isSwitchedOff);
       });
     }
@@ -153,7 +111,9 @@ const handleIsSwitchedOff = (trackState) => {
 
   // Disconnect from the Room
   window.onbeforeunload = () => {
-    stopVideoBitrateGraph();
+    if (stopVideoBitrateGraph) {
+      stopVideoBitrateGraph();
+    }
     roomP1.disconnect();
     roomP2.disconnect();
   }
