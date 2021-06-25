@@ -12,7 +12,10 @@ require('dotenv').load();
 const express = require('express');
 const http = require('http');
 const path = require('path');
-const { jwt: { AccessToken }, Twilio } = require('twilio');
+const {
+  jwt: {AccessToken},
+  Twilio,
+} = require('twilio');
 
 const VideoGrant = AccessToken.VideoGrant;
 
@@ -39,7 +42,7 @@ const app = express();
   'localmediacontrols',
   'remotereconnection',
   'datatracks',
-  'renderhint'
+  'renderhint',
 ].forEach(example => {
   const examplePath = path.join(__dirname, `../examples/${example}/public`);
   app.use(`/${example}`, express.static(examplePath));
@@ -65,8 +68,8 @@ app.get('/', (request, response) => {
  * username for the client requesting a token, and takes a device ID as a query
  * parameter.
  */
-app.get('/token', function(request, response) {
-  const { identity } = request.query;
+app.get('/token', function (request, response) {
+  const {identity} = request.query;
 
   // Create an access token which we will sign and return to the client,
   // containing the grant we just created.
@@ -74,7 +77,7 @@ app.get('/token', function(request, response) {
     process.env.TWILIO_ACCOUNT_SID,
     process.env.TWILIO_API_KEY,
     process.env.TWILIO_API_SECRET,
-    { ttl: MAX_ALLOWED_SESSION_DURATION }
+    {ttl: MAX_ALLOWED_SESSION_DURATION}
   );
 
   // Assign the generated identity to the token.
@@ -91,50 +94,50 @@ app.get('/token', function(request, response) {
 /**
  * Change status of a room to be completed.
  */
-app.put('/completeroom', async function(request, response){
-  const { roomSid, composition } = request.query;
-  if(composition === 'true'){
-    
+app.put('/completeroom', async function (request, response) {
+  const {roomSid, composition} = request.query;
+  if (composition === 'true') {
     await client.video.compositions
-                .create({
-                  roomSid: roomSid,
-                  audioSources: '*',
-                  videoLayout: {
-                  main: {
-                      z_pos: 1,
-                      video_sources: ['teacher-screen-video']
-                  },
-                  row: {
-                  z_pos: 2,
-                  x_pos: 10,
-                  y_pos: 530,
-                  width: 1260,
-                  height: 160,
-                  max_rows: 1,
-                  video_sources: ['*'],
-                  video_sources_excluded: ['teacher-screen-video']
-                }
-              },
-              statusCallback: 'https://zp64v9i591.execute-api.us-east-1.amazonaws.com/dev',
-              resolution: '1280x720',
-              format: 'mp4'
-            })
-            .then(composition =>{
-              console.log('Created Composition with SID=' + composition.sid);
-            });
+      .create({
+        roomSid: roomSid,
+        audioSources: '*',
+        videoLayout: {
+          main: {
+            z_pos: 1,
+            video_sources: ['teacher-screen-video'],
+          },
+          row: {
+            z_pos: 2,
+            x_pos: 10,
+            y_pos: 530,
+            width: 1260,
+            height: 160,
+            max_rows: 1,
+            video_sources: ['*'],
+            video_sources_excluded: ['teacher-screen-video'],
+          },
+        },
+        statusCallback: 'https://zp64v9i591.execute-api.us-east-1.amazonaws.com/dev',
+        resolution: '1280x720',
+        format: 'mp4',
+      })
+      .then(composition => {
+        console.log('Created Composition with SID=' + composition.sid);
+      });
   }
 
   // update status of the room
-  await client.video.rooms(roomSid) 
-                    .update({status: 'completed'})
-                    .then(room => console.log('completed', room.uniqueName));
+  await client.video
+    .rooms(roomSid)
+    .update({status: 'completed'})
+    .then(room => console.log('completed', room.uniqueName));
   response.status(200);
   response.send('ROOM_COMPLETED');
-})
+});
 
 // Create http server and run it.
 const server = http.createServer(app);
 const port = process.env.PORT || 3000;
-server.listen(port, function() {
+server.listen(port, function () {
   console.log('Express server running on *:' + port);
 });
