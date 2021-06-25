@@ -1,9 +1,9 @@
 'use strict';
 
-const {connect, createLocalVideoTrack, Logger} = require('twilio-video');
-const {isMobile} = require('./browser');
+const { connect, createLocalVideoTrack, Logger } = require('twilio-video');
+const { isMobile } = require('./browser');
 
-const $modals = $('#modals');
+const $modals =  $('#modals');
 const $leave = $('#leave-room');
 const $complete = $('#complete-room');
 const $room = $('#room');
@@ -31,7 +31,7 @@ function setActiveParticipant(participant) {
     $activeParticipant.removeClass('pinned');
 
     // Detach any existing VideoTrack of the active Participant.
-    const {track: activeTrack} = Array.from(activeParticipant.videoTracks.values())[0] || {};
+    const { track: activeTrack } = Array.from(activeParticipant.videoTracks.values())[0] || {};
     if (activeTrack) {
       activeTrack.detach($activeVideo.get(0));
       $activeVideo.css('opacity', '0');
@@ -40,7 +40,7 @@ function setActiveParticipant(participant) {
 
   // Set the new active Participant.
   activeParticipant = participant;
-  const {identity, sid} = participant;
+  const { identity, sid } = participant;
   const $participant = $(`div#${sid}`, $participants);
 
   $participant.addClass('active');
@@ -49,7 +49,7 @@ function setActiveParticipant(participant) {
   }
 
   // Attach the new active Participant's video.
-  const {track} = Array.from(participant.videoTracks.values())[0] || {};
+  const { track } = Array.from(participant.videoTracks.values())[0] || {};
   if (track) {
     track.attach($activeVideo.get(0));
     $activeVideo.css('opacity', '');
@@ -64,7 +64,7 @@ function setActiveParticipant(participant) {
  * @param room - the Room which contains the current active Participant
  */
 function setCurrentActiveParticipant(room) {
-  const {dominantSpeaker, localParticipant} = room;
+  const { dominantSpeaker, localParticipant } = room;
   setActiveParticipant(dominantSpeaker || localParticipant);
 }
 
@@ -74,13 +74,11 @@ function setCurrentActiveParticipant(room) {
  * @param room - the Room that the Participant joined
  */
 function setupParticipantContainer(participant, room) {
-  const {identity, sid} = participant;
+  const { identity, sid } = participant;
 
   // Add a container for the Participant's media.
   const $container = $(`<div class="participant" data-identity="${identity}" id="${sid}">
-    <audio autoplay ${
-      participant === room.localParticipant ? 'muted' : ''
-    } style="opacity: 0"></audio>
+    <audio autoplay ${participant === room.localParticipant ? 'muted' : ''} style="opacity: 0"></audio>
     <video autoplay muted playsinline style="opacity: 0"></video>
   </div>`);
 
