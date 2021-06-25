@@ -8,8 +8,9 @@ const setupBitrateGraph = require('../../util/setupbitrategraph');
 const helpers = require('./helpers');
 const joinRoom = helpers.joinRoom;
 
+const bgImg = document.querySelector('div#bg-img');
+const mediaContainer = document.querySelector('div#media-container');
 const renderDimensionsOption = document.querySelector('select#renderDimensionsOption');
-const videoContainer = document.querySelector('div#video-container');
 const videoEl = document.querySelector('video#remotevideo');
 const visibilityToggleButton = document.querySelector('button#visibilityToggleButton');
 const trackIsSwitchedOff = document.querySelector('span#trackIsSwitchedOff');
@@ -85,12 +86,12 @@ const handleIsSwitchedOff = (isTrackSwitchedOff) => {
   // Toggle Remote Video visibility
   visibilityToggleButton.onclick = event => {
     videoEl.hidden = videoEl.hidden ? false : true;
-    videoContainer.hidden = videoContainer.hidden ? false : true;
+    bgImg.hidden = bgImg.hidden ? false : true;
     visibilityToggleButton.textContent = visibilityToggleButton.textContent === 'Toggle On' ? 'Toggle Off' : 'Toggle On';
   }
 
   const renderDimensionsObj = {
-    HD: { width: 1280, height: 720 },
+    qHD: { width: 960, height: 540 },
     VGA: { width: 640, height: 480 },
     QCIF: { width: 176, height: 144}
   }
@@ -98,8 +99,8 @@ const handleIsSwitchedOff = (isTrackSwitchedOff) => {
   // Adjust Remote Video element size.
   renderDimensionsOption.addEventListener('change', () => {
     const renderDimensions = renderDimensionsObj[renderDimensionsOption.value];
-    videoEl.style.height = `${renderDimensions.height}px`;
-    videoEl.style.width = `${renderDimensions.width}px`;
+    mediaContainer.style.height = `${renderDimensions.height}px`;
+    mediaContainer.style.width = `${renderDimensions.width}px`;
   });
 
   // Disconnect from the Room
