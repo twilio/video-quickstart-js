@@ -46,9 +46,6 @@ jspm_packages
 .DS_Store
 package-lock.json
 
-# prettier file
-.prettierrc.yml
-
 # The generated index.js
 quickstart/public/index.js
 examples/bandwidthconstraints/public/index.js

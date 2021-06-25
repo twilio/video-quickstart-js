@@ -42,7 +42,7 @@ const app = express();
   'localmediacontrols',
   'remotereconnection',
   'datatracks',
-  'renderhint',
+  'renderhint'
 ].forEach(example => {
   const examplePath = path.join(__dirname, `../examples/${example}/public`);
   app.use(`/${example}`, express.static(examplePath));
@@ -68,8 +68,8 @@ app.get('/', (request, response) => {
  * username for the client requesting a token, and takes a device ID as a query
  * parameter.
  */
-app.get('/token', function (request, response) {
-  const {identity} = request.query;
+app.get('/token', function(request, response) {
+  const { identity } = request.query;
 
   // Create an access token which we will sign and return to the client,
   // containing the grant we just created.
@@ -77,7 +77,7 @@ app.get('/token', function (request, response) {
     process.env.TWILIO_ACCOUNT_SID,
     process.env.TWILIO_API_KEY,
     process.env.TWILIO_API_SECRET,
-    {ttl: MAX_ALLOWED_SESSION_DURATION}
+    { ttl: MAX_ALLOWED_SESSION_DURATION }
   );
 
   // Assign the generated identity to the token.
@@ -138,6 +138,6 @@ app.put('/completeroom', async function (request, response) {
 // Create http server and run it.
 const server = http.createServer(app);
 const port = process.env.PORT || 3000;
-server.listen(port, function () {
+server.listen(port, function() {
   console.log('Express server running on *:' + port);
 });
