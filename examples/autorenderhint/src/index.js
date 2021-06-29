@@ -14,19 +14,19 @@ const renderDimensionsOption = document.querySelector('select#renderDimensionsOp
 const videoEl = document.querySelector('video#remotevideo');
 const showVideo = document.querySelector('button#showVideo');
 const hideVideo = document.querySelector('button#hideVideo');
-const trackIsSwitchedOff = document.querySelector('span#trackIsSwitchedOff');
+const trackIsSwitchedOffIndicator = document.querySelector('span#trackIsSwitchedOff');
 let roomP1 = null;
 let stopVideoBitrateGraph = null;
 
 const handleIsSwitchedOff = (isTrackSwitchedOff) => {
   if(isTrackSwitchedOff) {
-    trackIsSwitchedOff.textContent = 'Off';
-    trackIsSwitchedOff.classList.remove('badge-success');
-    trackIsSwitchedOff.classList.add('badge-danger');
+    trackIsSwitchedOffIndicator.textContent = 'Off';
+    trackIsSwitchedOffIndicator.classList.remove('badge-success');
+    trackIsSwitchedOffIndicator.classList.add('badge-danger');
   } else {
-    trackIsSwitchedOff.textContent = 'On';
-    trackIsSwitchedOff.classList.remove('badge-danger');
-    trackIsSwitchedOff.classList.add('badge-success');
+    trackIsSwitchedOffIndicator.textContent = 'On';
+    trackIsSwitchedOffIndicator.classList.remove('badge-danger');
+    trackIsSwitchedOffIndicator.classList.add('badge-success');
   }
 }
 
