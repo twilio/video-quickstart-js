@@ -12,7 +12,8 @@ const bgImg = document.querySelector('div#bg-img');
 const mediaContainer = document.querySelector('div#media-container');
 const renderDimensionsOption = document.querySelector('select#renderDimensionsOption');
 const videoEl = document.querySelector('video#remotevideo');
-const visibilityToggleButton = document.querySelector('button#visibilityToggleButton');
+const showVideo = document.querySelector('button#showVideo');
+const hideVideo = document.querySelector('button#hideVideo');
 const trackIsSwitchedOff = document.querySelector('span#trackIsSwitchedOff');
 let roomP1 = null;
 let stopVideoBitrateGraph = null;
@@ -71,7 +72,8 @@ const handleIsSwitchedOff = (isTrackSwitchedOff) => {
       handleIsSwitchedOff(track.isSwitchedOff);
       stopVideoBitrateGraph = startVideoBitrateGraph(roomP1, 1000);
 
-      visibilityToggleButton.classList.remove('disabled');
+      showVideo.classList.remove('disabled');
+      hideVideo.classList.remove('disabled');
       renderDimensionsOption.classList.remove('disabled');
 
       track.on('switchedOff', track => {
@@ -83,11 +85,16 @@ const handleIsSwitchedOff = (isTrackSwitchedOff) => {
     }
   });
 
-  // Toggle Remote Video visibility
-  visibilityToggleButton.onclick = event => {
-    videoEl.hidden = videoEl.hidden ? false : true;
-    bgImg.hidden = bgImg.hidden ? false : true;
-    visibilityToggleButton.textContent = visibilityToggleButton.textContent === 'Toggle On' ? 'Toggle Off' : 'Toggle On';
+  // Show RemoteVideoTrack
+  showVideo.onclick = event => {
+    videoEl.hidden = false;
+    bgImg.hidden = true;
+  }
+
+  // Hide RemoteVideoTrack
+  hideVideo.onclick = event => {
+    videoEl.hidden = true;
+    bgImg.hidden = false;
   }
 
   const renderDimensionsObj = {
@@ -107,6 +114,7 @@ const handleIsSwitchedOff = (isTrackSwitchedOff) => {
   window.onbeforeunload = () => {
     if (stopVideoBitrateGraph) {
       stopVideoBitrateGraph();
+      stopVideoBitrateGraph = null;
     }
     roomP1.disconnect();
     roomP2.disconnect();

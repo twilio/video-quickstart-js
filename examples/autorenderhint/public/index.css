@@ -70,7 +70,6 @@ div#media-container {
   display: grid;
   grid-template-areas: 'content';
   max-width: 100%;
-  grid-template-rows: 400px;
 }
 
 span#trackIsSwitchedOff {
@@ -85,14 +84,14 @@ span#trackIsSwitchedOff {
 }
 
 video {
-  width: 100%;
+  width: 100% !important;
   height: auto !important;
   border: none;
 }
 
 div#bg-img {
   width: 100% !important;
-  height: auto;
+  height: auto !important;
   background-color: lightgrey !important;
   background-image: url('https://static0.twilio.com/marketing/bundles/archetype/img/logo-wordmark.svg');
   background-position: 50%;
