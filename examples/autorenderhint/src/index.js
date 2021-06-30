@@ -70,7 +70,9 @@ const handleIsSwitchedOff = (isTrackSwitchedOff) => {
     if(track.kind === 'video') {
       track.attach(videoEl);
       handleIsSwitchedOff(track.isSwitchedOff);
-      stopVideoBitrateGraph = startVideoBitrateGraph(roomP1, 1000);
+      stopVideoBitrateGraph = startVideoBitrateGraph(roomP1, 1000).then(stop => {
+        stopVideoBitrateGraph = stop;
+      });
 
       showVideo.classList.remove('disabled');
       hideVideo.classList.remove('disabled');
