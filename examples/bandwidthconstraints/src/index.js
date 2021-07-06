@@ -1,12 +1,11 @@
 'use strict';
 
-const DataSeries = require('../../util/timelinegraph').DataSeries;
-const GraphView = require('../../util/timelinegraph').GraphView;
 const Prism = require('prismjs');
 const Video = require('twilio-video');
 const getRoomCredentials = require('../../util/getroomcredentials');
 const getSnippet = require('../../util/getsnippet');
 const helpers = require('./helpers');
+const setupBitrateGraph = require('../../util/setupbitrategraph');
 const waveform = require('../../util/waveform');
 const connectWithBandwidthConstraints = helpers.connectWithBandwidthConstraints;
 const updateBandwidthConstraints = helpers.updateBandwidthConstraints;
@@ -122,45 +121,6 @@ function getTracks(participant) {
   }).map(function(publication) {
     return publication.track;
   });
-}
-
-/**
- * Set up the bitrate graph for audio or video media.
- */
-function setupBitrateGraph(kind, containerId, canvasId) {
-  const bitrateSeries = new DataSeries();
-  const bitrateGraph = new GraphView(containerId, canvasId);
-
-  bitrateGraph.graphDiv_.style.display = 'none';
-  return function startBitrateGraph(room, intervalMs) {
-    let bytesReceivedPrev = 0;
-    let timestampPrev = Date.now();
-    const interval = setInterval(async function() {
-      if (!room) {
-        clearInterval(interval);
-        return;
-      }
-      const stats = await room.getStats();
-      const remoteTrackStats = kind === 'audio'
-        ? stats[0].remoteAudioTrackStats[0]
-        : stats[0].remoteVideoTrackStats[0]
-      const bytesReceived = remoteTrackStats.bytesReceived;
-      const timestamp = remoteTrackStats.timestamp;
-      const bitrate = Math.round((bytesReceivedPrev - bytesReceived) * 8 / (timestampPrev - timestamp));
-
-      bitrateSeries.addPoint(timestamp, bitrate);
-      bitrateGraph.setDataSeries([bitrateSeries]);
-      bitrateGraph.updateEndDate();
-      bytesReceivedPrev = bytesReceived;
-      timestampPrev = timestamp;
-    }, intervalMs);
-
-    bitrateGraph.graphDiv_.style.display = '';
-    return function stop() {
-      clearInterval(interval);
-      bitrateGraph.graphDiv_.style.display = 'none';
-    };
-  };
 }
 
 /**

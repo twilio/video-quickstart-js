@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Video Track Manual Controls</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" integrity="sha384-vSIIfh2YWi9wW0r9iZe7RJPrKwp6bG+s9QZMoITbCckVJqGCCRhc+ccxNcdpHuYu" crossorigin="anonymous">
+  <link rel="stylesheet" href="prism.css">
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+  <div class="container-fluid">
+    <div class="row thin-gutters align">
+      <div class="col-sm-6">
+        <div class="card">
+          <div class="card-block">
+            <h4 class="card-title">
+              Video Track Manual Controls
+            </h4>
+            <button class="btn btn-primary collapsed d-md-none" type="button" data-toggle="collapse" data-target="#collapseSnippet" aria-expanded="false" aria-controls="collapseSnippet">
+              <span class="if-collapsed">Show Code</span>
+              <span class="if-not-collapsed">Hide Code</span>
+            </button>
+            <div class="collapse dont-collapse-sm d-md-block" id="collapseSnippet">
+              <pre id="shown-snippet" class="language-javascript"></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-6">
+        <div class="card">
+          <div class="card-block">
+            <h4 class="card-title">Remote Video Controls</h4>
+            <div id="userControls">
+              <div class="card-block">
+                Switch Off Control:
+                <button id="switchOn" type="button" class="btn btn-primary disabled">Switch On</button>
+                <button id="switchOff" type="button" class="btn btn-primary disabled">Switch Off</button>
+              </div>
+              <div class="card-block">
+                Content Preferences:
+                <select id= "renderDimensionsOption" class="btn btn-primary dropdown-toggle disabled">
+                  <option value="" disabled selected hidden>Render Dimensions</option>
+                  <option value="HD">1280x720</option>
+                  <option value="VGA">640x480</option>
+                  <option value="QCIF">176x144</option>
+                </select>
+              </div>
+            </div>
+            <div class="card-block">
+              <h4 class="card-title">Remote Video Track</h4>
+              <div id="media-container">
+                <video id="remotevideo"></video>
+                <span id="trackIsSwitchedOff" class="badge badge-success"></span>
+              </div>
+            </div>
+            <h4 class="card-title">Video Bitrate</h4>
+            <div id="videobitrategraph" class="bitrategraph">
+              <canvas id="videobitratecanvas"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="index.js"></script>
+  <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+</body>
+</html>
