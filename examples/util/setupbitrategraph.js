@@ -14,7 +14,7 @@ const GraphView = require('./timelinegraph').GraphView;
   const bitrateGraph = new GraphView(containerId, canvasId);
 
   bitrateGraph.graphDiv_.style.display = 'none';
-  return async function startBitrateGraph(room, intervalMs) {
+  return function startBitrateGraph(room, intervalMs) {
     let bytesReceivedPrev = 0;
     let timestampPrev = Date.now();
     const interval = setInterval(async function() {
