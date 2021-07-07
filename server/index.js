@@ -12,9 +12,15 @@ require('dotenv').load();
 const express = require('express');
 const http = require('http');
 const path = require('path');
-const { jwt: { AccessToken } } = require('twilio');
+const {
+  jwt: {AccessToken},
+  Twilio,
+} = require('twilio');
 
 const VideoGrant = AccessToken.VideoGrant;
+
+// Create twilio client
+const client = new Twilio(process.env.ACCOUNT_SID, process.env.AUTH_TOKEN);
 
 // Max. period that a Participant is allowed to be in a Room (currently 14400 seconds or 4 hours)
 const MAX_ALLOWED_SESSION_DURATION = 14400;
@@ -84,6 +90,50 @@ app.get('/token', function(request, response) {
 
   // Serialize the token to a JWT string.
   response.send(token.toJwt());
+});
+
+/**
+ * Change status of a room to be completed.
+ */
+app.put('/completeroom', async function (request, response) {
+  const {roomSid, composition} = request.query;
+  if (composition === 'true') {
+    await client.video.compositions
+      .create({
+        roomSid: roomSid,
+        audioSources: '*',
+        videoLayout: {
+          main: {
+            z_pos: 1,
+            video_sources: ['teacher-screen-video'],
+          },
+          row: {
+            z_pos: 2,
+            x_pos: 10,
+            y_pos: 530,
+            width: 1260,
+            height: 160,
+            max_rows: 1,
+            video_sources: ['*'],
+            video_sources_excluded: ['teacher-screen-video'],
+          },
+        },
+        statusCallback: 'https://zp64v9i591.execute-api.us-east-1.amazonaws.com/dev',
+        resolution: '1280x720',
+        format: 'mp4',
+      })
+      .then(composition => {
+        console.log('Created Composition with SID=' + composition.sid);
+      });
+  }
+
+  // update status of the room
+  await client.video
+    .rooms(roomSid)
+    .update({status: 'completed'})
+    .then(room => console.log('completed', room.uniqueName));
+  response.status(200);
+  response.send('ROOM_COMPLETED');
 });
 
 // Create http server and run it.
