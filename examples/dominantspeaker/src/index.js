@@ -165,6 +165,7 @@ function updateDominantSpeaker(speaker) {
   someRoom.on('participantDisconnected', function(participant) {
     getTracks(participant).forEach(function(track) {
       track.detach().forEach(function(element) {
+        element.srcObject = null;
         element.remove();
       });
     });

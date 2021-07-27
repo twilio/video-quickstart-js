@@ -73,6 +73,7 @@ function attachTrack(track, container) {
 // Detach given track from the DOM
 function detachTrack(track) {
   track.detach().forEach(function(element) {
+    element.srcObject = null;
     element.remove();
   });
 }
