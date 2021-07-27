@@ -87,6 +87,7 @@ let roomName = null;
 
   participantMutedOrUnmutedMedia(roomP2, track => {
     track.detach().forEach(element => {
+      element.srcObject = null;
       element.remove();
     });
   }, track => {

@@ -109,10 +109,12 @@ function onTrackPublished(publishType, publication, view) {
   } else if (publishType === 'unpublish') {
     if (publication.track) {
       publication.track.detach(view);
+      view.srcObject = null;
     }
 
     publication.on('subscribed', track => {
       track.detach(view);
+      view.srcObject = null;
     });
   }
 }

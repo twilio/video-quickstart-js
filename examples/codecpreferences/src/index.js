@@ -48,6 +48,7 @@ function attachTrack(audioElement, videoElement, showAppliedCodec, track) {
  */
 function detachAudioTrack(track, audioElement) {
   track.detach(audioElement);
+  audioElement.srcObject = null;
   waveform.unsetStream();
   const canvas = waveformContainer.querySelector('canvas');
   if (canvas) {
@@ -65,6 +66,7 @@ function detachTrack(audioElement, videoElement, track) {
     return;
   }
   track.detach(videoElement);
+  videoElement.srcObject = null;
 }
 
 /**

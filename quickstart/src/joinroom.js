@@ -142,13 +142,17 @@ function attachTrack(track, participant) {
 function detachTrack(track, participant) {
   // Detach the Participant's Track from the thumbnail.
   const $media = $(`div#${participant.sid} > ${track.kind}`, $participants);
+  const mediaEl = $media.get(0);
   $media.css('opacity', '0');
-  track.detach($media.get(0));
+  track.detach(mediaEl);
+  mediaEl.srcObject = null;
 
   // If the detached Track is a VideoTrack that is published by the active
   // Participant, then detach it from the main video as well.
   if (track.kind === 'video' && participant === activeParticipant) {
-    track.detach($activeVideo.get(0));
+    const activeVideoEl = $activeVideo.get(0);
+    track.detach(activeVideoEl);
+    activeVideoEl.srcObject = null;
     $activeVideo.css('opacity', '0');
   }
 }
