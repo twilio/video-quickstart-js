@@ -153,15 +153,25 @@ async function applyVideoInputDeviceChange(event) {
 
 // reads selected audio output, and updates preview to use the device.
 function applyAudioOutputDeviceChange(event) {
-  var audio = document.querySelector('audio#audioinputpreview');
-
-  // Note: not supported on safari
-  if (deviceSelections.audiooutput.value) {
-    applyAudioOutputDeviceSelection(deviceSelections.audiooutput.value, audio);
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
   }
-
-  event.preventDefault();
-  event.stopPropagation();
+  let deviceId = deviceSelections.audiooutput.value;
+  let outputDevice = deviceSelections.audiooutput.options[audiooutput.selectedIndex].value;
+  document.querySelectorAll('audio').forEach(audioEl => {
+    if (deviceId) {
+      // Note: not supported on safari
+      applyAudioOutputDeviceSelection(deviceId, audioEl)
+        .then(() => {
+          console.log(`Success, audio output device attached: ${deviceId} for ${outputDevice}`);
+        })
+        .catch(error => {
+          let errorMessage = error;
+          console.error('ERROR: ', errorMessage);
+        });
+    }
+  })
 }
 
 function maybeEnableConnectButton() {
