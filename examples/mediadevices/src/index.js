@@ -15,6 +15,7 @@ const roomNameText = document.querySelector('#roomName');
 let someRoom = null;
 let localAudioTrack = null;
 let localVideoTrack = null;
+let deviceId;
 
 var getDeviceSelectionOptions = helpers.getDeviceSelectionOptions;
 
@@ -67,7 +68,15 @@ function updateRoomBlock(room) {
 
 // Attach the Track to the DOM.
 function attachTrack(track, container) {
-  container.appendChild(track.attach());
+  let audioEl;
+  if (track.kind === 'audio') {
+    audioEl = track.attach();
+    audioEl.className = 'remote-audio'
+    deviceId ? applyAudioOutputDeviceSelection(deviceId, audioEl) : null;
+    container.appendChild(audioEl)
+  } else {
+    container.appendChild(track.attach());
+  }
 }
 
 // Detach given track from the DOM
@@ -153,15 +162,23 @@ async function applyVideoInputDeviceChange(event) {
 
 // reads selected audio output, and updates preview to use the device.
 function applyAudioOutputDeviceChange(event) {
-  var audio = document.querySelector('audio#audioinputpreview');
-
-  // Note: not supported on safari
-  if (deviceSelections.audiooutput.value) {
-    applyAudioOutputDeviceSelection(deviceSelections.audiooutput.value, audio);
+  if (event) {
+    event.preventDefault();
   }
-
-  event.preventDefault();
-  event.stopPropagation();
+  deviceId = deviceSelections.audiooutput.value;
+  document.querySelectorAll('.remote-audio').forEach(audioEl => {
+    if (deviceId) {
+      // Note: not supported on safari
+      applyAudioOutputDeviceSelection(deviceId, audioEl)
+        .then(() => {
+          console.log(`Success, audio output device attached: ${deviceId}`);
+        })
+        .catch(error => {
+          let errorMessage = error;
+          console.error('ERROR: ', errorMessage);
+        });
+    }
+  })
 }
 
 function maybeEnableConnectButton() {
