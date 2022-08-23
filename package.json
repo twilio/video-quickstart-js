@@ -64,11 +64,11 @@
     "express": "^4.15.2",
     "prismjs": "^1.6.0",
     "stackblur-canvas": "^1.4.0",
-    "twilio": "^3.19.1",
-    "twilio-video": "^2.18.0"
+    "twilio": "^3.80.1",
+    "twilio-video": "^2.23.0"
   },
   "devDependencies": {
-    "browserify": "^14.3.0",
+    "browserify": "^17.0.0",
     "copyfiles": "^1.2.0",
     "npm-run-all": "^4.0.2",
     "rimraf": "^2.6.1"
