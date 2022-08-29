@@ -3,11 +3,15 @@
 const { connect, createLocalVideoTrack, Logger } = require('twilio-video');
 const { isMobile } = require('./browser');
 
+const $modals =  $('#modals');
 const $leave = $('#leave-room');
+const $complete = $('#complete-room');
 const $room = $('#room');
 const $activeParticipant = $('div#active-participant > div.participant.main', $room);
 const $activeVideo = $('video', $activeParticipant);
 const $participants = $('div#participants', $room);
+const $compositionModal = $('#composition-check', $modals);
+const completeRoom = require('./completeroom');
 
 // The current active Participant in the Room.
 let activeParticipant = null;
@@ -268,6 +272,12 @@ async function joinRoom(token, connectOptions) {
   $leave.click(function onLeave() {
     $leave.off('click', onLeave);
     room.disconnect();
+  });
+
+  // Complete the Room when the "Complete Room" button is clicked.
+  $complete.click(function onComplete() {
+    $complete.off('click', onComplete);
+    completeRoom($compositionModal, room);
   });
 
   return new Promise((resolve, reject) => {
