@@ -18,24 +18,25 @@ div.participant {
   background: center no-repeat url("data:image/svg+xml;utf8,<svg class='bi bi-person-fill' width='80' height='45' viewBox='0 0 16 16' fill='currentColor' xmlns='http://www.w3.org/2000/svg'><path fill-rule='evenodd' d='M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 100-6 3 3 0 000 6z' clip-rule='evenodd'/></svg>");
   border: 1px solid gray;
   display: inline-flex;
-  height: 90px;
+  height: auto;
   margin: 10px 5px;
-  max-width: 160px;
+  max-width: auto;
   overflow: hidden;
 }
 
-div.participant > video {
+div.participant>video {
   width: 100%;
 }
+
 
 div.participant.main {
-  height: inherit;
+  height: auto;
   margin: 10px 0;
   max-width: 100%;
-  width: 100%;
+  width: auto;
 }
 
-div.participant.main > video {
+div.participant.main>video {
   height: 720px;
 }
 
@@ -74,13 +75,125 @@ div.participant.main::before {
     white-space: nowrap;
   }
 
-  div.participant.main > video {
+  div.participant.main>video {
     height: 180px;
   }
 }
 
+
+div.card {
+  border: none;
+  overflow-y: auto;
+}
+
+canvas.snapshot-canvas,
+img.snapshot-img,
+video#videoinputpreview {
+  width: 80%;
+  height: 80%;
+  background-color: lightgray !important;
+  background-image: url('https://static0.twilio.com/marketing/bundles/archetype/img/logo-wordmark.svg');
+  background-position: 50%;
+  background-repeat: no-repeat;
+  border: 2px solid yellow;
+}
+
+button#takesnapshot {
+  margin-top: 5px;
+  background-color: whitesmoke;
+}
+
+button#muteVideoBtn {
+  margin-top: 5px;
+  background-color: whitesmoke;
+}
+
+
+button#muteAudioBtn {
+  margin-top: 5px;
+  background-color: whitesmoke;
+}
+
+div.roomstate {
+  background: white;
+  margin: 2px;
+  color: black;
+  border: solid 1px black;
+  padding: 20px;
+  margin: 10px;
+}
+
+div.roomstate.unknown.current {
+  background: gray;
+}
+
+div.roomstate.connected.current {
+  background: green;
+}
+
+div.roomstate.disconnected.current {
+  background: red;
+}
+
+div.roomstate.reconnecting.current {
+  background: yellow;
+}
+
+div#userControls {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  padding: 5px;
+}
+
+div#userControls>button {
+  align-items: center;
+  margin: 5px;
+  border-radius: 8px;
+  transition-duration: 0.4s;
+}
+
+div#media-container {
+  display: grid;
+  grid-template-areas: 'content';
+  width: 100%
+}
+
+div#videopreview {
+  grid-area: content;
+  width: 100%;
+}
+
+div#audiopreview {
+  grid-area: content;
+  z-index: 1;
+  background-color: transparent;
+  padding: 2px 2px;
+  width: 100%;
+}
+
+
+
+
+div#audiopreview>span>i#activeIcon {
+  display: flex;
+  font-size: 50px;
+}
+
+div#audiopreview>span>i#inactiveIcon {
+  display: none;
+}
+
+div#videopreview>video {
+  width: 100%;
+  background-color: lightgrey !important;
+  background-image: url('https://static0.twilio.com/marketing/bundles/archetype/img/logo-wordmark.svg');
+  background-position: 50%;
+  background-repeat: no-repeat;
+}
+
 @media (max-width: 768px) {
-  div.participant.main > video {
+  div.participant.main>video {
     height: 270px;
   }
 }

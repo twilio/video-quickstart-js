@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Examples</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+<div class="jumbotron">
+  <div class="container-fluid">
+    <h2 class="display-3">Examples</h2>
+    <p class="lead">These example apps demonstrate special use-cases of the Twilio Video JS SDK.</p>
+    <p class="lead">To try the quickstart, click <a href='/quickstart'>here</a></p>
+    </div>
+</div>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="card-deck">
+          <div class="card" style="text-decoration: none">
+            <a href="/bandwidthconstraints">
+              <h4 class="card-header">
+                Bandwidth Constraints
+              </h4>
+            </a>
+            <div class="card-block">
+              <p class="card-text">
+                This app demonstrates the Bandwidth Constraints API, which can be used to control the send-side
+                bandwidth of the media that is published to the Room.
+              </p>
+            </div>
+          </div>
+          <div class="card" style="text-decoration: none">
+            <a href="/localvideofilter">
+              <h4 class="card-header">
+                Local Video Filter
+              </h4>
+            </a>
+            <div class="card-block">
+              <p class="card-text">
+                This app demonstrates a way to apply filters to the LocalVideoTrack. The filtered LocalVideoTrack
+                can then be used to connect to a Room.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-12">
+        <div class="card-deck">
+          <div class="card"  style="text-decoration: none">
+            <a href="/localvideosnapshot">
+              <h4 class="card-header">
+                Local Video Snapshot
+              </h4>
+            </a>
+            <div class="card-block">
+              <p class="card-text">
+                This app demonstrates a way to capture a snapshot of the LocalVideoTrack using the HTMLCanvasElement.
+              </p>
+            </div>
+          </div>
+          <div class="card"  style="text-decoration: none">
+            <a href="/mediadevices">
+              <h4 class="card-header">
+                Media Device Selection
+              </h4>
+            </a>
+            <div class="card-block">
+              <p class="card-text">
+                This app demonstrates a way to select the media devices to be used for capturing local media.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-12">
+        <div class="card-deck">
+          <div class="card" style="text-decoration: none">
+            <a href="/codecpreferences">
+              <h4 class="card-header">
+                Codec Preferences
+              </h4>
+            </a>
+            <div class="card-block">
+              <p class="card-text">
+                This app demonstrates the <a href="https://www.twilio.com/docs/video/managing-codecs#controlling-codecs-client-side-codec-preferences" target="_blank">Codec Preferences API</a>,
+                which can be used to specify the send-side audio and video codec preferences while connecting to a Room.
+              </p>
+            </div>
+          </div>
+          <div class="card"  style="text-decoration: none">
+            <a href="/screenshare">
+              <h4 class="card-header">
+                Share Your Screen
+              </h4>
+            </a>
+            <div class="card-block">
+              <p class="card-text">
+                This app demonstrates how to <a href="https://www.twilio.com/docs/video/screen-capture-chrome" target="_blank">capture your screen</a>
+                so that you can share it with other Participants in the Room. This example requires that the browser support the
+                <a href="https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getDisplayMedia" target="_blank">getDisplayMedia</a> API.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-12">
+        <div class="card-deck">
+          <div class="card" style="text-decoration: none">
+            <a href="/dominantspeaker">
+              <h4 class="card-header">
+                Dominant Speaker
+              </h4>
+            </a>
+            <div class="card-block">
+              <p class="card-text">
+                This app demonstrates the <a href="https://www.twilio.com/docs/video/detecting-dominant-speaker" target="_blank">Dominant Speaker API</a> for Group or Small Group Rooms.
+                In order to run this example, please go to the <a href="https://www.twilio.com/console/video/configure" target="_blank">Programmable Video Settings</a> in the
+                Twilio Console and select the Room Type as Group or Group-Small.
+              </p>
+            </div>
+          </div>
+          <div class="card" style="text-decoration: none">
+            <a href="/reconnection">
+              <h4 class="card-header">
+                Reconnection States and Events
+              </h4>
+            </a>
+            <div class="card-block">
+              <p class="card-text">
+                This app demonstrates the Room's <a href="https://www.twilio.com/docs/video/reconnection-states-and-events" target="_blank">Reconnection States and Events</a>
+                which can be used to notify the user when Twilio Video SDK is reconnecting
+                to the Room, probably due to network interruptions or handoffs.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-12">
+        <div class="card-deck">
+          <div class="card" style="text-decoration: none">
+            <a href="/networkquality">
+              <h4 class="card-header">
+                Network Quality
+              </h4>
+            </a>
+            <div class="card-block">
+              <p class="card-text">
+                This app demonstrates the <a href="https://www.twilio.com/docs/video/using-network-quality-api" target="_blank">Network Quality API</a> for Group or Small Group Rooms.
+                In order to run this example, please go to the <a href="https://www.twilio.com/console/video/configure" target="_blank">Programmable Video Settings</a> in the
+                Twilio Console and select the Room Type as Group or Group-Small.
+              </p>
+            </div>
+          </div>
+          <div class="card" style="text-decoration: none">
+            <a href="/localmediacontrols">
+              <h4 class="card-header">
+                Enabling and Disabling Tracks
+              </h4>
+            </a>
+            <div class="card-block">
+              <p class="card-text">
+                This app demonstrates how to enable/disable your LocalTracks and handle the events on the remote side.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-12">
+        <div class="card-deck">
+          <div class="card" style="text-decoration: none">
+            <a href="/remotereconnection">
+              <h4 class="card-header">
+                RemoteParticipant Reconnection States and Events
+              </h4>
+            </a>
+            <div class="card-block">
+              <p class="card-text">
+                This app demonstrates the <a href="https://www.twilio.com/docs/video/reconnection-states-and-events#remoteparticipant-reconnection-states-and-events" target="_blank">RemoteParticipant Reconnection States and Events</a> which can be used to update your application when somebody else is reconnecting to the Room.
+              </p>
+            </div>
+          </div>
+          <div class="card" style="text-decoration: none">
+            <a href="/datatracks">
+              <h4 class="card-header">
+                DataTracks
+              </h4>
+            </a>
+            <div class="card-block">
+              <p class="card-text">
+                This app demonstrates the <a href="https://www.twilio.com/docs/video/using-datatrack-api#overview" target="_blank">DataTracks API</a> which can be used to send low latency messages to subscribers. It can also be used to create "whiteboarding" sessions as demonstrated in <a href="https://github.com/twilio/draw-with-twilio/">Draw With Twilio</a>.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-12">
+        <div class="card-deck">
+          <div class="card" style="text-decoration: none">
+            <a href="/manualrenderhint">
+              <h4 class="card-header">
+                Video Track Manual Controls
+              </h4>
+            </a>
+            <div class="card-block">
+              <p class="card-text">
+                This app demonstrates the manual modes of the <a href="https://www.twilio.com/docs/video/tutorials/using-bandwidth-profile-api#understanding-clientTrackSwitchOffControl" target="_blank">clientTrackSwitchOffControl</a> and
+                <a href="https://www.twilio.com/docs/video/tutorials/using-bandwidth-profile-api#understanding-contentPreferencesMode" target="_blank">contentPreferencesMode</a> features.
+                Which can be used to efficiently utilize CPU and bandwidth.
+              </p>
+            </div>
+          </div>
+          <div class="card" style="text-decoration: none">
+            <a href="/autorenderhint">
+              <h4 class="card-header">
+                Video Track Automatic Controls
+              </h4>
+            </a>
+            <div class="card-block">
+              <p class="card-text">
+                This app demonstrates the default (automatic) modes of the <a href="https://www.twilio.com/docs/video/tutorials/using-bandwidth-profile-api#understanding-clientTrackSwitchOffControl" target="_blank">clientTrackSwitchOffControl</a> and
+                <a href="https://www.twilio.com/docs/video/tutorials/using-bandwidth-profile-api#understanding-contentPreferencesMode" target="_blank">contentPreferencesMode</a> features.
+                Which can be used to efficiently utilize CPU and bandwidth.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
