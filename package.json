@@ -64,7 +64,7 @@
     "express": "^4.15.2",
     "prismjs": "^1.6.0",
     "stackblur-canvas": "^1.4.0",
-    "twilio": "^3.80.1",
+    "twilio": "^4.19.3",
     "twilio-video": "^2.23.0"
   },
   "devDependencies": {
