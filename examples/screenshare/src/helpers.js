@@ -11,11 +11,11 @@ const Video = require('twilio-video');
  */
 function createScreenTrack(height, width) {
   if (typeof navigator === 'undefined'
-    || !navigator.mediaDevices
-    || !navigator.mediaDevices.getDisplayMedia) {
+    || !window.CitrixWebRTC
+    || !window.CitrixWebRTC.getDisplayMedia) {
     return Promise.reject(new Error('getDisplayMedia is not supported'));
   }
-  return navigator.mediaDevices.getDisplayMedia({
+  return window.CitrixWebRTC.getDisplayMedia({
     video: {
       height: height,
       width: width

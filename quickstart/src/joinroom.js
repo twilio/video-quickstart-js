@@ -9,6 +9,88 @@ const $activeParticipant = $('div#active-participant > div.participant.main', $r
 const $activeVideo = $('video', $activeParticipant);
 const $participants = $('div#participants', $room);
 
+// TODO(lrivas): Review with Charlie, I am keeping this simple for now.
+class CustomMediaStream extends MediaStream {
+  constructor(stream) {
+    if(!stream) {
+      super()
+      this.citrixMediaStream = window.CitrixWebRTC.createMediaStream();
+      return;
+    }
+
+    const isNativeStream = stream instanceof MediaStream || Array.isArray(stream) && stream.every(t => t instanceof MediaStreamTrack);
+
+    if(isNativeStream) {
+      super(stream);
+      this.citrixMediaStream = window.CitrixWebRTC.createMediaStream();
+    } else {
+      super()
+      this.citrixMediaStream = window.CitrixWebRTC.createMediaStream(stream);
+    }
+  }
+
+  addTrack(track) {
+    if (!track) {
+      throw new Error('Track cannot be null or undefined');
+    }
+
+    if (track instanceof MediaStreamTrack) {
+      super.addTrack(track);
+    } else {
+      this.citrixMediaStream.addTrack(track);
+    }
+  }
+
+  removeTrack(track) {
+    if (!track) {
+      throw new Error('Track cannot be null or undefined');
+    }
+
+    if (track instanceof MediaStreamTrack) {
+      super.removeTrack(track);
+    } else {
+      this.citrixMediaStream.removeTrack(track);
+    }
+  }
+
+  getTracks() {
+    const standardTracks = super.getTracks();
+    const citrixTracks = this.citrixMediaStream.getTracks();
+    return [...standardTracks, ...citrixTracks];
+  }
+
+  getAudioTracks() {
+    return this.getTracks().filter(track => track.kind === 'audio');
+  }
+
+  getVideoTracks() {
+    return this.getTracks().filter(track => track.kind === 'video');
+  }
+
+  stop() {
+    super.getTracks().forEach(track => track.stop());
+    this.citrixMediaStream.getTracks().forEach(track => track.stop());
+  }
+
+  // Use a proper logging utility instead of console.log
+  addEventListener(eventName, listener) {
+    // Consider implementing a proper event handling system
+    const fallback = 'on' + eventName;
+    this[fallback] = listener;
+    
+    // Log warning using proper logging utility
+    console.warn(`Event listener fallback used for ${eventName}`);
+  }
+
+  removeEventListener(eventName, listener) {
+    const fallback = 'on' + eventName;
+    this[fallback] = null;
+    
+    // Log warning using proper logging utility
+    console.warn(`Event listener removal fallback used for ${eventName} and event listener ${listener}`);
+  }
+}
+
 // The current active Participant in the Room.
 let activeParticipant = null;
 
@@ -29,7 +111,8 @@ function setActiveParticipant(participant) {
     // Detach any existing VideoTrack of the active Participant.
     const { track: activeTrack } = Array.from(activeParticipant.videoTracks.values())[0] || {};
     if (activeTrack) {
-      activeTrack.detach($activeVideo.get(0));
+      // activeTrack.detach($activeVideo.get(0));
+      window.CitrixWebRTC.disposeVideoElement($activeVideo.get(0));
       $activeVideo.css('opacity', '0');
     }
   }
@@ -47,7 +130,13 @@ function setActiveParticipant(participant) {
   // Attach the new active Participant's video.
   const { track } = Array.from(participant.videoTracks.values())[0] || {};
   if (track) {
-    track.attach($activeVideo.get(0));
+    const videoElement = $activeVideo.get(0)
+    if(track.mediaStreamTrack) {
+      window.CitrixWebRTC.mapVideoElement(videoElement);
+      videoElement.srcObject = window.CitrixWebRTC.createMediaStream([track.mediaStreamTrack]);
+    } else {
+      track.attach($activeVideo.get(0));
+    }
     $activeVideo.css('opacity', '');
   }
 
@@ -124,12 +213,18 @@ function attachTrack(track, participant) {
   // Attach the Participant's Track to the thumbnail.
   const $media = $(`div#${participant.sid} > ${track.kind}`, $participants);
   $media.css('opacity', '');
-  track.attach($media.get(0));
-
+  // track.attach($media.get(0));
+  if(track.kind === 'video') {
+    const mediaEl = $media.get(0);
+    window.CitrixWebRTC.mapVideoElement(mediaEl);
+    mediaEl.srcObject = window.CitrixWebRTC.createMediaStream([track.mediaStreamTrack]);
+  }
   // If the attached Track is a VideoTrack that is published by the active
   // Participant, then attach it to the main video as well.
   if (track.kind === 'video' && participant === activeParticipant) {
-    track.attach($activeVideo.get(0));
+    const activeVideoEl = $activeVideo.get(0);
+    window.CitrixWebRTC.mapVideoElement(activeVideoEl);
+    activeVideoEl.srcObject = window.CitrixWebRTC.createMediaStream([track.mediaStreamTrack]);
     $activeVideo.css('opacity', '');
   }
 }
@@ -144,14 +239,16 @@ function detachTrack(track, participant) {
   const $media = $(`div#${participant.sid} > ${track.kind}`, $participants);
   const mediaEl = $media.get(0);
   $media.css('opacity', '0');
-  track.detach(mediaEl);
+  // track.detach(mediaEl);
+  window.CitrixWebRTC.disposeVideoElement(mediaEl);
   mediaEl.srcObject = null;
 
   // If the detached Track is a VideoTrack that is published by the active
   // Participant, then detach it from the main video as well.
   if (track.kind === 'video' && participant === activeParticipant) {
     const activeVideoEl = $activeVideo.get(0);
-    track.detach(activeVideoEl);
+    // track.detach(activeVideoEl);
+    window.CitrixWebRTC.disposeVideoElement(activeVideoEl);
     activeVideoEl.srcObject = null;
     $activeVideo.css('opacity', '0');
   }
@@ -226,8 +323,25 @@ async function joinRoom(token, connectOptions) {
   const logger = Logger.getLogger('twilio-video');
   logger.setLevel('debug');
 
+  if(!window.CitrixWebRTC) {
+    throw new Error('CitrixWebRTC SDK is not available yet or is not loaded properly');
+  }
+
   // Join to the Room with the given AccessToken and ConnectOptions.
-  const room = await connect(token, connectOptions);
+  const webRTCRedirections = {
+     // Custom connect options for WebRTC redirection.
+     getUserMedia: (...args) => window.CitrixWebRTC.getUserMedia(...args),
+     enumerateDevices: window.CitrixWebRTC.enumerateDevices,
+     RTCPeerConnection: window.CitrixWebRTC.CitrixPeerConnection.bind(window.CitrixWebRTC),
+     MediaStream: CustomMediaStream,
+     // Connect options required for WebRTC Unified Plan SDP semantics.
+     sdpSemantics: 'unified-plan',
+     enableDtlsSrtp: true,
+  }
+  const room = await connect(token, {
+    ...connectOptions,
+    ...webRTCRedirections
+  });
 
   // Save the LocalVideoTrack.
   let localVideoTrack = Array.from(room.localParticipant.videoTracks.values())[0].track;
@@ -294,7 +408,10 @@ async function joinRoom(token, connectOptions) {
         } else {
           // When the app is foregrounded, your app can now continue to
           // capture video frames. So, publish a new LocalVideoTrack.
-          localVideoTrack = await createLocalVideoTrack(connectOptions.video);
+          localVideoTrack = await createLocalVideoTrack({
+            ...connectOptions.video,
+            ...webRTCRedirections,
+          });
           await room.localParticipant.publishTrack(localVideoTrack);
         }
       };

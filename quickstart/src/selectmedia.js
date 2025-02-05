@@ -15,8 +15,72 @@ const localTracks = {
  * @returns {Promise<void>} Promise that is resolved if successful
  */
 async function applyInputDevice(kind, deviceId, render) {
+  if(!window.CitrixWebRTC) {
+    throw new Error('CitrixWebRTC is not available');
+  }
   // Create a new LocalTrack from the given Device ID.
-  const [track] = await createLocalTracks({ [kind]: { deviceId } });
+  const [track] = await createLocalTracks({
+    [kind]: { deviceId },
+    RTCPeerConnection: CitrixWebRTC.CitrixPeerConnection.bind(window.CitrixWebRTC),
+    getUserMedia: (config) => window.CitrixWebRTC.getUserMedia(config),
+    enumerateDevices: window.CitrixWebRTC.enumerateDevices,
+    MediaStream: class CustomMediaStream extends MediaStream {
+      constructor(stream = null) {
+        // Check the type of `stream` to call the correct constructor
+        if (stream instanceof MediaStream) {
+          super(stream); // Initialize with an existing MediaStream
+        } else if (Array.isArray(stream)) {
+          super(stream); // Initialize with an array of MediaStreamTrack
+        } else if (!stream) {
+          super(); // Initialize an empty MediaStream
+        } else {
+          throw new TypeError("Invalid argument: Must be a MediaStream, an array of MediaStreamTrack, or null.");
+        }
+    
+        this.customTracks = []; // Initialize custom tracks
+      }
+    
+      addTrack(track) {
+        if (track instanceof MediaStreamTrack) {
+          super.addTrack(track);
+        } else if (track && typeof track.kind === 'string') {
+          this.customTracks.push(track);
+        } else {
+          throw new Error('Invalid track format');
+        }
+      }
+    
+      removeTrack(track) {
+        if (track instanceof MediaStreamTrack) {
+          super.removeTrack(track);
+        } else {
+          const index = this.customTracks.indexOf(track);
+          if (index !== -1) {
+            this.customTracks.splice(index, 1);
+          }
+        }
+      }
+    
+      getTracks() {
+        return super.getTracks().concat(this.customTracks);
+      }
+    
+      getAudioTracks() {
+        return super.getAudioTracks()
+          .concat(this.customTracks.filter(track => track.kind === 'audio'));
+      }
+    
+      getVideoTracks() {
+        return super.getVideoTracks()
+          .concat(this.customTracks.filter(track => track.kind === 'video'));
+      }
+    
+      stop() {
+        super.getTracks().forEach(track => track.stop());
+        this.customTracks = [];
+      }
+    }
+  });
 
   // Stop the previous LocalTrack, if present.
   if (localTracks[kind]) {
@@ -34,8 +98,11 @@ async function applyInputDevice(kind, deviceId, render) {
  * @returns {Promise<MediaDeviceInfo[]>} the list of media devices
  */
 async function getInputDevices(kind) {
-  const devices = await navigator.mediaDevices.enumerateDevices();
-  return devices.filter(device => device.kind === `${kind}input`);
+  if(!window.CitrixWebRTC) {
+    throw new Error('CitrixWebRTC is not available');
+  }
+  const devices = await window.CitrixWebRTC.enumerateDevices();
+  return devices.filter((device) => device.kind === `${kind}input`);
 }
 
 /**
@@ -51,7 +118,7 @@ async function selectMedia(kind, $modal, render) {
   const setDevice = () => applyInputDevice(kind, $inputDevices.val(), render);
 
   // Get the list of available media input devices.
-  let devices =  await getInputDevices(kind);
+  let devices = await getInputDevices(kind);
 
   // Apply the default media input device.
   await applyInputDevice(kind, devices[0].deviceId, render);
