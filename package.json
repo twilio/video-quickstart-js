@@ -66,7 +66,7 @@
     "prismjs": "^1.6.0",
     "stackblur-canvas": "^1.4.0",
     "twilio": "^3.80.1",
-    "twilio-video": "^2.29.1-dev.94"
+    "twilio-video": "github:twilio/twilio-video.js#2.30.0-preview.1"
   },
   "devDependencies": {
     "browserify": "^17.0.0",
