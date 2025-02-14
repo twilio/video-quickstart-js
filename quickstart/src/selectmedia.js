@@ -1,7 +1,7 @@
 'use strict';
 
 const { createLocalTracks } = require('twilio-video');
-
+const { CustomMediaStream } = require('./citrix-helpers');
 const localTracks = {
   audio: null,
   video: null
@@ -24,62 +24,7 @@ async function applyInputDevice(kind, deviceId, render) {
     RTCPeerConnection: CitrixWebRTC.CitrixPeerConnection.bind(window.CitrixWebRTC),
     getUserMedia: (config) => window.CitrixWebRTC.getUserMedia(config),
     enumerateDevices: window.CitrixWebRTC.enumerateDevices,
-    MediaStream: class CustomMediaStream extends MediaStream {
-      constructor(stream = null) {
-        // Check the type of `stream` to call the correct constructor
-        if (stream instanceof MediaStream) {
-          super(stream); // Initialize with an existing MediaStream
-        } else if (Array.isArray(stream)) {
-          super(stream); // Initialize with an array of MediaStreamTrack
-        } else if (!stream) {
-          super(); // Initialize an empty MediaStream
-        } else {
-          throw new TypeError("Invalid argument: Must be a MediaStream, an array of MediaStreamTrack, or null.");
-        }
-    
-        this.customTracks = []; // Initialize custom tracks
-      }
-    
-      addTrack(track) {
-        if (track instanceof MediaStreamTrack) {
-          super.addTrack(track);
-        } else if (track && typeof track.kind === 'string') {
-          this.customTracks.push(track);
-        } else {
-          throw new Error('Invalid track format');
-        }
-      }
-    
-      removeTrack(track) {
-        if (track instanceof MediaStreamTrack) {
-          super.removeTrack(track);
-        } else {
-          const index = this.customTracks.indexOf(track);
-          if (index !== -1) {
-            this.customTracks.splice(index, 1);
-          }
-        }
-      }
-    
-      getTracks() {
-        return super.getTracks().concat(this.customTracks);
-      }
-    
-      getAudioTracks() {
-        return super.getAudioTracks()
-          .concat(this.customTracks.filter(track => track.kind === 'audio'));
-      }
-    
-      getVideoTracks() {
-        return super.getVideoTracks()
-          .concat(this.customTracks.filter(track => track.kind === 'video'));
-      }
-    
-      stop() {
-        super.getTracks().forEach(track => track.stop());
-        this.customTracks = [];
-      }
-    }
+    MediaStream: CustomMediaStream
   });
 
   // Stop the previous LocalTrack, if present.

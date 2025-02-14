@@ -2,10 +2,11 @@
 
 const { isMobile } = require('./browser');
 const joinRoom = require('./joinroom');
-const micLevel = require('./miclevel');
 const selectMedia = require('./selectmedia');
 const selectRoom = require('./selectroom');
 const showError = require('./showerror');
+const { adjustClientAreaOffset, attachTrackToElement } = require('./citrix-helpers');
+const { installCitrixWebRTCPolyfills } = require('./citrix-polyfills');
 
 const $modals = $('#modals');
 const $selectMicModal = $('#select-mic', $modals);
@@ -34,12 +35,6 @@ const connectOptions = {
 
   // Comment this line if you are playing music.
   maxAudioBitrate: 16000,
-
-  // VP8 simulcast enables the media server in a Small Group or Group Room
-  // to adapt your encoded video quality for each RemoteParticipant based on
-  // their individual bandwidth constraints. This has no utility if you are
-  // using Peer-to-Peer Rooms, so you can comment this line.
-  preferredVideoCodecs: [{ codec: 'VP8', simulcast: true }],
 
   // Capture 720p video @ 24 fps.
   video: { height: 720, frameRate: 24, width: 1280 }
@@ -113,8 +108,7 @@ async function selectCamera() {
       deviceIds.video = await selectMedia('video', $selectCameraModal, videoTrack => {
         const $video = $('video', $selectCameraModal);
         const videoElement = $video.get(0);
-        window.CitrixWebRTC.mapVideoElement(videoElement);
-        videoElement.srcObject = window.CitrixWebRTC.createMediaStream([videoTrack.mediaStreamTrack]);
+        attachTrackToElement(videoTrack, videoElement);
       });
     } catch (error) {
       showError($showErrorModal, error);
@@ -130,11 +124,7 @@ async function selectCamera() {
 async function selectMicrophone() {
   if (deviceIds.audio === null) {
     try {
-      deviceIds.audio = await selectMedia('audio', $selectMicModal, audioTrack => {
-        const $levelIndicator = $('svg rect', $selectMicModal);
-        const maxLevel = Number($levelIndicator.attr('height'));
-        micLevel(audioTrack, maxLevel, level => $levelIndicator.attr('y', maxLevel - level));
-      });
+      deviceIds.audio = await selectMedia('audio', $selectMicModal);
     } catch (error) {
       showError($showErrorModal, error);
       return;
@@ -143,9 +133,12 @@ async function selectMicrophone() {
   return selectCamera();
 }
 
-// If the current browser is not supported by twilio-video.js, show an error
-// message. Otherwise, start the application.
-window.addEventListener('CitrixLoaded', selectMicrophone);
+// Ensure that Citrix WebRTC Redirection is fully initialized before starting the application.
+window.addEventListener('CitrixLoaded', async () => {
+  installCitrixWebRTCPolyfills();
+  await adjustClientAreaOffset();
+  selectMicrophone()
+});
 
 // Citrix initialization
 async function initalizeCitrix() {
