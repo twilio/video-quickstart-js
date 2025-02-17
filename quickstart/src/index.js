@@ -43,9 +43,9 @@ const connectOptions = {
 // For mobile browsers, limit the maximum incoming video bitrate to 2.5 Mbps.
 if (isMobile) {
   connectOptions
-      .bandwidthProfile
-      .video
-      .maxSubscriptionBitrate = 2500000;
+    .bandwidthProfile
+    .video
+    .maxSubscriptionBitrate = 2500000;
 }
 
 // On mobile browsers, there is the possibility of not getting any media even
@@ -88,7 +88,7 @@ async function selectAndJoinRoom(error = null) {
 
     // Add the specified video device ID to ConnectOptions.
     connectOptions.video.deviceId = { exact: deviceIds.video };
-    
+
     // Join the Room.
     await joinRoom(token, connectOptions);
 

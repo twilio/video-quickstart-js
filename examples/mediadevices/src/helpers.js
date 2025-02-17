@@ -51,13 +51,13 @@ function applyInputDeviceSelection(deviceId, localTrack, kind) {
  * @returns {Promise<void>}
  */
 function ensureMediaPermissions() {
-  return window.CitrixWebRTC.enumerateDevices().then(function(devices) {
+  return navigator.enumerateDevices().then(function(devices) {
     return devices.every(function(device) {
       return !(device.deviceId && device.label);
     });
   }).then(function(shouldAskForMediaPermissions) {
     if (shouldAskForMediaPermissions) {
-      return window.CitrixWebRTC.getUserMedia({ audio: true, video: true }).then(function(mediaStream) {
+      return navigator.getUserMedia({ audio: true, video: true }).then(function(mediaStream) {
         mediaStream.getTracks().forEach(function(track) {
           track.stop();
         });
@@ -78,7 +78,7 @@ function getDeviceSelectionOptions() {
   // before calling enumerateDevices, get media permissions (.getUserMedia)
   // w/o media permissions, browsers do not return device Ids and/or labels.
   return ensureMediaPermissions().then(function() {
-    return window.CitrixWebRTC.enumerateDevices().then(function(deviceInfos) {
+    return navigator.enumerateDevices().then(function(deviceInfos) {
       var kinds = ['audioinput', 'audiooutput', 'videoinput'];
       return kinds.reduce(function(deviceSelectionOptions, kind) {
         deviceSelectionOptions[kind] = getDevicesOfKind(deviceInfos, kind);
