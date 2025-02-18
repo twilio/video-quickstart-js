@@ -124,7 +124,7 @@ async function selectCamera() {
 async function selectMicrophone() {
   if (deviceIds.audio === null) {
     try {
-      deviceIds.audio = await selectMedia('audio', $selectMicModal);
+      deviceIds.audio = await selectMedia('audio', $selectMicModal, () => {});
     } catch (error) {
       showError($showErrorModal, error);
       return;

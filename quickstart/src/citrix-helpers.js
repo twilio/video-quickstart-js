@@ -51,7 +51,6 @@ async function adjustClientAreaOffset() {
  * @param {HTMLElement} element - The DOM element to attach the track to
  */
 function attachTrackToElement(track, element) {
-  console.log('WAttaching track to element:', track, element);
   if (track.kind === 'video') {
     window.CitrixWebRTC.mapVideoElement(element);
   } else {
