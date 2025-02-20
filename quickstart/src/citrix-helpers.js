@@ -69,7 +69,6 @@ function detachTrackFromElement(element) {
   } else {
     window.CitrixWebRTC.disposeAudioElement(element);
   }
-  element.srcObject = null;
 }
 
 
