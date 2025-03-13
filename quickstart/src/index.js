@@ -1,13 +1,12 @@
 'use strict';
 
-const { isSupported } = require('twilio-video');
-
 const { isMobile } = require('./browser');
 const joinRoom = require('./joinroom');
-const micLevel = require('./miclevel');
 const selectMedia = require('./selectmedia');
 const selectRoom = require('./selectroom');
 const showError = require('./showerror');
+const { adjustClientAreaOffset } = require('./citrix-helpers');
+const { installCitrixWebRTCPolyfills } = require('./citrix-polyfills');
 
 const $modals = $('#modals');
 const $selectMicModal = $('#select-mic', $modals);
@@ -34,14 +33,14 @@ const connectOptions = {
   // https://www.twilio.com/console/video/configure
   dominantSpeaker: true,
 
-  // Comment this line if you are playing music.
-  maxAudioBitrate: 16000,
-
   // VP8 simulcast enables the media server in a Small Group or Group Room
   // to adapt your encoded video quality for each RemoteParticipant based on
   // their individual bandwidth constraints. This has no utility if you are
   // using Peer-to-Peer Rooms, so you can comment this line.
   preferredVideoCodecs: [{ codec: 'VP8', simulcast: true }],
+
+  // Comment this line if you are playing music.
+  maxAudioBitrate: 16000,
 
   // Capture 720p video @ 24 fps.
   video: { height: 720, frameRate: 24, width: 1280 }
@@ -114,7 +113,8 @@ async function selectCamera() {
     try {
       deviceIds.video = await selectMedia('video', $selectCameraModal, videoTrack => {
         const $video = $('video', $selectCameraModal);
-        videoTrack.attach($video.get(0))
+        const videoElement = $video.get(0);
+        videoTrack.attach(videoElement);
       });
     } catch (error) {
       showError($showErrorModal, error);
@@ -130,11 +130,7 @@ async function selectCamera() {
 async function selectMicrophone() {
   if (deviceIds.audio === null) {
     try {
-      deviceIds.audio = await selectMedia('audio', $selectMicModal, audioTrack => {
-        const $levelIndicator = $('svg rect', $selectMicModal);
-        const maxLevel = Number($levelIndicator.attr('height'));
-        micLevel(audioTrack, maxLevel, level => $levelIndicator.attr('y', maxLevel - level));
-      });
+      deviceIds.audio = await selectMedia('audio', $selectMicModal, () => {});
     } catch (error) {
       showError($showErrorModal, error);
       return;
@@ -143,8 +139,51 @@ async function selectMicrophone() {
   return selectCamera();
 }
 
-// If the current browser is not supported by twilio-video.js, show an error
-// message. Otherwise, start the application.
-window.addEventListener('load', isSupported ? selectMicrophone : () => {
-  showError($showErrorModal, new Error('This browser is not supported.'));
+// Ensure that Citrix WebRTC Redirection is fully initialized before starting the application.
+window.addEventListener('CitrixLoaded', async () => {
+  installCitrixWebRTCPolyfills();
+  await adjustClientAreaOffset();
+  selectMicrophone()
 });
+
+// Citrix initialization
+async function initalizeCitrix() {
+  function importCitrix() {
+    return Promise.all([require('@citrix/ucsdk/CitrixBootstrap'), require('@citrix/ucsdk/CitrixWebRTC')]);
+  }
+
+  function handleCitrixInitialization(event) {
+    console.log('Received Citrix event:', event);
+    if (event.event === 'vdiClientConnected') {
+      if (!window.CitrixWebRTC.isFeatureOn('webrtc1.0')) {
+        throw new Error('Citrix WebRTC redirection feature is NOT supported!');
+      }
+      console.log('CitrixVDIStrategy initialized');
+      // dispatch CitrixLoaded event to start the application
+      window.dispatchEvent(new Event('CitrixLoaded'));
+    } else if (event.event === 'vdiClientDisconnected') {
+      console.log('vdiClientDisconnected');
+    }
+  }
+
+  try {
+    // Import Citrix libraries
+    await importCitrix();
+
+    if (!window.CitrixBootstrap || !window.CitrixWebRTC) {
+      throw new Error('Citrix libraries not properly initialized on window object');
+    }
+
+    // Add global event listener for Citrix events
+    window.CitrixWebRTC.setVMEventCallback(handleCitrixInitialization);
+
+    // Initialize Citrix
+    window.CitrixBootstrap.initBootstrap('twilio-citrix-partner');
+    window.CitrixWebRTC.initUCSDK('twilio-citrix-partner');
+
+  } catch (err) {
+    console.error('Error initializing Citrix:', err);
+  }
+};
+
+window.addEventListener('load', initalizeCitrix);
