@@ -5,7 +5,7 @@ const joinRoom = require('./joinroom');
 const selectMedia = require('./selectmedia');
 const selectRoom = require('./selectroom');
 const showError = require('./showerror');
-const { adjustClientAreaOffset, attachTrackToElement } = require('./citrix-helpers');
+const { adjustClientAreaOffset } = require('./citrix-helpers');
 const { installCitrixWebRTCPolyfills } = require('./citrix-polyfills');
 
 const $modals = $('#modals');
@@ -114,7 +114,7 @@ async function selectCamera() {
       deviceIds.video = await selectMedia('video', $selectCameraModal, videoTrack => {
         const $video = $('video', $selectCameraModal);
         const videoElement = $video.get(0);
-        attachTrackToElement(videoTrack, videoElement);
+        videoTrack.attach(videoElement);
       });
     } catch (error) {
       showError($showErrorModal, error);

@@ -1,39 +1,44 @@
 /**
- * A wrapper class for CitrixWebRTC MediaStream that implements the standard MediaStream interface
- * @extends MediaStream Extending from MediaStream allows an instance to be set as the srcObject of a media element (e.g. video, audio)
+ * Custom MediaStream implementation for Citrix WebRTC
+ * @property {function} createMediaStream - Create a MediaStream object
+ * @property {function} mapElement - Register an HTML element to receive media stream data
  */
-class CustomMediaStream extends MediaStream {
-  constructor(stream) {
-    if (!window.CitrixWebRTC) {
-      throw new Error('CitrixWebRTC is not available');
+const CustomMediaStream = {
+  /**
+   * Create a MediaStream object using Citrix WebRTC
+   * @param {Array<MediaStreamTrack>} stremtracks - An array of MediaStreamTracks to include in the MediaStream
+   * @returns {MediaStream} The created Citrix MediaStream object
+   */
+  createMediaStream: function (streamTracks = []) {
+    return window.CitrixWebRTC.createMediaStream(streamTracks);
+  },
+  /**
+   * Attach a media track to a DOM element using Citrix WebRTC
+   * @param {Object} track - The media track to attach
+   * @param {HTMLElement} element - The DOM element to attach the track to
+   */
+  mapElement: function (el) {
+    const tagName = el.tagName.toLowerCase();
+    if (tagName === 'video') {
+      window.CitrixWebRTC.mapVideoElement(el);
+    } else if (tagName === 'audio') {
+      window.CitrixWebRTC.mapAudioElement(el);
     }
-    super();
-    this.citrixMediaStream = window.CitrixWebRTC.createMediaStream(stream);
-  }
-
-  // instance properties
-  get id() { return this.citrixMediaStream.id; }
-  get active() { return this.citrixMediaStream.active; }
-
-  // instance methods
-  addTrack(track) { this.citrixMediaStream.addTrack(track); }
-  clone() { return new CustomMediaStream(this.citrixMediaStream.getTracks()); }
-  getAudioTracks() { return this.citrixMediaStream.getAudioTracks(); }
-  getTrackById(id) { return this.citrixMediaStream.getTrackById(id); }
-  getTracks() { return this.citrixMediaStream.getTracks(); }
-  getVideoTracks() { return this.citrixMediaStream.getVideoTracks(); }
-  removeTrack(track) { this.citrixMediaStream.removeTrack(track); }
-
-  // event listeners
-  set onaddtrack(listener) { this.citrixMediaStream.onaddtrack = listener; }
-  set onremovetrack(listener) { this.citrixMediaStream.onremovetrack = listener; }
-  addEventListener(event, listener) {
-    this.citrixMediaStream[`on${event}`] = listener;
-  }
-  removeEventListener(event) {
-    this.citrixMediaStream[`on${event}`] = null;
-  }
-}
+  },
+  /**
+   * Detach a media track from a DOM element using Citrix WebRTC
+   * @param {HTMLElement} element - The DOM element to detach the track from
+   */
+  disposeElement: function (el) {
+    const tagName = el.tagName.toLowerCase();
+    if (tagName === 'video') {
+      window.CitrixWebRTC.disposeVideoElement(el);
+    } else if (tagName === 'audio') {
+      window.CitrixWebRTC.disposeAudioElement(el);
+    }
+  },
+  audioLoadingTimeout: 250
+};
 
 /**
  * Adjust the client area offset to account for the Citrix WebRTC redirection
@@ -45,34 +50,6 @@ async function adjustClientAreaOffset() {
   window.CitrixWebRTC.setClientAreaOffset(0, offset, windowHandle);
 }
 
-/**
- * Attach a media track to a DOM element using Citrix WebRTC
- * @param {Object} track - The media track to attach
- * @param {HTMLElement} element - The DOM element to attach the track to
- */
-function attachTrackToElement(track, element) {
-  if (track.kind === 'video') {
-    window.CitrixWebRTC.mapVideoElement(element);
-  } else {
-    window.CitrixWebRTC.mapAudioElement(element); 
-  }
-  element.srcObject = window.CitrixWebRTC.createMediaStream([track.mediaStreamTrack]);
-}
-
-/**
- * Detach a media track from a DOM element using Citrix WebRTC
- * @param {HTMLElement} element - The DOM element to detach the track from
- */
-function detachTrackFromElement(element) {
-  if (element.tagName.toLowerCase() === 'video') {
-    window.CitrixWebRTC.disposeVideoElement(element);
-  } else {
-    window.CitrixWebRTC.disposeAudioElement(element);
-  }
-}
-
 
 module.exports.adjustClientAreaOffset = adjustClientAreaOffset;
-module.exports.attachTrackToElement = attachTrackToElement;
-module.exports.detachTrackFromElement = detachTrackFromElement;
 module.exports.CustomMediaStream = CustomMediaStream;

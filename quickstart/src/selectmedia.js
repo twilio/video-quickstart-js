@@ -21,9 +21,8 @@ async function applyInputDevice(kind, deviceId, render) {
   // Create a new LocalTrack from the given Device ID.
   const [track] = await createLocalTracks({
     [kind]: { deviceId },
-    RTCPeerConnection: CitrixWebRTC.CitrixPeerConnection.bind(window.CitrixWebRTC),
-    getUserMedia: (config) => window.CitrixWebRTC.getUserMedia(config),
-    enumerateDevices: window.CitrixWebRTC.enumerateDevices,
+    getUserMedia: (config) => CitrixWebRTC.getUserMedia(config),
+    enumerateDevices: CitrixWebRTC.enumerateDevices.bind(CitrixWebRTC),
     MediaStream: CustomMediaStream
   });
 

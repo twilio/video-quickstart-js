@@ -2,7 +2,7 @@
 
 const { connect, createLocalVideoTrack, Logger } = require('twilio-video');
 const { isMobile } = require('./browser');
-const { attachTrackToElement, detachTrackFromElement, CustomMediaStream } = require('./citrix-helpers');
+const { CustomMediaStream } = require('./citrix-helpers');
 
 const $leave = $('#leave-room');
 const $playback = $('#playback');
@@ -32,8 +32,8 @@ function setActiveParticipant(participant) {
     const { track: activeTrack } = Array.from(activeParticipant.videoTracks.values())[0] || {};
 
     if (activeTrack) {
-      detachTrackFromElement($activeVideo.get(0));
-      $activeVideo.css('opacity', '0');
+      activeTrack.detach($activeVideo.get(0));
+      $activeVideo?.css('opacity', '0');
     }
   }
 
@@ -51,7 +51,7 @@ function setActiveParticipant(participant) {
   const { track } = Array.from(participant.videoTracks.values())[0] || {};
   if (track) {
     const videoElement = $activeVideo.get(0)
-    attachTrackToElement(track, videoElement);
+    track.attach(videoElement);
     $activeVideo.css('opacity', '');
   }
 
@@ -119,23 +119,6 @@ function setVideoPriority(participant, priority) {
   });
 }
 
-function isUserInteractionRequired(audioEl) {
-  if (!audioEl.paused) {
-    return Promise.resolve(false);
-  }
-  if (audioEl.hasAttribute('autoplay')) {
-    return Promise.race([
-      new Promise(resolve => audioEl.onplay = resolve),
-      new Promise(resolve => setTimeout(resolve, 500))
-    ]).then(() => {
-      return audioEl.paused;
-    });
-  }
-  return audioEl.play().catch(error => {
-    return error.name === 'NotAllowedError';
-  });
-}
-
 /**
  * Attach a Track to the DOM.
  * @param track - the Track to attach
@@ -146,24 +129,17 @@ function attachTrack(track, participant) {
   const $media = $(`div#${participant.sid} > ${track.kind}`, $participants);
   $media.css('opacity', '');
   const mediaEl = $media.get(0);
-  attachTrackToElement(track, mediaEl);
+  track.attach(mediaEl);
 
   if(track.kind === 'audio' && !mediaEl.muted) {
-    isUserInteractionRequired(mediaEl).then(isRequired => {
-      if(isRequired) {
-        $playback.click(function playback() {
-          mediaEl.play();
-        });
-        $playback.css('opacity', '');
-      }
-    });
+    mediaEl.play();
   }
 
   // If the attached Track is a VideoTrack that is published by the active
   // Participant, then attach it to the main video as well.
   if (track.kind === 'video' && participant === activeParticipant) {
     const activeVideoEl = $activeVideo.get(0);
-    attachTrackToElement(track, activeVideoEl);
+    track.attach(activeVideoEl);
     $activeVideo.css('opacity', '');
   }
 }
@@ -178,13 +154,15 @@ function detachTrack(track, participant) {
   const $media = $(`div#${participant.sid} > ${track.kind}`, $participants);
   const mediaEl = $media.get(0);
   $media.css('opacity', '0');
-  detachTrackFromElement(mediaEl);
+  track.detach(mediaEl);
+  mediaEl?.srcObject = null;
 
   // If the detached Track is a VideoTrack that is published by the active
   // Participant, then detach it from the main video as well.
   if (track.kind === 'video' && participant === activeParticipant) {
     const activeVideoEl = $activeVideo.get(0);
-    detachTrackFromElement(activeVideoEl);
+    track.detach(activeVideoEl);
+    activeVideoEl?.srcObject = null;
     $activeVideo.css('opacity', '0');
   }
 }
@@ -265,9 +243,9 @@ async function joinRoom(token, connectOptions) {
   // Join to the Room with the given AccessToken and ConnectOptions.
   const webRTCRedirections = {
      // Custom connect options for WebRTC redirection.
-     getUserMedia: (...args) => window.CitrixWebRTC.getUserMedia(...args),
-     enumerateDevices: window.CitrixWebRTC.enumerateDevices,
-     RTCPeerConnection: window.CitrixWebRTC.CitrixPeerConnection.bind(window.CitrixWebRTC),
+     getUserMedia: (...args) => CitrixWebRTC.getUserMedia(...args),
+     enumerateDevices: CitrixWebRTC.enumerateDevices.bind(CitrixWebRTC),
+     RTCPeerConnection: CitrixWebRTC.CitrixPeerConnection.bind(CitrixWebRTC),
      MediaStream: CustomMediaStream,
      // Connect options required for WebRTC Unified Plan SDP semantics.
      sdpSemantics: 'unified-plan',
@@ -312,6 +290,12 @@ async function joinRoom(token, connectOptions) {
       setCurrentActiveParticipant(room);
     }
   });
+
+
+  room.on('trackStarted', t => {
+    console.log('%c Remote track started', 'color: green; font-size: 1.5em; font-weight: bold;', t.sid, t.kind)
+  })
+
 
   // Leave the Room when the "Leave Room" button is clicked.
   $leave.click(function onLeave() {
