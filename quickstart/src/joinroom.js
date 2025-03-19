@@ -2,7 +2,9 @@
 
 const { connect, createLocalVideoTrack, Logger } = require('twilio-video');
 const { isMobile } = require('./browser');
+const togglePip = require('./togglepip');
 
+const $togglePip = $('#pip');
 const $leave = $('#leave-room');
 const $room = $('#room');
 const $activeParticipant = $('div#active-participant > div.participant.main', $room);
@@ -15,6 +17,10 @@ let activeParticipant = null;
 // Whether the user has selected the active Participant by clicking on
 // one of the video thumbnails.
 let isActiveParticipantPinned = false;
+
+if (!('documentPictureInPicture' in window)) {
+  $togglePip.hide();
+}
 
 /**
  * Set the active Participant's video.
@@ -264,11 +270,17 @@ async function joinRoom(token, connectOptions) {
     }
   });
 
+  // Setup handler for entering pip
+  const togglePipButtonHandler = () => togglePip('#room');
+  $togglePip.click(togglePipButtonHandler);
+
   // Leave the Room when the "Leave Room" button is clicked.
   $leave.click(function onLeave() {
     $leave.off('click', onLeave);
+    $togglePip.off('click', togglePipButtonHandler);
     room.disconnect();
   });
+
 
   return new Promise((resolve, reject) => {
     // Leave the Room when the "beforeunload" event is fired.

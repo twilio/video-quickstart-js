@@ -45,6 +45,7 @@ jspm_packages
 # Misc
 .DS_Store
 package-lock.json
+nodemon.json
 
 # The generated index.js
 **/public/index.js
