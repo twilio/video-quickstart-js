@@ -4,7 +4,6 @@
  * This polyfill allows for the use of the `addEventListener` and `removeEventListener` methods.
  */
 function polyfillPeerConnectionEventListeners() {
-  // Store event listeners per instance rather than globally
   const instanceListeners = new WeakMap();
 
   window.CitrixWebRTC.CitrixPeerConnection.prototype.addEventListener = function(eventName, listener) {

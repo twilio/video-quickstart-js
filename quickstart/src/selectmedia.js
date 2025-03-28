@@ -1,7 +1,7 @@
 'use strict';
 
 const { createLocalTracks } = require('twilio-video');
-const { CustomMediaStream } = require('./citrix-helpers');
+const { CustomMediaStream, mapMediaElement, disposeMediaElement } = require('./citrix-helpers');
 const localTracks = {
   audio: null,
   video: null
@@ -23,7 +23,9 @@ async function applyInputDevice(kind, deviceId, render) {
     [kind]: { deviceId },
     getUserMedia: (config) => CitrixWebRTC.getUserMedia(config),
     enumerateDevices: CitrixWebRTC.enumerateDevices.bind(CitrixWebRTC),
-    MediaStream: CustomMediaStream
+    MediaStream: CustomMediaStream,
+    mapMediaElement: mapMediaElement,
+    disposeMediaElement: disposeMediaElement,
   });
 
   // Stop the previous LocalTrack, if present.

@@ -2,7 +2,7 @@
 
 const { connect, createLocalVideoTrack, Logger } = require('twilio-video');
 const { isMobile } = require('./browser');
-const { CustomMediaStream } = require('./citrix-helpers');
+const { CustomMediaStream, mapMediaElement, disposeMediaElement } = require('./citrix-helpers');
 
 const $leave = $('#leave-room');
 const $playback = $('#playback');
@@ -132,7 +132,7 @@ function attachTrack(track, participant) {
   track.attach(mediaEl);
 
   if(track.kind === 'audio' && !mediaEl.muted) {
-    mediaEl.play();
+    mediaEl.addEventListener('canplay', mediaEl.play);
   }
 
   // If the attached Track is a VideoTrack that is published by the active
@@ -155,14 +155,12 @@ function detachTrack(track, participant) {
   const mediaEl = $media.get(0);
   $media.css('opacity', '0');
   track.detach(mediaEl);
-  mediaEl?.srcObject = null;
 
   // If the detached Track is a VideoTrack that is published by the active
   // Participant, then detach it from the main video as well.
   if (track.kind === 'video' && participant === activeParticipant) {
     const activeVideoEl = $activeVideo.get(0);
     track.detach(activeVideoEl);
-    activeVideoEl?.srcObject = null;
     $activeVideo.css('opacity', '0');
   }
 }
@@ -247,9 +245,13 @@ async function joinRoom(token, connectOptions) {
      enumerateDevices: CitrixWebRTC.enumerateDevices.bind(CitrixWebRTC),
      RTCPeerConnection: CitrixWebRTC.CitrixPeerConnection.bind(CitrixWebRTC),
      MediaStream: CustomMediaStream,
+     mapMediaElement: mapMediaElement,
+     disposeMediaElement: disposeMediaElement,
      // Connect options required for WebRTC Unified Plan SDP semantics.
-     sdpSemantics: 'unified-plan',
-     enableDtlsSrtp: true,
+     rtcConfiguration: {
+      sdpSemantics: 'unified-plan',
+      enableDtlsSrtp: true,
+     },
   }
   const room = await connect(token, {
     ...connectOptions,
