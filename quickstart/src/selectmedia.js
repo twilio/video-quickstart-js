@@ -1,7 +1,7 @@
 'use strict';
 
 const { createLocalTracks } = require('twilio-video');
-
+const { CustomMediaStream, mapMediaElement, disposeMediaElement } = require('./citrix-helpers');
 const localTracks = {
   audio: null,
   video: null
@@ -15,8 +15,18 @@ const localTracks = {
  * @returns {Promise<void>} Promise that is resolved if successful
  */
 async function applyInputDevice(kind, deviceId, render) {
+  if(!window.CitrixWebRTC) {
+    throw new Error('CitrixWebRTC is not available');
+  }
   // Create a new LocalTrack from the given Device ID.
-  const [track] = await createLocalTracks({ [kind]: { deviceId } });
+  const [track] = await createLocalTracks({
+    [kind]: { deviceId },
+    getUserMedia: (config) => CitrixWebRTC.getUserMedia(config),
+    enumerateDevices: CitrixWebRTC.enumerateDevices.bind(CitrixWebRTC),
+    MediaStream: CustomMediaStream,
+    mapMediaElement: mapMediaElement,
+    disposeMediaElement: disposeMediaElement,
+  });
 
   // Stop the previous LocalTrack, if present.
   if (localTracks[kind]) {
@@ -34,8 +44,11 @@ async function applyInputDevice(kind, deviceId, render) {
  * @returns {Promise<MediaDeviceInfo[]>} the list of media devices
  */
 async function getInputDevices(kind) {
-  const devices = await navigator.mediaDevices.enumerateDevices();
-  return devices.filter(device => device.kind === `${kind}input`);
+  if(!window.CitrixWebRTC) {
+    throw new Error('CitrixWebRTC is not available');
+  }
+  const devices = await window.CitrixWebRTC.enumerateDevices();
+  return devices.filter((device) => device.kind === `${kind}input`);
 }
 
 /**
@@ -51,7 +64,7 @@ async function selectMedia(kind, $modal, render) {
   const setDevice = () => applyInputDevice(kind, $inputDevices.val(), render);
 
   // Get the list of available media input devices.
-  let devices =  await getInputDevices(kind);
+  let devices = await getInputDevices(kind);
 
   // Apply the default media input device.
   await applyInputDevice(kind, devices[0].deviceId, render);

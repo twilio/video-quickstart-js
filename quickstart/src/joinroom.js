@@ -2,8 +2,10 @@
 
 const { connect, createLocalVideoTrack, Logger } = require('twilio-video');
 const { isMobile } = require('./browser');
+const { CustomMediaStream, mapMediaElement, disposeMediaElement } = require('./citrix-helpers');
 
 const $leave = $('#leave-room');
+const $playback = $('#playback');
 const $room = $('#room');
 const $activeParticipant = $('div#active-participant > div.participant.main', $room);
 const $activeVideo = $('video', $activeParticipant);
@@ -28,9 +30,10 @@ function setActiveParticipant(participant) {
 
     // Detach any existing VideoTrack of the active Participant.
     const { track: activeTrack } = Array.from(activeParticipant.videoTracks.values())[0] || {};
+
     if (activeTrack) {
       activeTrack.detach($activeVideo.get(0));
-      $activeVideo.css('opacity', '0');
+      $activeVideo?.css('opacity', '0');
     }
   }
 
@@ -47,7 +50,8 @@ function setActiveParticipant(participant) {
   // Attach the new active Participant's video.
   const { track } = Array.from(participant.videoTracks.values())[0] || {};
   if (track) {
-    track.attach($activeVideo.get(0));
+    const videoElement = $activeVideo.get(0)
+    track.attach(videoElement);
     $activeVideo.css('opacity', '');
   }
 
@@ -124,12 +128,18 @@ function attachTrack(track, participant) {
   // Attach the Participant's Track to the thumbnail.
   const $media = $(`div#${participant.sid} > ${track.kind}`, $participants);
   $media.css('opacity', '');
-  track.attach($media.get(0));
+  const mediaEl = $media.get(0);
+  track.attach(mediaEl);
+
+  if(track.kind === 'audio' && !mediaEl.muted) {
+    mediaEl.addEventListener('canplay', mediaEl.play);
+  }
 
   // If the attached Track is a VideoTrack that is published by the active
   // Participant, then attach it to the main video as well.
   if (track.kind === 'video' && participant === activeParticipant) {
-    track.attach($activeVideo.get(0));
+    const activeVideoEl = $activeVideo.get(0);
+    track.attach(activeVideoEl);
     $activeVideo.css('opacity', '');
   }
 }
@@ -145,14 +155,12 @@ function detachTrack(track, participant) {
   const mediaEl = $media.get(0);
   $media.css('opacity', '0');
   track.detach(mediaEl);
-  mediaEl.srcObject = null;
 
   // If the detached Track is a VideoTrack that is published by the active
   // Participant, then detach it from the main video as well.
   if (track.kind === 'video' && participant === activeParticipant) {
     const activeVideoEl = $activeVideo.get(0);
     track.detach(activeVideoEl);
-    activeVideoEl.srcObject = null;
     $activeVideo.css('opacity', '0');
   }
 }
@@ -226,8 +234,29 @@ async function joinRoom(token, connectOptions) {
   const logger = Logger.getLogger('twilio-video');
   logger.setLevel('debug');
 
+  if(!window.CitrixWebRTC) {
+    throw new Error('CitrixWebRTC SDK is not available yet or is not loaded properly');
+  }
+
   // Join to the Room with the given AccessToken and ConnectOptions.
-  const room = await connect(token, connectOptions);
+  const webRTCRedirections = {
+     // Custom connect options for WebRTC redirection.
+     getUserMedia: (...args) => CitrixWebRTC.getUserMedia(...args),
+     enumerateDevices: CitrixWebRTC.enumerateDevices.bind(CitrixWebRTC),
+     RTCPeerConnection: CitrixWebRTC.CitrixPeerConnection.bind(CitrixWebRTC),
+     MediaStream: CustomMediaStream,
+     mapMediaElement: mapMediaElement,
+     disposeMediaElement: disposeMediaElement,
+     // Connect options required for WebRTC Unified Plan SDP semantics.
+     rtcConfiguration: {
+      sdpSemantics: 'unified-plan',
+      enableDtlsSrtp: true,
+     },
+  }
+  const room = await connect(token, {
+    ...connectOptions,
+    ...webRTCRedirections
+  });
 
   // Save the LocalVideoTrack.
   let localVideoTrack = Array.from(room.localParticipant.videoTracks.values())[0].track;
@@ -264,6 +293,12 @@ async function joinRoom(token, connectOptions) {
     }
   });
 
+
+  room.on('trackStarted', t => {
+    console.log('%c Remote track started', 'color: green; font-size: 1.5em; font-weight: bold;', t.sid, t.kind)
+  })
+
+
   // Leave the Room when the "Leave Room" button is clicked.
   $leave.click(function onLeave() {
     $leave.off('click', onLeave);
@@ -294,7 +329,10 @@ async function joinRoom(token, connectOptions) {
         } else {
           // When the app is foregrounded, your app can now continue to
           // capture video frames. So, publish a new LocalVideoTrack.
-          localVideoTrack = await createLocalVideoTrack(connectOptions.video);
+          localVideoTrack = await createLocalVideoTrack({
+            ...connectOptions.video,
+            ...webRTCRedirections,
+          });
           await room.localParticipant.publishTrack(localVideoTrack);
         }
       };
