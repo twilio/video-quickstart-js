@@ -4,7 +4,7 @@ var Video = require('twilio-video');
 
 /**
  * Connect to a Room with the Network Quality API enabled.
- * This API is available only in Small Group or Group Rooms.
+ * This API is available only in Group Rooms.
  * @param {string} token - Token for joining the Room
  * @param {number} localVerbosity - Verbosity level of Network Quality reports
  *   for the LocalParticipant [1 - 3]

@@ -4,7 +4,7 @@ var Video = require('twilio-video');
 
 /**
  * Connect to a Room with the Dominant Speaker API enabled.
- * This API is available only in Small Group or Group Rooms.
+ * This API is available only in Group Rooms.
  * @param {string} token - Token for joining the Room
  * @returns {CancelablePromise<Room>}
  */
