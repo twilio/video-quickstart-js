@@ -17,9 +17,6 @@ const $joinRoomModal = $('#join-room', $modals);
 
 // ConnectOptions settings for a video web application.
 const connectOptions = {
-  // Available only in Group Rooms. Please set "Room Type"
-  // to "Group" in your Twilio Console:
-  // https://www.twilio.com/console/video/configure
   bandwidthProfile: {
     video: {
       dominantSpeakerPriority: 'high',
