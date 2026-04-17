@@ -26,9 +26,6 @@ const connectOptions = {
     }
   },
 
-  // Available only in Group Rooms. Please set "Room Type"
-  // to "Group" in your Twilio Console:
-  // https://www.twilio.com/console/video/configure
   dominantSpeaker: true,
 
   // VP8 simulcast enables the media server in a Group Room
