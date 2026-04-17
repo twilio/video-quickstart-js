@@ -17,8 +17,8 @@ const $joinRoomModal = $('#join-room', $modals);
 
 // ConnectOptions settings for a video web application.
 const connectOptions = {
-  // Available only in Small Group or Group Rooms only. Please set "Room Type"
-  // to "Group" or "Small Group" in your Twilio Console:
+  // Available only in Group Rooms. Please set "Room Type"
+  // to "Group" in your Twilio Console:
   // https://www.twilio.com/console/video/configure
   bandwidthProfile: {
     video: {
@@ -29,12 +29,12 @@ const connectOptions = {
     }
   },
 
-  // Available only in Small Group or Group Rooms only. Please set "Room Type"
-  // to "Group" or "Small Group" in your Twilio Console:
+  // Available only in Group Rooms. Please set "Room Type"
+  // to "Group" in your Twilio Console:
   // https://www.twilio.com/console/video/configure
   dominantSpeaker: true,
 
-  // VP8 simulcast enables the media server in a Small Group or Group Room
+  // VP8 simulcast enables the media server in a Group Room
   // to adapt your encoded video quality for each RemoteParticipant based on
   // their individual bandwidth constraints. This has no utility if you are
   // using Peer-to-Peer Rooms, so you can comment this line.
