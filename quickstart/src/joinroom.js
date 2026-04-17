@@ -107,8 +107,7 @@ function setupParticipantContainer(participant, room) {
 }
 
 /**
- * Set the VideoTrack priority for the given RemoteParticipant. This has no
- * effect in Peer-to-Peer Rooms.
+ * Set the VideoTrack priority for the given RemoteParticipant.
  * @param participant - the RemoteParticipant whose VideoTrack priority is to be set
  * @param priority - null | 'low' | 'standard' | 'high'
  */
