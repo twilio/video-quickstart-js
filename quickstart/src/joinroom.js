@@ -269,6 +269,10 @@ async function joinRoom(token, connectOptions) {
     }
   });
 
+  room.on('transcription', (transcriptionEvent) => {
+    console.log(`${transcriptionEvent.participant}: ${transcriptionEvent.transcription}`);
+  });
+
   // Setup handler for entering pip
   const togglePipButtonHandler = () => togglePip('#room');
   $togglePip.click(togglePipButtonHandler);
