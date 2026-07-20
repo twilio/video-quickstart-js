@@ -74,6 +74,27 @@ ngrok http 3000
 You will get a URL of the form `https://a1b2c3d4.ngrok.io` which can be loaded on a browser from a device
 different than the one where your application server is running.
 
+## Using Docker
+
+You need to build a docker image with the dependecies installed.
+
+``` bash
+docker build -t video-quickstart-js .
+```
+
+Once the image is created, you can run the container by running the `docker run` command. Replace the
+variables `$HOST_PORT`, `$PORT`.
+
+``` bash
+ docker run -it --rm \
+ -p $HOST_PORT:$PORT \
+ --env-file .env \
+ video-quickstart-js:latest
+```
+
+Add `-d` as an option for running in daemon mode.
+Add `--restart always` options for restarting the container incase of failure or system restart.
+
 ## Examples
 
 The project contains some use-case examples for the Twilio Video JS SDK. After running the application
