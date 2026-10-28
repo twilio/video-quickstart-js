@@ -8,12 +8,14 @@
  */
 function setupReconnectionUpdates(room, updateRoomState) {
   room.on('disconnected', (room, error) => {
-    if (error.code === 20104) {
-      console.log('Signaling reconnection failed due to expired AccessToken!');
-    } else if (error.code === 53000) {
-      console.log('Signaling reconnection attempts exhausted!');
-    } else if (error.code === 53204) {
-      console.log('Signaling reconnection took too long!');
+    if (error) {
+	    if (error.code === 20104) {
+	      console.log('Signaling reconnection failed due to expired AccessToken!');
+	    } else if (error.code === 53000) {
+	      console.log('Signaling reconnection attempts exhausted!');
+	    } else if (error.code === 53204) {
+	      console.log('Signaling reconnection took too long!');
+	    }
     }
     updateRoomState(room.state);
   });
@@ -24,10 +26,12 @@ function setupReconnectionUpdates(room, updateRoomState) {
   });
 
   room.on('reconnecting', function(error) {
-    if (error.code === 53001) {
-      console.log('Reconnecting your signaling connection!', error.message);
-    } else if (error.code === 53405) {
-      console.log('Reconnecting your media connection!', error.message);
+    if (error) {
+	    if (error.code === 53001) {
+	      console.log('Reconnecting your signaling connection!', error.message);
+	    } else if (error.code === 53405) {
+	      console.log('Reconnecting your media connection!', error.message);
+	    }
     }
     updateRoomState(room.state);
   });

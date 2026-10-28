@@ -20,9 +20,10 @@ function FilterVideoProcessor(width, height, filterCSS) {
  * @param {OffscreenCanvas} inputFrame
  * @returns {OffscreenCanvas}
  */
-FilterVideoProcessor.prototype.processFrame = function processFrame(inputFrame) {
-  this._outputContext.drawImage(inputFrame, 0, 0);
-  return this._outputFrame;
+FilterVideoProcessor.prototype.processFrame = function processFrame(inputFrameBuffer, outputFrameBuffer) {
+  const context = outputFrameBuffer.getContext('2d');
+  context.filter = this._outputContext.filter; 
+  context.drawImage(inputFrameBuffer, 0, 0, inputFrameBuffer.width, inputFrameBuffer.height);
 };
 
 /**

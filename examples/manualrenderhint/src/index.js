@@ -84,6 +84,7 @@ const handleIsSwitchedOff = (isTrackSwitchedOff) => {
       track.on('switchedOn', track => {
         handleIsSwitchedOff(track.isSwitchedOff);
       });
+      remoteVideoTrack = track;
     }
   });
 
